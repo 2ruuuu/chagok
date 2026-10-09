@@ -1,0 +1,356 @@
+/*
+ * 인증 티켓 카드 효과 레이어.
+ * 포인터 위치는 .scene에 CSS 변수로 들어오고(@property 등록 → 값 자체가 transition 됨),
+ * 하위 레이어는 그 값만 읽어서 움직인다. React 리렌더 없음.
+ */
+
+@property --px {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.5;
+}
+
+@property --py {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.5;
+}
+
+@property --rx {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --ry {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --hyp {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --lift {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.scene {
+  --spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --holo-red: var(--color-red-30);
+  --holo-yellow: var(--color-yellow-30);
+  --holo-green: var(--color-green-30);
+  --holo-blue: var(--color-blue-30);
+  --holo-violet: color-mix(
+    in oklch,
+    var(--color-blue-40) 55%,
+    var(--color-red-40)
+  );
+
+  perspective: 1000px;
+  touch-action: none;
+  transition-property: --px, --py, --rx, --ry, --hyp, --lift;
+  transition-duration: 900ms;
+  transition-timing-function: var(--spring);
+}
+
+/* 포인터를 따라갈 때는 짧게 → 손을 떼면 길게 스프링 복귀 */
+.scene[data-active] {
+  --lift: 1.04;
+  transition-duration: 140ms;
+  transition-timing-function: ease-out;
+}
+
+/* 뒷배경으로 번지는 포스터 빛 */
+.ambient {
+  position: absolute;
+  inset: 8%;
+  border-radius: 24px;
+  filter: blur(48px) saturate(1.6);
+  opacity: calc(0.35 + var(--hyp) * 0.25);
+  transform: translate(
+      calc((var(--px) - 0.5) * -24px),
+      calc((var(--py) - 0.5) * -24px + 24px)
+    )
+    scale(calc(var(--lift) * 0.98));
+  pointer-events: none;
+}
+
+/* 진입 시 한 번 흔들어서 '움직일 수 있는 카드'임을 암시 */
+.intro {
+  transform-style: preserve-3d;
+  animation: wobble 1400ms var(--spring) 500ms both;
+}
+
+@keyframes wobble {
+  0% {
+    transform: rotateY(0deg);
+  }
+  30% {
+    transform: rotateY(-10deg) rotateX(4deg);
+  }
+  60% {
+    transform: rotateY(7deg) rotateX(-2deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+
+.tilt {
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx)) rotateY(var(--ry)) scale(var(--lift));
+}
+
+.flipper {
+  transform-style: preserve-3d;
+  transition: transform 800ms var(--spring);
+}
+
+.flipper[data-flipped] {
+  transform: rotateY(180deg);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow:
+    0 30px 60px -20px var(--color-common-100),
+    0 0 0 1px color-mix(in srgb, var(--color-common-0) 10%, transparent);
+}
+
+/* 테두리 안쪽 하이라이트 */
+.face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0
+    color-mix(in srgb, var(--color-common-0) 25%, transparent);
+  pointer-events: none;
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+/* 포스터는 틸트 반대 방향으로 살짝 밀려서 깊이감 */
+.poster {
+  transform: translate(
+      calc((var(--px) - 0.5) * -14px),
+      calc((var(--py) - 0.5) * -14px)
+    )
+    scale(1.08);
+}
+
+/* 글래스 패널은 포스터보다 덜 밀려서 앞에 떠 있는 느낌 */
+.floating {
+  transform: translate(
+    calc((var(--px) - 0.5) * 6px),
+    calc((var(--py) - 0.5) * 6px)
+  );
+}
+
+/* 무지개 홀로그램 + 미세 줄무늬. 가만히 있어도 은은하게, 기울이면 강해짐 */
+.holo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      115deg,
+      var(--holo-red) 0%,
+      var(--holo-yellow) 6%,
+      var(--holo-green) 12%,
+      var(--holo-blue) 18%,
+      var(--holo-violet) 24%,
+      var(--holo-red) 30%
+    ),
+    repeating-linear-gradient(
+      65deg,
+      color-mix(in srgb, var(--color-common-100) 50%, transparent) 0 1px,
+      transparent 1px 4px
+    );
+  background-size:
+    260% 260%,
+    100% 100%;
+  background-position:
+    calc(var(--px) * 100%) calc(var(--py) * 100%),
+    center;
+  background-blend-mode: overlay;
+  mix-blend-mode: color-dodge;
+  filter: brightness(0.55) contrast(1.6) saturate(1.4);
+  opacity: calc(0.18 + var(--hyp) * 0.5);
+  mask-image: radial-gradient(
+    farthest-corner circle at calc(var(--px) * 100%) calc(var(--py) * 100%),
+    black 0%,
+    color-mix(in srgb, black 40%, transparent) 70%
+  );
+}
+
+/* 포인터 위치의 빛 반사 */
+.glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    farthest-corner circle at calc(var(--px) * 100%) calc(var(--py) * 100%),
+    color-mix(in srgb, var(--color-common-0) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-common-0) 12%, transparent) 25%,
+    transparent 60%
+  );
+  mix-blend-mode: overlay;
+  opacity: var(--hyp);
+}
+
+/* 뒷면은 좌우가 뒤집혀 있으므로 x를 반전 */
+.back .glare {
+  background: radial-gradient(
+    farthest-corner circle at calc((1 - var(--px)) * 100%)
+      calc(var(--py) * 100%),
+    color-mix(in srgb, var(--color-common-0) 40%, transparent) 0%,
+    transparent 55%
+  );
+}
+
+/* 글래스 패널 윗변의 빛 반사 */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--color-common-0) 18%, transparent) 0%,
+    transparent 40%
+  );
+  pointer-events: none;
+}
+
+/* 회전하는 홀로그램 테두리 (인증 스탬프) */
+/* position은 사용하는 쪽(absolute 등)에서 지정 */
+.ring {
+  isolation: isolate;
+}
+
+.ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--angle),
+    var(--holo-red),
+    var(--holo-yellow),
+    var(--holo-green),
+    var(--holo-blue),
+    var(--holo-violet),
+    var(--holo-red)
+  );
+  mask:
+    linear-gradient(black 0 0) content-box exclude,
+    linear-gradient(black 0 0);
+  animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* 포인터에 따라 흐르는 홀로그램 글자 */
+.holoText {
+  background: linear-gradient(
+    100deg,
+    var(--holo-red),
+    var(--holo-yellow),
+    var(--holo-green),
+    var(--holo-blue),
+    var(--holo-violet),
+    var(--holo-red)
+  );
+  background-size: 300% 100%;
+  background-position: calc(var(--px) * 100%) 0;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* 티켓 절취선: 양쪽 반원 노치 */
+.perforation {
+  position: absolute;
+  inset-inline: 0;
+  top: var(--notch-y);
+}
+
+.perforation::before {
+  content: "";
+  position: absolute;
+  inset: 0 18px auto;
+  border-top: 1.5px dashed
+    color-mix(in srgb, var(--color-common-0) 25%, transparent);
+}
+
+.notched {
+  mask:
+    radial-gradient(circle 12px at 0 var(--notch-y), transparent 98%, black)
+    left / 51% 100% no-repeat,
+    radial-gradient(circle 12px at 100% var(--notch-y), transparent 98%, black)
+    right / 51% 100% no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene {
+    transition: none;
+  }
+
+  .intro,
+  .ring::before {
+    animation: none;
+  }
+
+  .tilt,
+  .poster,
+  .floating,
+  .ambient {
+    transform: none;
+  }
+
+  /* 뒤집기는 회전 대신 페이드 */
+  .flipper,
+  .flipper[data-flipped],
+  .back {
+    transform: none;
+  }
+
+  .face {
+    transition: opacity 200ms;
+  }
+
+  .back,
+  .flipper[data-flipped] .front {
+    opacity: 0;
+  }
+
+  .flipper[data-flipped] .back {
+    opacity: 1;
+  }
+}
