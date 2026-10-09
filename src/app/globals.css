@@ -1,19 +1,246 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* 폰트  */
+  --font-sans:
+    var(--font-pretendard), "Pretendard", -apple-system, BlinkMacSystemFont,
+    system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* 색상 */
+  --color-*: initial;
+  --color-common-0: #ffffff;
+  --color-common-100: #000000;
+
+  --color-primary-10: #f6ebea;
+  --color-primary-20: #f2e1df;
+  --color-primary-30: #e4c0bd;
+  --color-primary-40: #a8342a;
+  --color-primary-50: #972f26;
+  --color-primary-60: #862a22;
+  --color-primary-70: #7e2720;
+  --color-primary-80: #651f19;
+  --color-primary-90: #4c1713;
+  --color-primary-100: #3b120f;
+
+  --color-secondary-0: #ffffff;
+  --color-secondary-100: #161514;
+
+  --color-neutral-5: #f7f7f7;
+  --color-neutral-10: #dcdcdc;
+  --color-neutral-15: #c4c4c4;
+  --color-neutral-20: #b0b0b0;
+  --color-neutral-30: #999999;
+  --color-neutral-40: #8a8a8a;
+  --color-neutral-50: #767676;
+  --color-neutral-60: #5c5c5c;
+  --color-neutral-70: #505050;
+  --color-neutral-75: #303030;
+  --color-neutral-80: #2a2a2a;
+  --color-neutral-85: #1c1c1c;
+  --color-neutral-90: #171717;
+  --color-neutral-99: #0f0f0f;
+
+  --color-cool-neutral-5: #f7f7f8;
+  --color-cool-neutral-6: #f4f4f5;
+  --color-cool-neutral-7: #eaebec;
+  --color-cool-neutral-8: #e1e2e4;
+  --color-cool-neutral-9: #dbdcdf;
+  --color-cool-neutral-10: #c2c4c8;
+  --color-cool-neutral-20: #aeb0b6;
+  --color-cool-neutral-30: #989ba2;
+  --color-cool-neutral-40: #878a93;
+  --color-cool-neutral-50: #70737c;
+  --color-cool-neutral-60: #5a5c63;
+  --color-cool-neutral-70: #46474c;
+  --color-cool-neutral-75: #37383c;
+  --color-cool-neutral-77: #333438;
+  --color-cool-neutral-78: #2e2f33;
+  --color-cool-neutral-80: #292a2d;
+  --color-cool-neutral-85: #212225;
+  --color-cool-neutral-87: #1b1c1e;
+  --color-cool-neutral-90: #171719;
+  --color-cool-neutral-95: #141415;
+  --color-cool-neutral-99: #0f0f10;
+
+  --color-red-5: #fee7ea;
+  --color-red-10: #fdd0d4;
+  --color-red-15: #fdb8bf;
+  --color-red-20: #fca0a9;
+  --color-red-30: #fa717f;
+  --color-red-40: #f94154;
+  --color-red-50: #f71229;
+  --color-red-60: #c60e21;
+  --color-red-70: #940b19;
+  --color-red-80: #630710;
+  --color-red-90: #4a050c;
+  --color-red-99: #310408;
+
+  --color-yellow-5: #fdf6e5;
+  --color-yellow-10: #fbedcc;
+  --color-yellow-15: #fae5b2;
+  --color-yellow-20: #f8dc99;
+  --color-yellow-30: #f4ca66;
+  --color-yellow-40: #f1b933;
+  --color-yellow-50: #eda700;
+  --color-yellow-60: #be8600;
+  --color-yellow-70: #8e6400;
+  --color-yellow-80: #5f4300;
+  --color-yellow-90: #473200;
+  --color-yellow-99: #2f2100;
+
+  --color-green-5: #e5fdf6;
+  --color-green-10: #ccfaed;
+  --color-green-15: #b2f8e4;
+  --color-green-20: #99f5db;
+  --color-green-30: #66f1ca;
+  --color-green-40: #33ecb8;
+  --color-green-50: #00e7a6;
+  --color-green-60: #00b985;
+  --color-green-70: #008b64;
+  --color-green-80: #005c42;
+  --color-green-90: #004532;
+  --color-green-99: #002e21;
+
+  --color-blue-5: #e8f1fd;
+  --color-blue-10: #d1e3fb;
+  --color-blue-15: #bbd4f9;
+  --color-blue-20: #a4c6f7;
+  --color-blue-30: #76aaf4;
+  --color-blue-40: #498df0;
+  --color-blue-50: #1b71ec;
+  --color-blue-60: #165abd;
+  --color-blue-70: #10448e;
+  --color-blue-80: #0b2d5e;
+  --color-blue-90: #082247;
+  --color-blue-99: #05172f;
+
+  --color-static-white: var(--color-common-0);
+  --color-static-black: var(--color-common-100);
+
+  --color-status-danger: var(--color-red-50);
+  --color-status-warning: var(--color-yellow-50);
+  --color-status-positive: var(--color-green-60);
+  --color-status-info: var(--color-blue-50);
+
+  --color-label-normal: var(--color-cool-neutral-90);
+  --color-label-strong: var(--color-common-100);
+  --color-label-neutral: #292a2dcc;
+  --color-label-alternative: #37383cb8;
+  --color-label-assistive: #37383c3d;
+  --color-label-disable: #37383c29;
+
+  --color-background-normal: var(--color-common-100);
+  --color-background-alternative: var(--color-cool-neutral-5);
+  --color-background-elevated-normal: var(--color-common-0);
+  --color-background-elevated-alternative: var(--color-cool-neutral-5);
+  --color-background-transparent-normal: #ffffff14;
+  --color-background-transparent-alternative: #ffffff3d;
+
+  --color-fill-normal: #70737c14;
+  --color-fill-strong: #70737c29;
+  --color-fill-alternative: #70737c0a;
+
+  --color-line-normal: #70737c3d;
+  --color-line-neutral: #70737c29;
+  --color-line-alternative: #70737c14;
+
+  --color-interaction-inactive: var(--color-cool-neutral-30);
+  --color-interaction-disable: var(--color-cool-neutral-6);
+
+  --color-material-dimmer: #1717197a;
+
+  /* 브랜드 (외부 서비스) */
+  --color-kakao: #fee500;
+
+  /* 타이포 */
+  --text-*: initial;
+  --text-display1: 2rem;
+  --text-display1--line-height: 2.5rem;
+  --text-display1--letter-spacing: -0.01em;
+  --text-display1--font-weight: 700;
+
+  --text-display2: 1.75rem;
+  --text-display2--line-height: 2.25rem;
+  --text-display2--letter-spacing: -0.01em;
+  --text-display2--font-weight: 700;
+
+  --text-heading1: 1.5rem;
+  --text-heading1--line-height: 2rem;
+  --text-heading1--letter-spacing: -0.01em;
+  --text-heading1--font-weight: 700;
+
+  --text-heading2: 1.25rem;
+  --text-heading2--line-height: 1.75rem;
+  --text-heading2--letter-spacing: -0.01em;
+  --text-heading2--font-weight: 700;
+
+  --text-heading3: 1.125rem;
+  --text-heading3--line-height: 1.5rem;
+  --text-heading3--letter-spacing: -0.01em;
+  --text-heading3--font-weight: 600;
+
+  --text-body1: 1rem;
+  --text-body1--line-height: 1.5rem;
+  --text-body1--letter-spacing: -0.01em;
+  --text-body1--font-weight: 400;
+
+  --text-body2: 0.875rem;
+  --text-body2--line-height: 1.25rem;
+  --text-body2--letter-spacing: -0.01em;
+  --text-body2--font-weight: 400;
+
+  --text-body3: 0.8125rem;
+  --text-body3--line-height: 1.125rem;
+  --text-body3--letter-spacing: -0.01em;
+  --text-body3--font-weight: 400;
+
+  --text-label1: 1rem;
+  --text-label1--line-height: 1.5rem;
+  --text-label1--letter-spacing: -0.01em;
+  --text-label1--font-weight: 600;
+
+  --text-label2: 0.875rem;
+  --text-label2--line-height: 1.25rem;
+  --text-label2--letter-spacing: -0.01em;
+  --text-label2--font-weight: 600;
+
+  --text-label3: 0.75rem;
+  --text-label3--line-height: 1rem;
+  --text-label3--letter-spacing: -0.01em;
+  --text-label3--font-weight: 600;
+
+  --text-caption1: 0.75rem;
+  --text-caption1--line-height: 1rem;
+  --text-caption1--letter-spacing: -0.01em;
+  --text-caption1--font-weight: 400;
+
+  --text-caption2: 0.6875rem;
+  --text-caption2--line-height: 0.875rem;
+  --text-caption2--letter-spacing: -0.01em;
+  --text-caption2--font-weight: 400;
+
+  /* 그림자 */
+  --shadow-*: initial;
+  --shadow-xs: 0 1px 2px -1px #1717171a;
+  --shadow-sm: 0 4px 6px -1px #1717170f, 0 2px 4px -2px #1717170f;
+  --shadow-md: 0 10px 15px -3px #17171712, 0 4px 6px -2px #00000012;
+  --shadow-lg: 0 16px 24px -6px #17171714, 0 6px 10px -4px #17171714;
+  --shadow-xl: 0 24px 36px -10px #1717171f, 0 10px 16px -4px #1717171a;
+  --shadow-spread-sm: 0 0 60px 0 #1717171a;
+  --shadow-spread-md: 0 16px 72px 0 #17171729;
+
+  /* 블러 */
+  --blur-chrome: 64px;
+
+  /* 브레이크포인트 (모바일 퍼스트: 기본 375 → md 768 → xl 1440) */
+  --breakpoint-*: initial;
+  --breakpoint-md: 48rem; /* 768px */
+  --breakpoint-xl: 90rem; /* 1440px */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-secondary-100);
+  color: var(--color-static-white);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
