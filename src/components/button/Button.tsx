@@ -9,12 +9,13 @@ const buttonVariants = cva(
       variant: {
         primary:
           "bg-primary-40 text-common-0 hover:bg-primary-50 active:bg-primary-60",
+        disable: "bg-neutral-20 text-common-0 ",
         google:
           "border-line-normal bg-common-0 text-common-100 hover:bg-neutral-5",
         kakao: "bg-kakao text-common-100 hover:bg-kakao/90",
       },
       size: {
-        xl: "h-12 w-full rounded-xl px-5 text-body1 font-semibold [&_svg:not([class*='size-'])]:size-6",
+        xl: "h-12 w-full rounded-lg px-3.75 text-body1 font-semibold [&_svg:not([class*='size-'])]:size-6",
       },
     },
     defaultVariants: {
