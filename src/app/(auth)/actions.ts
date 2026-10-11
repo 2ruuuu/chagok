@@ -102,6 +102,23 @@ export async function setPassword(
   }
 
   const supabase = await createClient();
+
+  // 서버 액션은 어느 경로에서든 호출할 수 있으므로 proxy와 별개로 직접 확인:
+  // 가입을 마친 사용자가 현재 비밀번호 확인 없이 비밀번호를 바꾸는 것을 막음
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const userId = claimsData?.claims.sub;
+  if (!userId) {
+    redirect("/login");
+  }
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("nickname")
+    .eq("id", userId)
+    .maybeSingle();
+  if (profile?.nickname) {
+    return { error: "이미 가입을 마친 계정이에요." };
+  }
+
   const { error } = await supabase.auth.updateUser({
     password: data.password,
   });
@@ -131,11 +148,21 @@ export async function updateNickname(
     redirect("/login");
   }
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("profiles")
     .update({ nickname: data.nickname })
-    .eq("id", userId);
+    .eq("id", userId)
+    .select("id")
+    .maybeSingle();
   if (error) {
+    // unique_violation (profiles_nickname_unique_idx)
+    if (error.code === "23505") {
+      return { error: "이미 사용 중인 닉네임이에요." };
+    }
+    return { error: "닉네임을 저장하지 못했어요." };
+  }
+  // 수정된 행이 없으면 에러 없이 끝나므로 직접 확인 (profiles 행이 없는 경우 등)
+  if (!updated) {
     return { error: "닉네임을 저장하지 못했어요." };
   }
 

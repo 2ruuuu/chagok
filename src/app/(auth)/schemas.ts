@@ -6,6 +6,8 @@ import { z } from "zod";
  */
 
 export const MIN_PASSWORD_LENGTH = 8;
+/** Supabase(bcrypt)가 받는 최대 길이 */
+export const MAX_PASSWORD_LENGTH = 72;
 export const MAX_NICKNAME_LENGTH = 20;
 
 const email = z
@@ -29,9 +31,14 @@ export const verifySignupCodeSchema = z.object({
 /** /signup/password */
 export const setPasswordSchema = z
   .object({
-    password: z.string().min(MIN_PASSWORD_LENGTH, {
-      error: `비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 해요.`,
-    }),
+    password: z
+      .string()
+      .min(MIN_PASSWORD_LENGTH, {
+        error: `비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 해요.`,
+      })
+      .max(MAX_PASSWORD_LENGTH, {
+        error: `비밀번호는 ${MAX_PASSWORD_LENGTH}자 이하로 입력해 주세요.`,
+      }),
     passwordCheck: z.string(),
   })
   .refine((values) => values.password === values.passwordCheck, {
