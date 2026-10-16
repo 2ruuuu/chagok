@@ -4,7 +4,6 @@ const CheckBox = () => {
   return (
     <div className="flex flex-col gap-4">
       <TextInput
-        htmlFor="email"
         id="email"
         type="email"
         placeholder="abc@email.com"

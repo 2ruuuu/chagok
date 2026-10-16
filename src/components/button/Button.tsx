@@ -3,12 +3,12 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-3 whitespace-nowrap border border-transparent transition-colors outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-40 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex shrink-0 items-center justify-center gap-3 whitespace-nowrap border border-transparent transition-colors outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-40 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         primary:
-          "bg-primary-40 text-common-0 hover:bg-primary-50 active:bg-primary-60",
+          "bg-primary-40 text-common-0 hover:bg-primary-50 active:bg-primary-60 cursor-pointer",
         disable: "bg-neutral-20 text-common-0 ",
         google:
           "border-line-normal bg-common-0 text-common-100 hover:bg-neutral-5",
@@ -32,7 +32,7 @@ function Button({
   className,
   variant,
   size,
-  type = "button",
+  type = "submit",
   ...props
 }: ButtonProps) {
   return (
