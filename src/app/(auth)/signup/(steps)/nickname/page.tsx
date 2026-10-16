@@ -1,9 +1,10 @@
+import BottomCta from "@/components/bottom-cta/BottomCta";
 import { Button } from "@/components/button/Button";
 import TextInput from "@/components/text-input/TextInput";
 
 const NickNamePage = () => {
   return (
-    <div className="py-10 flex flex-col gap-20">
+    <div className="flex flex-1 flex-col justify-between pt-10">
       <div className="flex flex-col gap-6">
         <h1 className="text-heading1">
           어떻게 불러드릴까요?
@@ -17,7 +18,9 @@ const NickNamePage = () => {
           labelText="닉네임 입력"
         />
       </div>
-      <Button variant="disable">시작하기</Button>
+      <BottomCta>
+        <Button variant="disable">시작하기</Button>
+      </BottomCta>
     </div>
   );
 };

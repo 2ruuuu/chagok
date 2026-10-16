@@ -1,9 +1,10 @@
+import BottomCta from "@/components/bottom-cta/BottomCta";
 import { Button } from "@/components/button/Button";
 import TextInput from "@/components/text-input/TextInput";
 
 const PasswordPage = () => {
   return (
-    <div className="py-10 flex flex-col gap-20">
+    <div className="flex flex-1 flex-col justify-between pt-10">
       <div className="flex flex-col gap-6">
         <h1 className="text-heading1">
           로그인에 사용할
@@ -23,7 +24,9 @@ const PasswordPage = () => {
           labelText="비밀번호 확인"
         />
       </div>
-      <Button variant="disable">회원가입 완료</Button>
+      <BottomCta>
+        <Button variant="disable">회원가입 완료</Button>
+      </BottomCta>
     </div>
   );
 };

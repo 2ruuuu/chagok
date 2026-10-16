@@ -1,24 +1,30 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-/** 로그인 없이 접근 가능한 경로 (접두어 일치) */
+/** 로그인 없이 접근 가능한 경로 */
 const PUBLIC_PATHS = [
   "/login",
   "/find-id",
   "/find-password",
   "/auth",
   "/api/cron",
-  "/card-demo",
+  "/card-demo", // 임시
+  "/signup/verify", // 임시
 ];
 
-/** 회원가입 중 세션이 생기기 전 단계 (정확히 일치) */
-const PUBLIC_EXACT_PATHS = ["/signup"];
+/** 회원가입 중 세션이 생기기 전 단계 */
+const PUBLIC_EXACT_PATHS = ["/signup", "/signup/verify"];
 
 /**
  * 가입 단계. 가입 미완료(닉네임 없음) 사용자는 여기에만 머물 수 있고,
  * 가입 완료 사용자는 들어올 수 없음. (/signup/complete는 완료 후 화면이라 제외)
  */
-const SIGNUP_STEP_PATHS = ["/signup", "/signup/password", "/signup/nickname"];
+const SIGNUP_STEP_PATHS = [
+  "/signup",
+  "/signup/verify",
+  "/signup/password",
+  "/signup/nickname",
+];
 
 const matchesPrefix = (pathname: string, path: string) =>
   pathname === path || pathname.startsWith(`${path}/`);
