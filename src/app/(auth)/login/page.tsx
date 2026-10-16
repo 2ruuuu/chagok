@@ -6,7 +6,7 @@ const LoginPage = () => {
   return (
     <>
       <Header />
-      <div className="mx-auto flex w-83.75 flex-col">
+      <div className="flex w-full flex-col">
         <OauthLogin />
         <Bottom />
       </div>
