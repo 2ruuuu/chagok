@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import type { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import {
+  type CheckSignupEmailInput,
+  checkSignupEmailSchema,
   type SendSignupCodeInput,
   type SetPasswordInput,
   type SignInInput,
@@ -17,8 +19,9 @@ import {
 } from "./schemas";
 
 /**
- * 액션 결과. 성공 시 대부분 redirect 되므로 화면에 돌아오는 건 실패한 경우의 에러 메시지뿐.
- * (react-hook-form의 handleSubmit 안에서 await 해서 사용)
+ * 액션 결과. 실패하면 error에 화면에 보여줄 메시지, 성공하면 null.
+ * redirect 하는 액션은 성공 시 값을 돌려받지 못할 수 있으므로
+ * 화면에서는 `const result = await action(...); if (result?.error)` 처럼 사용.
  */
 export type AuthActionResult = { error: string | null };
 
@@ -34,10 +37,49 @@ const parse = <T extends z.ZodType>(schema: T, input: unknown) => {
   return { data: result.data as z.output<T>, error: null } as const;
 };
 
-/** 회원가입 1단계: 이메일로 인증번호 전송. 성공 시 { error: null } → 인증번호 입력칸 표시 */
+/** 가입 가능한 이메일인지 확인. 가능하면 null, 아니면 에러 메시지 */
+const checkEmailAvailable = async (
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  email: string,
+) => {
+  const { data: registered, error } = await supabase.rpc(
+    "is_email_registered",
+    { p_email: email },
+  );
+  if (error) {
+    return "잠시 후 다시 시도해 주세요.";
+  }
+  if (registered) {
+    return "이미 가입된 이메일이에요.";
+  }
+  return null;
+};
+
+/**
+ * 회원가입 1단계 /signup [다음]: 이메일 형식·중복만 확인 (메일은 보내지 않음).
+ * 성공 시 { error: null } → 약관 동의 바텀시트 표시
+ */
+export async function checkSignupEmail(
+  input: CheckSignupEmailInput,
+): Promise<AuthActionResult> {
+  const { data, error: parseError } = parse(checkSignupEmailSchema, input);
+  if (!data) {
+    return { error: parseError };
+  }
+
+  const supabase = await createClient();
+  return { error: await checkEmailAvailable(supabase, data.email) };
+}
+
+/**
+ * 회원가입 2단계 약관 시트 [동의하고 인증 번호 받기] / 인증 화면의 재전송:
+ * 필수 약관 동의를 확인한 뒤 인증번호 메일 발송.
+ * 성공 시 { error: null } → 토스트 + /signup/verify 로 이동
+ */
 export async function sendSignupCode(
   input: SendSignupCodeInput,
 ): Promise<AuthActionResult> {
+  // 필수 약관이 true가 아니면 여기서 거부 → 동의 없이 메일이 나가지 않음
   const { data, error: parseError } = parse(sendSignupCodeSchema, input);
   if (!data) {
     return { error: parseError };
@@ -45,15 +87,10 @@ export async function sendSignupCode(
 
   const supabase = await createClient();
 
-  const { data: registered, error: checkError } = await supabase.rpc(
-    "is_email_registered",
-    { p_email: data.email },
-  );
-  if (checkError) {
-    return { error: "잠시 후 다시 시도해 주세요." };
-  }
-  if (registered) {
-    return { error: "이미 가입된 이메일이에요." };
+  // [다음]과 발송 사이에 다른 곳에서 가입이 끝났을 수 있으므로 한 번 더 확인
+  const unavailable = await checkEmailAvailable(supabase, data.email);
+  if (unavailable) {
+    return { error: unavailable };
   }
 
   const { error } = await supabase.auth.signInWithOtp({
@@ -70,7 +107,11 @@ export async function sendSignupCode(
   return { error: null };
 }
 
-/** 회원가입 2단계: 인증번호 확인 → 로그인 → /signup/password */
+/**
+ * 회원가입 3단계 /signup/verify: 인증번호 확인 → 로그인 → 약관 동의 내역 저장.
+ * redirect 하지 않고 { error: null }을 돌려줌 → 화면에서 인증 성공 표시 후
+ * /signup/password 로 이동
+ */
 export async function verifySignupCode(
   input: VerifySignupCodeInput,
 ): Promise<AuthActionResult> {
@@ -89,10 +130,20 @@ export async function verifySignupCode(
     return { error: "인증번호가 올바르지 않거나 만료됐어요." };
   }
 
-  redirect("/signup/password");
+  // 로그인 세션이 생긴 지금 동의 내역 저장. 인증번호는 이미 사용됐으므로
+  // 실패해도 가입 진행은 막지 않고 기록만 남김 (재시도하면 인증번호가 만료 상태)
+  const { error: agreementError } = await supabase.rpc(
+    "record_signup_agreements",
+    { p_marketing: data.marketing },
+  );
+  if (agreementError) {
+    console.error("[verifySignupCode] 약관 동의 저장 실패:", agreementError);
+  }
+
+  return { error: null };
 }
 
-/** 회원가입 3단계: 비밀번호 설정 → /signup/nickname */
+/** 회원가입 4단계: 비밀번호 설정 → /signup/nickname */
 export async function setPassword(
   input: SetPasswordInput,
 ): Promise<AuthActionResult> {
@@ -132,7 +183,7 @@ export async function setPassword(
   redirect("/signup/nickname");
 }
 
-/** 회원가입 4단계(또는 닉네임 변경): 닉네임 저장 → /signup/complete */
+/** 회원가입 5단계(또는 닉네임 변경): 닉네임 저장 → /signup/complete */
 export async function updateNickname(
   input: UpdateNicknameInput,
 ): Promise<AuthActionResult> {
