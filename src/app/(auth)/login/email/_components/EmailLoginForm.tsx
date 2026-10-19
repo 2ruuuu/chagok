@@ -8,7 +8,6 @@ import { signIn } from "@/app/(auth)/actions";
 import { type SignInInput, signInSchema } from "@/app/(auth)/schemas";
 import { Button } from "@/components/button/Button";
 import TextInput from "@/components/text-input/TextInput";
-import AutoLoginCheckbox from "./AutoLoginCheckbox";
 import Bottom from "./Bottom";
 import OauthLogin from "./OauthLogin";
 
@@ -81,7 +80,6 @@ const EmailLoginForm = () => {
               // 서버 에러(이메일·비밀번호 불일치)는 어느 칸이 틀렸는지 알려주지 않도록 비밀번호 아래에 표시
               error={errors.password?.message ?? serverError ?? undefined}
             />
-            <AutoLoginCheckbox />
           </div>
         </div>
         <OauthLogin />
