@@ -13,6 +13,8 @@ type TextInputProps = Omit<ComponentProps<"input">, "size"> & {
   error?: string;
   /** 입력창 안쪽 오른쪽에 표시할 내용 (타이머 등) */
   suffix?: ReactNode;
+  /** 입력창 아래 안내 문구 (입력 규칙 등). 에러가 있으면 에러 메시지로 대체됨 */
+  helperText?: string;
 };
 
 /**
@@ -24,11 +26,14 @@ const TextInput = ({
   size = "sm",
   labelText,
   error,
+  helperText,
   suffix,
   className,
   ...props
 }: TextInputProps) => {
   const errorId = `${id}-error`;
+  const helperId = `${id}-helper`;
+  const describedBy = error ? errorId : helperText ? helperId : undefined;
 
   return (
     <div className="flex flex-col gap-1">
@@ -41,7 +46,7 @@ const TextInput = ({
         <input
           id={id}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
+          aria-describedby={describedBy}
           {...props}
           className={cn(
             "overflow-hidden rounded-lg border bg-[#ffffff]/10 px-4 py-1 text-common-0 text-label2 outline-none placeholder:text-neutral-50",
@@ -59,14 +64,22 @@ const TextInput = ({
           </div>
         )}
       </div>
-      {error && (
-        <p
-          id={errorId}
-          role="alert"
-          className="px-1 text-body3 text-status-danger"
-        >
-          {error}
-        </p>
+      {(error || helperText) && (
+        <div className="py-1">
+          {error ? (
+            <p
+              id={errorId}
+              role="alert"
+              className="px-1 text-label3 text-status-danger"
+            >
+              {error}
+            </p>
+          ) : (
+            <p id={helperId} className="px-1 text-label3 text-neutral-40">
+              {helperText}
+            </p>
+          )}
+        </div>
       )}
     </div>
   );
