@@ -1,3 +1,5 @@
+import { cn } from "@/lib/cn";
+
 type ToastProps = {
   /** 보여줄 메시지. null이면 숨김 */
   message: string | null;
@@ -10,13 +12,14 @@ type ToastProps = {
  */
 const Toast = ({ message, className }: ToastProps) => {
   return (
-    <div role="status" aria-live="polite" className={className}>
+    // <output>은 role="status"(live region)를 기본으로 가짐
+    <output aria-live="polite" className={cn("block", className)}>
       {message && (
         <div className="rounded-md bg-cool-neutral-85 px-4 py-2 text-body2 font-medium text-common-0 shadow-md">
           {message}
         </div>
       )}
-    </div>
+    </output>
   );
 };
 
