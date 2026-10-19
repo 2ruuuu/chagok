@@ -7,6 +7,7 @@ import { z } from "zod";
 
 export const MIN_PASSWORD_LENGTH = 8;
 export const MAX_PASSWORD_LENGTH = 20;
+export const MIN_NICKNAME_LENGTH = 2;
 export const MAX_NICKNAME_LENGTH = 20;
 export const SIGNUP_CODE_LENGTH = 6;
 /** 인증번호 유효시간(초). Supabase 대시보드의 Email OTP Expiration과 같아야 함 */
@@ -81,7 +82,9 @@ export const updateNicknameSchema = z.object({
   nickname: z
     .string()
     .trim()
-    .min(1, { error: "닉네임을 입력해 주세요." })
+    .min(MIN_NICKNAME_LENGTH, {
+      error: `닉네임은 ${MIN_NICKNAME_LENGTH}자 이상 입력해 주세요.`,
+    })
     .max(MAX_NICKNAME_LENGTH, {
       error: `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해 주세요.`,
     })
