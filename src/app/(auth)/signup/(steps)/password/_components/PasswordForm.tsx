@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Eye, EyeOff } from "lucide-react";
+import { Check } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import type { z } from "zod";
@@ -13,6 +14,8 @@ import {
   type SetPasswordInput,
   setPasswordSchema,
 } from "@/app/(auth)/schemas";
+import EyeIcon from "@/assets/icons/eye.svg";
+import EyeOffIcon from "@/assets/icons/eye-off.svg";
 import BottomCta from "@/components/bottom-cta/BottomCta";
 import { Button } from "@/components/button/Button";
 import TextInput from "@/components/text-input/TextInput";
@@ -65,13 +68,10 @@ const VisibilityToggle = ({
     aria-pressed={visible}
     aria-controls={controls}
     // TextInput의 suffix 영역이 pointer-events-none이라 버튼만 클릭 가능하게
-    className="pointer-events-auto flex size-6 cursor-pointer items-center justify-center text-neutral-50 outline-none focus-visible:text-common-0"
+    className="pointer-events-auto flex size-6 cursor-pointer items-center justify-center rounded-xs outline-none focus-visible:outline-2 focus-visible:outline-primary-40"
   >
-    {visible ? (
-      <EyeOff aria-hidden="true" className="size-5" />
-    ) : (
-      <Eye aria-hidden="true" className="size-5" />
-    )}
+    {/* 버튼의 aria-label이 이름 역할을 하므로 이미지는 alt="" */}
+    <Image src={visible ? EyeOffIcon : EyeIcon} alt="" />
   </button>
 );
 
