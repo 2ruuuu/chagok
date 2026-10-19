@@ -9,15 +9,13 @@ const PUBLIC_PATHS = [
   "/auth",
   "/api/cron",
   "/card-demo", // 임시
-  "/signup/verify", // 임시
 ];
 
 /** 회원가입 중 세션이 생기기 전 단계 */
 const PUBLIC_EXACT_PATHS = ["/signup", "/signup/verify"];
 
 /**
- * 가입 단계. 가입 미완료(닉네임 없음) 사용자는 여기에만 머물 수 있고,
- * 가입 완료 사용자는 들어올 수 없음. (/signup/complete는 완료 후 화면이라 제외)
+ * 가입 단계. 가입 완료 사용자는 들어올 수 없음. (/signup/complete는 완료 후 화면이라 제외)
  */
 const SIGNUP_STEP_PATHS = [
   "/signup",
@@ -25,6 +23,14 @@ const SIGNUP_STEP_PATHS = [
   "/signup/password",
   "/signup/nickname",
 ];
+
+/**
+ * 세션이 생긴 뒤(인증 완료 또는 OAuth 로그인)의 가입 단계.
+ * 가입 미완료(닉네임 없음) 사용자는 여기에만 머물 수 있음.
+ * /signup, /signup/verify로 돌아가 다른 이메일로 인증하면 계정이 하나 더 생기고
+ * 기존 계정이 미완료 상태로 남으므로 막음.
+ */
+const SESSION_SIGNUP_STEP_PATHS = ["/signup/password", "/signup/nickname"];
 
 const matchesPrefix = (pathname: string, path: string) =>
   pathname === path || pathname.startsWith(`${path}/`);
@@ -102,7 +108,7 @@ export async function updateSession(request: NextRequest) {
   const isSignupComplete = Boolean(profile?.nickname);
 
   if (!isSignupComplete) {
-    if (SIGNUP_STEP_PATHS.includes(pathname)) {
+    if (SESSION_SIGNUP_STEP_PATHS.includes(pathname)) {
       return response;
     }
     // 이메일 가입자는 비밀번호부터, OAuth 가입자는 비밀번호가 필요 없으므로 닉네임부터
