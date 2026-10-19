@@ -173,10 +173,13 @@ export async function setPassword(
   const { error } = await supabase.auth.updateUser({
     password: data.password,
   });
-  if (error) {
+  // same_password: 닉네임 화면에서 뒤로 와서 이미 저장한 비밀번호를 다시 입력한 경우.
+  // 원하는 비밀번호가 이미 저장된 상태이므로 성공으로 보고 다음 단계로 진행
+  if (error && error.code !== "same_password") {
     if (error.code === "weak_password") {
       return { error: "더 안전한 비밀번호를 사용해 주세요." };
     }
+    console.error("[setPassword] 비밀번호 저장 실패:", error.code, error);
     return { error: "비밀번호를 저장하지 못했어요." };
   }
 
@@ -210,10 +213,12 @@ export async function updateNickname(
     if (error.code === "23505") {
       return { error: "이미 사용 중인 닉네임이에요." };
     }
+    console.error("[updateNickname] 닉네임 저장 실패:", error.code, error);
     return { error: "닉네임을 저장하지 못했어요." };
   }
   // 수정된 행이 없으면 에러 없이 끝나므로 직접 확인 (profiles 행이 없는 경우 등)
   if (!updated) {
+    console.error("[updateNickname] profiles 행 없음:", userId);
     return { error: "닉네임을 저장하지 못했어요." };
   }
 
