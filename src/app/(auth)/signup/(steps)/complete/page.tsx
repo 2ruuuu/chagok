@@ -1,6 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import mockLogo from "@/assets/imgs/mock-logo.png";
-import { Button } from "@/components/button/Button";
+import { buttonVariants } from "@/components/button/Button";
 
 const CompletePage = () => {
   return (
@@ -16,7 +17,9 @@ const CompletePage = () => {
           <h1 className="text-heading1">차곡에 오신 걸 환영해요.</h1>
         </div>
       </div>
-      <Button>시작하기</Button>
+      <Link href="/" replace className={buttonVariants()}>
+        시작하기
+      </Link>
     </div>
   );
 };
