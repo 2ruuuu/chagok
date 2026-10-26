@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./card-effects.css";
 
 @theme {
   /* 폰트  */

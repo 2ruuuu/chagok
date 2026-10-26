@@ -2,9 +2,8 @@
 
 import { BadgeCheck } from "lucide-react";
 import Image, { type StaticImageData } from "next/image";
-import { type CSSProperties, type PointerEvent, useRef, useState } from "react";
+import { type PointerEvent, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
-import styles from "./TicketCard.module.css";
 
 export type Ticket = {
   title: string;
@@ -16,11 +15,23 @@ export type Ticket = {
   watchedAt: string;
   showtime: string;
   seat: string;
+  review: string;
+  releasedAt: string;
+  country: string;
+  genres: string[];
   certificateId: string;
 };
 
 const MAX_TILT_X = 10;
 const MAX_TILT_Y = 14;
+
+// 카드 한 면 공통. 효과 클래스(card-*)는 src/app/card-effects.css
+// 모션 줄이기 설정이면 뒤집기는 회전 대신 페이드
+const FACE_CLASS =
+  "card-face absolute inset-0 block overflow-hidden rounded-[20px] ring-1 ring-common-0/10 backface-hidden motion-reduce:transition-opacity motion-reduce:duration-200";
+
+// 효과 레이어 공통 (카드 위를 덮고 클릭은 통과)
+const LAYER_CLASS = "pointer-events-none absolute inset-0";
 
 // 인증 번호로 고정된 바코드 패턴 생성 (렌더마다 바뀌지 않도록)
 function barcodeBars(seed: string) {
@@ -30,10 +41,29 @@ function barcodeBars(seed: string) {
   });
 }
 
-export function TicketCard({ ticket }: { ticket: Ticket }) {
+type TicketCardProps = {
+  ticket: Ticket;
+  /** 넘기면 바깥에서 앞/뒷면을 제어 (캐러셀 등). 안 넘기면 카드가 스스로 관리 */
+  flipped?: boolean;
+  onFlippedChange?: (flipped: boolean) => void;
+};
+
+export function TicketCard({
+  ticket,
+  flipped: flippedProp,
+  onFlippedChange,
+}: TicketCardProps) {
   const sceneRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef(0);
-  const [flipped, setFlipped] = useState(false);
+  const [innerFlipped, setInnerFlipped] = useState(false);
+  const isControlled = flippedProp !== undefined;
+  const flipped = isControlled ? flippedProp : innerFlipped;
+
+  function toggleFlipped() {
+    const next = !flipped;
+    if (!isControlled) setInnerFlipped(next);
+    onFlippedChange?.(next);
+  }
 
   function setVars(px: number, py: number) {
     const scene = sceneRef.current;
@@ -83,37 +113,28 @@ export function TicketCard({ ticket }: { ticket: Ticket }) {
   return (
     <div
       ref={sceneRef}
-      className={cn(styles.scene, "relative aspect-[5/7] w-75 md:w-90")}
+      className="card-scene relative aspect-[5/7] w-75 touch-pan-x touch-pan-y perspective-[1000px] md:w-90"
       onPointerEnter={handlePointerEnter}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
+      onPointerCancel={handlePointerLeave}
     >
-      <Image
-        src={ticket.poster}
-        alt=""
-        aria-hidden
-        sizes="360px"
-        className={cn(styles.ambient, "size-[84%] object-cover")}
-      />
-
-      <div className={cn(styles.intro, "size-full")}>
+      <div className="size-full transform-3d animate-card-wobble motion-reduce:animate-none">
         <button
           type="button"
           aria-pressed={flipped}
           aria-label={`${ticket.title} 관람 인증 카드, ${flipped ? "앞면" : "뒷면"} 보기`}
-          onClick={() => setFlipped((prev) => !prev)}
-          className={cn(
-            styles.tilt,
-            "block size-full cursor-pointer rounded-[20px] text-left outline-none",
-            "focus-visible:ring-2 focus-visible:ring-primary-40 focus-visible:ring-offset-4 focus-visible:ring-offset-secondary-100",
-          )}
+          onClick={toggleFlipped}
+          className="card-tilt block size-full cursor-pointer rounded-[20px] text-left outline-none transform-3d"
         >
           <span
-            className={cn(styles.flipper, "relative block size-full")}
-            data-flipped={flipped || undefined}
+            className={cn(
+              "relative block size-full transform-3d transition-transform duration-800 ease-spring",
+              flipped && "motion-safe:rotate-y-180",
+            )}
           >
-            <CardFront ticket={ticket} />
-            <CardBack ticket={ticket} />
+            <CardFront ticket={ticket} flipped={flipped} />
+            <CardBack ticket={ticket} flipped={flipped} />
           </span>
         </button>
       </div>
@@ -121,25 +142,44 @@ export function TicketCard({ ticket }: { ticket: Ticket }) {
   );
 }
 
-function CardFront({ ticket }: { ticket: Ticket }) {
+type CardFaceProps = { ticket: Ticket; flipped: boolean };
+
+function CardFront({ ticket, flipped }: CardFaceProps) {
   return (
-    <span className={cn(styles.face, styles.front, "block bg-neutral-99")}>
+    <span
+      className={cn(
+        FACE_CLASS,
+        "bg-neutral-99",
+        flipped && "motion-reduce:opacity-0",
+      )}
+    >
       <Image
         src={ticket.poster}
         alt={`${ticket.title} 포스터`}
         placeholder="blur"
         preload
         sizes="(min-width: 768px) 360px, 300px"
-        className={cn(styles.poster, "size-full object-cover")}
+        className="card-parallax size-full object-cover"
       />
 
-      <span className={styles.holo} />
-      <span className={styles.glare} />
+      {/* 앞면은 포스터 위로 빛줄기가 가만히 있어도 보이도록 더 진하게 */}
+      <span
+        className={cn(
+          LAYER_CLASS,
+          "card-holo [--holo-base:0.4] [--holo-gain:0.45]",
+        )}
+      />
+      <span className={cn(LAYER_CLASS, "card-glare")} />
+      <span
+        className={cn(
+          LAYER_CLASS,
+          "card-sheen animate-card-sheen motion-reduce:animate-none",
+        )}
+      />
 
       <span
         className={cn(
-          styles.ring,
-          "absolute top-3 right-3 flex items-center gap-1 rounded-full py-1 pr-2.5 pl-1.5",
+          "holo-ring absolute top-3 right-3 flex items-center gap-1 rounded-full py-1 pr-2.5 pl-1.5",
           "bg-material-dimmer backdrop-blur-md",
         )}
       >
@@ -148,54 +188,13 @@ function CardFront({ ticket }: { ticket: Ticket }) {
           VERIFIED
         </span>
       </span>
-
-      <span
-        className={cn(styles.floating, "absolute inset-x-3 bottom-3 block")}
-      >
-        <span
-          className={cn(
-            styles.glass,
-            "relative flex flex-col gap-3 rounded-2xl p-4",
-            "border border-background-transparent-alternative bg-background-transparent-normal",
-            "backdrop-blur-xl backdrop-saturate-150",
-          )}
-        >
-          <span className="flex items-center justify-between">
-            <span
-              className={cn(
-                styles.holoText,
-                "text-label3 font-extrabold tracking-widest",
-              )}
-            >
-              {ticket.format}
-            </span>
-            <span className="text-caption2 text-neutral-15">
-              {ticket.watchedAt}
-            </span>
-          </span>
-
-          <span className="flex items-baseline gap-2">
-            <span className="text-heading2 text-static-white">
-              {ticket.title}
-            </span>
-            <span className="text-label3 font-medium tracking-widest text-neutral-20">
-              {ticket.originalTitle}
-            </span>
-          </span>
-
-          <span className="flex items-center gap-1.5 text-caption1 text-neutral-10">
-            <span className="truncate">{ticket.theater}</span>
-            <span className="size-0.5 shrink-0 rounded-full bg-neutral-30" />
-            <span className="shrink-0">{ticket.seat}</span>
-          </span>
-        </span>
-      </span>
     </span>
   );
 }
 
-function CardBack({ ticket }: { ticket: Ticket }) {
+function CardBack({ ticket, flipped }: CardFaceProps) {
   const rows = [
+    ["관람평", ticket.review],
     ["극장", ticket.theater],
     ["상영관", ticket.screen],
     ["일시", `${ticket.watchedAt} ${ticket.showtime}`],
@@ -204,37 +203,33 @@ function CardBack({ ticket }: { ticket: Ticket }) {
 
   return (
     <span
-      className={cn(styles.face, styles.back, styles.notched, "block")}
-      style={{ "--notch-y": "66%" } as CSSProperties}
+      className={cn(
+        FACE_CLASS,
+        "card-notched [--notch-y:66%] motion-safe:rotate-y-180",
+        !flipped && "motion-reduce:opacity-0",
+      )}
     >
-      <Image
-        src={ticket.poster}
-        alt=""
-        aria-hidden
-        sizes="120px"
-        className="absolute inset-0 size-full scale-125 object-cover blur-2xl saturate-150"
-      />
-      <span className="absolute inset-0 bg-material-dimmer" />
-      <span className={styles.holo} />
-      <span className={styles.glare} />
+      <span className={cn(LAYER_CLASS, "card-back-bg")} />
+      <span className={cn(LAYER_CLASS, "card-guilloche")} />
+      <span className={cn(LAYER_CLASS, "card-holo")} />
+      <span className={cn(LAYER_CLASS, "card-glare-back")} />
 
       <span className="relative flex h-full flex-col px-5 pt-6 pb-5">
         <span className="flex items-center justify-between">
-          <span className="text-label3 tracking-widest text-neutral-15">
+          <span
+            className="foil-text text-label3 font-semibold tracking-widest"
+          >
             CHAGOK TICKET
           </span>
           <span
-            className={cn(
-              styles.holoText,
-              "text-label3 font-extrabold tracking-widest",
-            )}
+            className="holo-text text-label3 font-extrabold tracking-widest"
           >
             {ticket.format}
           </span>
         </span>
 
         <span className="mt-4 flex items-baseline gap-2">
-          <span className="text-display2 text-static-white">
+          <span className="foil-text text-display2">
             {ticket.title}
           </span>
           <span className="text-label2 font-medium tracking-widest text-neutral-20">
@@ -253,7 +248,8 @@ function CardBack({ ticket }: { ticket: Ticket }) {
           ))}
         </span>
 
-        <span className={cn(styles.perforation, "block")} />
+        {/* 절취선: 양쪽 노치 높이(--notch-y)에 맞춘 점선 */}
+        <span className="absolute inset-x-0 top-[var(--notch-y)] block before:absolute before:inset-x-4.5 before:top-0 before:border-t-[1.5px] before:border-dashed before:border-common-0/25" />
 
         <span className="mt-auto flex flex-col gap-2">
           <span className="flex h-10 items-stretch gap-0.5" aria-hidden>

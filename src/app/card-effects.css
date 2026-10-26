@@ -1,0 +1,445 @@
+/*
+ * 카드 효과 (티켓 카드 · 카드 묶음)
+ *
+ * Tailwind 클래스로 쓰기 어려운 것(포인터 변수로 움직이는 그라디언트, 마스크, 의사 요소)만 모아
+ * @utility로 등록 → 컴포넌트에서는 일반 Tailwind 클래스처럼 씀 (예: className="card-holo").
+ * 레이아웃·3D·필터처럼 Tailwind로 표현되는 건 컴포넌트에 직접 클래스로 둔다.
+ *
+ * 포인터 위치는 card-scene 요소에 CSS 변수(--px, --py, --rx, --ry, --hyp, --lift)로 들어오고,
+ * @property로 등록돼 있어 값 자체가 transition 된다. 하위 레이어는 그 값만 읽음 (React 리렌더 없음).
+ */
+
+@property --px {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.5;
+}
+
+@property --py {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.5;
+}
+
+@property --rx {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --ry {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --hyp {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --lift {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@theme {
+  /* ease-spring */
+  --ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* animate-card-wobble: 진입 시 한 번 흔들어서 '움직일 수 있는 카드'임을 암시 */
+  --animate-card-wobble: card-wobble 1400ms var(--ease-spring) 500ms both;
+  /* animate-card-sheen: 몇 초마다 카드 위를 한 번 쓸고 지나가는 빛 */
+  --animate-card-sheen: card-sheen 6s ease-in-out 2s infinite both;
+}
+
+@keyframes card-wobble {
+  0% {
+    transform: rotateY(0deg);
+  }
+  30% {
+    transform: rotateY(-10deg) rotateX(4deg);
+  }
+  60% {
+    transform: rotateY(7deg) rotateX(-2deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+
+@keyframes card-sheen {
+  0% {
+    background-position: 100% 0;
+  }
+  25%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+@keyframes holo-ring-spin {
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* 홀로그램 색 (티켓 카드·카드 묶음 공통) */
+@layer base {
+  :root {
+    --holo-red: var(--color-red-30);
+    --holo-yellow: var(--color-yellow-30);
+    --holo-green: var(--color-green-30);
+    --holo-blue: var(--color-blue-30);
+    --holo-violet: color-mix(
+      in oklch,
+      var(--color-blue-40) 55%,
+      var(--color-red-40)
+    );
+  }
+}
+
+/* ───────── 티켓 카드 ───────── */
+
+/* 포인터 변수가 들어오는 바깥 요소. 따라갈 때는 짧게 → 손을 떼면 길게 스프링 복귀 */
+@utility card-scene {
+  transition-property: --px, --py, --rx, --ry, --hyp, --lift;
+  transition-duration: 900ms;
+  transition-timing-function: var(--ease-spring);
+
+  &[data-active] {
+    --lift: 1.04;
+    transition-duration: 140ms;
+    transition-timing-function: ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* 포인터 방향으로 기울어짐 */
+@utility card-tilt {
+  transform: rotateX(var(--rx)) rotateY(var(--ry)) scale(var(--lift));
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+  }
+}
+
+/* 포스터는 틸트 반대 방향으로 살짝 밀려서 깊이감 */
+@utility card-parallax {
+  transform: translate(
+      calc((var(--px) - 0.5) * -8px),
+      calc((var(--py) - 0.5) * -8px)
+    )
+    scale(1.03);
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+  }
+}
+
+/* 카드 한 면: 포일 테두리(::before) + 안쪽 위 하이라이트(::after) */
+@utility card-face {
+  /* 기울일 때마다 각도가 돌며 금속처럼 반짝이는 테두리 */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from calc(var(--px) * 180deg + var(--py) * 90deg),
+      color-mix(in srgb, var(--color-common-0) 80%, transparent),
+      var(--holo-yellow),
+      var(--holo-green),
+      color-mix(in srgb, var(--color-common-0) 15%, transparent),
+      var(--holo-blue),
+      var(--holo-violet),
+      color-mix(in srgb, var(--color-common-0) 80%, transparent)
+    );
+    mask:
+      linear-gradient(black 0 0) content-box exclude,
+      linear-gradient(black 0 0);
+    opacity: calc(0.4 + var(--hyp) * 0.6);
+    pointer-events: none;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0
+      color-mix(in srgb, var(--color-common-0) 25%, transparent);
+    pointer-events: none;
+  }
+}
+
+/*
+ * 무지개 홀로그램 + 미세 줄무늬. 가만히 있어도 은은하게, 기울이면 강해짐.
+ * 세기는 --holo-base(기본) + --hyp × --holo-gain → 앞면은 [--holo-base:0.4] 처럼 덮어씀
+ */
+@utility card-holo {
+  background-image:
+    repeating-linear-gradient(
+      115deg,
+      var(--holo-red) 0%,
+      var(--holo-yellow) 6%,
+      var(--holo-green) 12%,
+      var(--holo-blue) 18%,
+      var(--holo-violet) 24%,
+      var(--holo-red) 30%
+    ),
+    repeating-linear-gradient(
+      65deg,
+      color-mix(in srgb, var(--color-common-100) 50%, transparent) 0 1px,
+      transparent 1px 4px
+    );
+  background-size:
+    260% 260%,
+    100% 100%;
+  background-position:
+    calc(var(--px) * 100%) calc(var(--py) * 100%),
+    center;
+  background-blend-mode: overlay;
+  mix-blend-mode: color-dodge;
+  filter: brightness(0.55) contrast(1.6) saturate(1.4);
+  opacity: calc(var(--holo-base, 0.18) + var(--hyp) * var(--holo-gain, 0.5));
+  mask-image: radial-gradient(
+    farthest-corner circle at calc(var(--px) * 100%) calc(var(--py) * 100%),
+    black 0%,
+    color-mix(in srgb, black 40%, transparent) 70%
+  );
+}
+
+/* 포인터 위치의 빛 반사 */
+@utility card-glare {
+  background: radial-gradient(
+    farthest-corner circle at calc(var(--px) * 100%) calc(var(--py) * 100%),
+    color-mix(in srgb, var(--color-common-0) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-common-0) 12%, transparent) 25%,
+    transparent 60%
+  );
+  mix-blend-mode: overlay;
+  opacity: var(--hyp);
+}
+
+/* 뒷면용 빛 반사: 뒷면은 좌우가 뒤집혀 있으므로 x를 반전 */
+@utility card-glare-back {
+  background: radial-gradient(
+    farthest-corner circle at calc((1 - var(--px)) * 100%)
+      calc(var(--py) * 100%),
+    color-mix(in srgb, var(--color-common-0) 40%, transparent) 0%,
+    transparent 55%
+  );
+  mix-blend-mode: overlay;
+  opacity: var(--hyp);
+}
+
+/* 쓸고 지나가는 빛의 모양 (움직임은 animate-card-sheen) */
+@utility card-sheen {
+  background: linear-gradient(
+    110deg,
+    transparent 40%,
+    color-mix(in srgb, var(--color-common-0) 45%, transparent) 50%,
+    transparent 60%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  mix-blend-mode: overlay;
+}
+
+/* 뒷면 배경: 어두운 바탕 위 대각선 무지개 띠(기울이면 흐름) + 위는 밝고 아래로 깊어지는 그늘 */
+@utility card-back-bg {
+  --base: var(--color-cool-neutral-87);
+
+  background-color: var(--base);
+  background-image: repeating-linear-gradient(
+    115deg,
+    color-mix(in oklch, var(--holo-red) 30%, var(--base)) 0%,
+    color-mix(in oklch, var(--holo-green) 30%, var(--base)) 8%,
+    color-mix(in oklch, var(--holo-blue) 35%, var(--base)) 16%,
+    color-mix(in oklch, var(--holo-violet) 30%, var(--base)) 24%,
+    color-mix(in oklch, var(--holo-red) 30%, var(--base)) 32%
+  );
+  background-size: 200% 200%;
+  background-position: calc(var(--px) * 60%) calc(var(--py) * 60%);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      120% 80% at 50% 0%,
+      transparent 30%,
+      color-mix(in srgb, var(--color-common-100) 45%, transparent)
+    );
+  }
+}
+
+/* 지폐·증권에 쓰이는 길로셰 무늬: 위조 방지 인쇄물 같은 '진짜 증명서' 느낌 */
+@utility card-guilloche {
+  --line: color-mix(in srgb, var(--color-common-0) 9%, transparent);
+
+  background-image:
+    repeating-radial-gradient(
+      circle at 0% 100%,
+      transparent 0 5px,
+      var(--line) 5px 5.6px
+    ),
+    repeating-radial-gradient(
+      circle at 100% 0%,
+      transparent 0 5px,
+      var(--line) 5px 5.6px
+    );
+  mix-blend-mode: overlay;
+  mask-image: linear-gradient(black 40%, transparent 70%);
+}
+
+/* 티켓 절취선 양쪽 반원 노치. 위치는 --notch-y (예: [--notch-y:66%]) */
+@utility card-notched {
+  mask:
+    radial-gradient(circle 12px at 0 var(--notch-y), transparent 98%, black)
+      left / 51% 100% no-repeat,
+    radial-gradient(circle 12px at 100% var(--notch-y), transparent 98%, black)
+      right / 51% 100% no-repeat;
+}
+
+/* 은박 글자: 기울이면 금속 광택이 흐름 */
+@utility foil-text {
+  background: linear-gradient(
+    100deg,
+    var(--color-neutral-30) 0%,
+    var(--color-common-0) 25%,
+    var(--color-neutral-20) 45%,
+    var(--color-common-0) 65%,
+    var(--color-neutral-30) 100%
+  );
+  background-size: 250% 100%;
+  background-position: calc(var(--px, 0.5) * 100%) 0;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 포인터에 따라 흐르는 홀로그램 글자 */
+@utility holo-text {
+  background: linear-gradient(
+    100deg,
+    var(--holo-red),
+    var(--holo-yellow),
+    var(--holo-green),
+    var(--holo-blue),
+    var(--holo-violet),
+    var(--holo-red)
+  );
+  background-size: 300% 100%;
+  background-position: calc(var(--px, 0.5) * 100%) 0;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 회전하는 홀로그램 테두리 (인증 스탬프). position은 사용하는 쪽에서 지정 */
+@utility holo-ring {
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--angle),
+      var(--holo-red),
+      var(--holo-yellow),
+      var(--holo-green),
+      var(--holo-blue),
+      var(--holo-violet),
+      var(--holo-red)
+    );
+    mask:
+      linear-gradient(black 0 0) content-box exclude,
+      linear-gradient(black 0 0);
+    animation: holo-ring-spin 4s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+}
+
+/* ───────── 카드 묶음 (CardStack) ───────── */
+
+/* 위 카드가 아래 카드에 드리우는 그림자 + 테두리 하이라이트 */
+@utility card-stack-item {
+  box-shadow:
+    -0.5rem 0 1rem -0.25rem
+      color-mix(in srgb, var(--color-common-100) 60%, transparent),
+    0 0.5rem 1rem -0.5rem
+      color-mix(in srgb, var(--color-common-100) 50%, transparent);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--color-common-0) 12%, transparent);
+    pointer-events: none;
+  }
+}
+
+/* 포스터 위 무지개 빛줄기 (움직이지 않음) */
+@utility card-holo-static {
+  background-image: repeating-linear-gradient(
+    115deg,
+    var(--holo-red) 0%,
+    var(--holo-yellow) 6%,
+    var(--holo-green) 12%,
+    var(--holo-blue) 18%,
+    var(--holo-violet) 24%,
+    var(--holo-red) 30%
+  );
+  background-size: 260% 260%;
+  background-position: 50% 50%;
+  mix-blend-mode: color-dodge;
+  filter: brightness(0.55) contrast(1.6) saturate(1.4);
+  opacity: 0.4;
+}
+
+/* 고정된 홀로그램 테두리 (카드 묶음의 VERIFIED 배지). 카드 너비(cqw)에 맞춰 두께가 변함 */
+@utility holo-border {
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: max(1px, 0.4cqw);
+    border-radius: inherit;
+    background: linear-gradient(
+      100deg,
+      var(--holo-blue),
+      var(--holo-green),
+      var(--holo-yellow),
+      var(--holo-red),
+      var(--holo-violet)
+    );
+    mask:
+      linear-gradient(black 0 0) content-box exclude,
+      linear-gradient(black 0 0);
+  }
+}
