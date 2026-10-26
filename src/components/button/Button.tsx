@@ -9,7 +9,9 @@ const buttonVariants = cva(
       variant: {
         primary:
           "bg-primary-40 text-common-0 hover:bg-primary-50 active:bg-primary-60 cursor-pointer",
-        disable: "bg-neutral-20 text-common-0 ",
+        disable: "bg-neutral-20 text-common-0",
+        outline:
+          "bg-none text-common-0 cursor-pointer rounded-lg border border-neutral-50 text-label1",
         google:
           "border-line-normal bg-common-0 text-common-100 hover:bg-neutral-5",
         kakao: "bg-kakao text-common-100 hover:bg-kakao/90",
