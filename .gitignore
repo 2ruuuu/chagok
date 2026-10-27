@@ -41,9 +41,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# claude code tooling
-.claude/
-.agents/
-skills-lock.json
-CLAUDE.md
-.mcp.json
+# claude code (개인 설정만 제외)
+.claude/settings.local.json
+.claude/backup/
+CLAUDE.local.md
