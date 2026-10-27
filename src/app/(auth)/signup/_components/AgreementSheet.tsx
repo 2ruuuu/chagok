@@ -1,7 +1,10 @@
 "use client";
 
-import { Check, ChevronRight } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
+import Check from "@/assets/icons/check.svg";
+import CheckActive from "@/assets/icons/check-active.svg";
+import ChevronRight from "@/assets/icons/chevron-right.svg";
 import BottomSheet from "@/components/bottom-sheet/BottomSheet";
 import { Button } from "@/components/button/Button";
 import Toast from "@/components/toast/Toast";
@@ -82,14 +85,12 @@ const CheckRow = ({
         onChange={(event) => onChange(event.target.checked)}
       />
       <span className="flex size-6 shrink-0 items-center justify-center rounded-xs peer-focus-visible:outline-2 peer-focus-visible:outline-primary-40">
-        <Check
-          aria-hidden="true"
-          strokeWidth={size === "lg" ? 3 : 2.5}
-          className={cn(
-            "transition-colors",
-            size === "lg" ? "size-6" : "size-4",
-            checked ? "text-blue-50" : "text-label-assistive",
-          )}
+        {/* svg는 색이 파일에 고정돼 있어서 체크 여부에 따라 파일을 바꿔 씀 */}
+        <Image
+          src={checked ? CheckActive : Check}
+          alt=""
+          aria-hidden
+          className={size === "lg" ? "size-6" : "size-4"}
         />
       </span>
       <span
@@ -188,7 +189,12 @@ const AgreementSheet = ({
                   className="-mr-1 flex size-8 cursor-pointer items-center justify-center rounded-xs text-label-alternative outline-none focus-visible:outline-2 focus-visible:outline-primary-40"
                   onClick={() => setDetail(item.doc)}
                 >
-                  <ChevronRight aria-hidden="true" className="size-5" />
+                  <Image
+                    src={ChevronRight}
+                    alt=""
+                    aria-hidden
+                    className="size-5"
+                  />
                 </button>
               )}
             </li>

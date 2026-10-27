@@ -1,8 +1,9 @@
 "use client";
 
-import { BadgeCheck } from "lucide-react";
 import Image, { type StaticImageData } from "next/image";
 import { type PointerEvent, useRef, useState } from "react";
+import BadgeCheck from "@/assets/icons/badge-check.svg";
+import BadgeCheckGreen from "@/assets/icons/badge-check-green.svg";
 import { cn } from "@/lib/cn";
 
 export type Ticket = {
@@ -183,7 +184,7 @@ function CardFront({ ticket, flipped }: CardFaceProps) {
           "bg-material-dimmer backdrop-blur-md",
         )}
       >
-        <BadgeCheck className="size-4 text-static-white" strokeWidth={2.25} />
+        <Image src={BadgeCheck} alt="" aria-hidden className="size-4" />
         <span className="text-caption2 font-semibold tracking-wider text-static-white">
           VERIFIED
         </span>
@@ -267,7 +268,12 @@ function CardBack({ ticket, flipped }: CardFaceProps) {
               {ticket.certificateId}
             </span>
             <span className="flex items-center gap-1 text-caption2 font-semibold text-status-positive">
-              <BadgeCheck className="size-3.5" strokeWidth={2.25} />
+              <Image
+                src={BadgeCheckGreen}
+                alt=""
+                aria-hidden
+                className="size-3.5"
+              />
               관람 인증
             </span>
           </span>

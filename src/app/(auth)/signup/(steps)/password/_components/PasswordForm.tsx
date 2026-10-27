@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -14,6 +13,8 @@ import {
   type SetPasswordInput,
   setPasswordSchema,
 } from "@/app/(auth)/schemas";
+import CheckIcon from "@/assets/icons/check.svg";
+import CheckActiveIcon from "@/assets/icons/check-active.svg";
 import EyeIcon from "@/assets/icons/eye.svg";
 import EyeOffIcon from "@/assets/icons/eye-off.svg";
 import BottomCta from "@/components/bottom-cta/BottomCta";
@@ -45,7 +46,13 @@ const RuleItem = ({ passed, label }: { passed: boolean; label: string }) => (
       passed ? "text-blue-50" : "text-neutral-40",
     )}
   >
-    <Check aria-hidden="true" strokeWidth={2.5} className="size-4" />
+    {/* svg는 색이 파일에 고정돼 있어서 충족 여부에 따라 파일을 바꿔 씀 */}
+    <Image
+      src={passed ? CheckActiveIcon : CheckIcon}
+      alt=""
+      aria-hidden
+      className="size-4"
+    />
     {label}
     <span className="sr-only">{passed ? "충족" : "미충족"}</span>
   </li>

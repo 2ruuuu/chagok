@@ -1,5 +1,5 @@
-import { BadgeCheck } from "lucide-react";
 import Image, { type StaticImageData } from "next/image";
+import BadgeCheck from "@/assets/icons/badge-check.svg";
 import { cn } from "@/lib/cn";
 
 const MAX_CARDS = 5;
@@ -57,7 +57,12 @@ export function CardStack({ cards, className }: CardStackProps) {
             {/* 아래 카드의 배지는 어차피 가려지므로 맨 위 카드에만 */}
             {isTop && (
               <span className="holo-border absolute top-[4cqw] right-[4cqw] flex items-center gap-[1.5cqw] rounded-full bg-material-dimmer py-[1.8cqw] pr-[3.6cqw] pl-[2.4cqw] text-[length:3.6cqw] leading-none font-semibold tracking-[0.04em] text-static-white backdrop-blur-[8px]">
-                <BadgeCheck className="size-[1.3em]" strokeWidth={2.25} />
+                <Image
+                  src={BadgeCheck}
+                  alt=""
+                  aria-hidden
+                  className="size-[1.3em]"
+                />
                 VERIFIED
               </span>
             )}
