@@ -18,23 +18,32 @@ const providers = {
 
 interface CircleButtonProps {
   provider: keyof typeof providers;
+  onClick?: () => void;
+  disabled?: boolean;
   className?: string;
 }
 
-const CircleButton = ({ provider, className }: CircleButtonProps) => {
+const CircleButton = ({
+  provider,
+  onClick,
+  disabled,
+  className,
+}: CircleButtonProps) => {
   const { icon, label, className: providerClassName } = providers[provider];
 
   return (
     <button
       type="button"
       aria-label={label}
+      onClick={onClick}
+      disabled={disabled}
       className={cn(
-        "inline-flex size-11.5 items-center justify-center rounded-full border border-transparent cursor-pointer",
+        "inline-flex size-11.5 cursor-pointer items-center justify-center rounded-full border border-transparent disabled:cursor-default disabled:opacity-60",
         providerClassName,
         className,
       )}
     >
-      <Image src={icon} alt="" className="size-6" />
+      <Image src={icon} alt="" aria-hidden className="size-6" />
     </button>
   );
 };
