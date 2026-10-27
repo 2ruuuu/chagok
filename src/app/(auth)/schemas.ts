@@ -36,15 +36,18 @@ const email = z
 /** /signup [다음] — 형식·중복만 확인 (메일 발송 X) */
 export const checkSignupEmailSchema = z.object({ email });
 
-/** /signup 약관 시트 [동의하고 인증 번호 받기], /signup/verify 재전송 */
-export const sendSignupCodeSchema = z.object({
-  email,
-  agreements: z.object({
-    terms: z.literal(true, { error: "필수 약관에 동의해 주세요." }),
-    privacy: z.literal(true, { error: "필수 약관에 동의해 주세요." }),
-    marketing: z.boolean(),
-  }),
+/** 약관 동의. 필수 약관이 true가 아니면 서버에서 거부 */
+const agreements = z.object({
+  terms: z.literal(true, { error: "필수 약관에 동의해 주세요." }),
+  privacy: z.literal(true, { error: "필수 약관에 동의해 주세요." }),
+  marketing: z.boolean(),
 });
+
+/** /signup 약관 시트 [동의하고 인증 번호 받기], /signup/verify 재전송 */
+export const sendSignupCodeSchema = z.object({ email, agreements });
+
+/** /signup/nickname 약관 시트 (소셜 가입자 등 약관 기록이 없는 계정) */
+export const agreeToTermsSchema = z.object({ agreements });
 
 /** /signup/verify — 인증번호 확인 */
 export const verifySignupCodeSchema = z.object({
@@ -102,6 +105,7 @@ export const signInSchema = z.object({
 // useForm<...Input>에 넣는 타입 (trim 등 변환 전 값)
 export type CheckSignupEmailInput = z.input<typeof checkSignupEmailSchema>;
 export type SendSignupCodeInput = z.input<typeof sendSignupCodeSchema>;
+export type AgreeToTermsInput = z.input<typeof agreeToTermsSchema>;
 export type VerifySignupCodeInput = z.input<typeof verifySignupCodeSchema>;
 export type SetPasswordInput = z.input<typeof setPasswordSchema>;
 export type UpdateNicknameInput = z.input<typeof updateNicknameSchema>;

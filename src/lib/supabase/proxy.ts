@@ -27,7 +27,7 @@ const SIGNUP_STEP_PATHS = [
 
 /**
  * 세션이 생긴 뒤(인증 완료 또는 OAuth 로그인)의 가입 단계.
- * 가입 미완료(닉네임 없음) 사용자는 여기에만 머물 수 있음.
+ * 가입 미완료(닉네임 또는 약관 동의 없음) 사용자는 여기에만 머물 수 있음.
  * /signup, /signup/verify로 돌아가 다른 이메일로 인증하면 계정이 하나 더 생기고
  * 기존 계정이 미완료 상태로 남으므로 막음.
  */
@@ -44,7 +44,7 @@ const isPublicPath = (pathname: string) =>
  * proxy.ts에서 매 요청마다 호출.
  * 1. Supabase 세션 쿠키 갱신
  * 2. 비로그인 사용자 → /login
- * 3. 로그인했지만 닉네임이 없는(가입 미완료) 사용자 → 남은 가입 단계로
+ * 3. 로그인했지만 가입 미완료(닉네임 또는 약관 동의 없음) 사용자 → 남은 가입 단계로
  * 4. 가입 완료 사용자가 /login, /signup 단계에 오면 → /
  */
 export async function updateSession(request: NextRequest) {
@@ -96,23 +96,29 @@ export async function updateSession(request: NextRequest) {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("nickname")
+    .select("nickname, terms_agreed_at")
     .eq("id", claims.sub)
     .maybeSingle();
   // 조회 실패(일시적 오류)로 가입 완료 사용자를 가입 단계로 보내지 않도록 통과시킴
   if (profileError) {
     return response;
   }
-  const isSignupComplete = Boolean(profile?.nickname);
+  const hasNickname = Boolean(profile?.nickname);
+  // 소셜 가입자는 이메일 가입의 약관 시트를 거치지 않으므로 닉네임만으로는 가입 완료가 아님
+  const hasAgreed = Boolean(profile?.terms_agreed_at);
+  const isSignupComplete = hasNickname && hasAgreed;
 
   if (!isSignupComplete) {
     if (SESSION_SIGNUP_STEP_PATHS.includes(pathname)) {
       return response;
     }
-    // 이메일 가입자는 비밀번호부터, OAuth 가입자는 비밀번호가 필요 없으므로 닉네임부터
+    // 이메일 가입자는 비밀번호부터, OAuth 가입자는 비밀번호가 필요 없으므로 닉네임부터.
+    // 닉네임은 있는데 약관 기록만 없으면(이메일 가입 때 기록 실패 등) 닉네임 화면에서 약관을 받음
     const provider = claims.app_metadata?.provider;
     return redirectTo(
-      provider === "email" ? "/signup/password" : "/signup/nickname",
+      provider === "email" && !hasNickname
+        ? "/signup/password"
+        : "/signup/nickname",
     );
   }
 

@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import type { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import {
+  type AgreeToTermsInput,
+  agreeToTermsSchema,
   type CheckSignupEmailInput,
   checkSignupEmailSchema,
   type SendSignupCodeInput,
@@ -186,6 +188,36 @@ export async function setPassword(
   redirect("/signup/nickname");
 }
 
+/**
+ * 닉네임 화면의 약관 시트 [동의하고 계속하기]: 약관 동의 내역 저장.
+ * 소셜 가입자는 이메일 가입의 약관 시트를 거치지 않으므로 여기서 받음.
+ * redirect 하지 않고 { error: null }을 돌려줌 → 화면에서 시트를 닫고 닉네임 입력 계속
+ */
+export async function agreeToTerms(
+  input: AgreeToTermsInput,
+): Promise<AuthActionResult> {
+  const { data, error: parseError } = parse(agreeToTermsSchema, input);
+  if (!data) {
+    return { error: parseError };
+  }
+
+  const supabase = await createClient();
+  const { data: claimsData } = await supabase.auth.getClaims();
+  if (!claimsData?.claims.sub) {
+    redirect("/login");
+  }
+
+  const { error } = await supabase.rpc("record_signup_agreements", {
+    p_marketing: data.agreements.marketing,
+  });
+  if (error) {
+    console.error("[agreeToTerms] 약관 동의 저장 실패:", error);
+    return { error: "약관 동의를 저장하지 못했어요." };
+  }
+
+  return { error: null };
+}
+
 /** 회원가입 5단계(또는 닉네임 변경): 닉네임 저장 → /signup/complete */
 export async function updateNickname(
   input: UpdateNicknameInput,
@@ -200,6 +232,16 @@ export async function updateNickname(
   const userId = claimsData?.claims.sub;
   if (!userId) {
     redirect("/login");
+  }
+
+  // proxy와 별개로 직접 확인: 약관 동의 기록 없이 가입이 끝나지 않게 함
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("terms_agreed_at")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!profile?.terms_agreed_at) {
+    return { error: "약관에 먼저 동의해 주세요." };
   }
 
   const { data: updated, error } = await supabase

@@ -109,8 +109,10 @@ const CheckRow = ({
 interface AgreementSheetProps {
   open: boolean;
   onClose: () => void;
-  /** [동의하고 인증 번호 받기]. 필수 항목이 모두 체크됐을 때만 호출됨 */
+  /** 하단 버튼. 필수 항목이 모두 체크됐을 때만 호출됨 */
   onSubmit: (agreements: Agreements) => void;
+  /** 하단 버튼 문구. 이메일 가입은 인증번호 발송, 소셜 가입은 계속하기 */
+  submitLabel?: string;
   /** true면 버튼·체크박스 비활성 + 배경 탭/ESC로 닫히지 않음 (요청 중, 발송 완료 후 등) */
   disabled?: boolean;
   /** 시트 위에 띄울 토스트 메시지 (예: "인증 번호를 보냈어요."). null이면 숨김 */
@@ -122,6 +124,7 @@ const AgreementSheet = ({
   open,
   onClose,
   onSubmit,
+  submitLabel = "동의하고 인증 번호 받기",
   disabled = false,
   toastMessage = null,
 }: AgreementSheetProps) => {
@@ -206,7 +209,7 @@ const AgreementSheet = ({
           disabled={!allRequired || disabled}
           onClick={() => onSubmit(agreements)}
         >
-          동의하고 인증 번호 받기
+          {submitLabel}
         </Button>
       </BottomSheet>
 
