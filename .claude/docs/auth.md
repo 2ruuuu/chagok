@@ -20,12 +20,14 @@
 상태별 접근
 
 - 비로그인: PUBLIC_PATHS(prefix), PUBLIC_EXACT_PATHS(/signup, /signup/verify)만 -> 나머지는 /login
-- 로그인 + 닉네임 없음(가입 미완료): /signup/password, /signup/nickname만 -> 이메일 가입자는 /signup/password, OAuth는 /signup/nickname
-- 로그인 + 닉네임 있음(가입 완료): /login*, 가입 단계 빼고 전부 -> 가입 단계 오면 /
+- 로그인 + 가입 미완료(닉네임 또는 terms_agreed_at 없음): /signup/password, /signup/nickname만
+  - 이메일 가입자 + 닉네임 없음 -> /signup/password
+  - 그 외(OAuth, 닉네임은 있는데 약관 기록만 없음) -> /signup/nickname
+- 로그인 + 가입 완료(닉네임 && terms_agreed_at): /login*, 가입 단계 빼고 전부 -> 가입 단계 오면 /
 
 - 세션 생긴 뒤 /signup, /signup/verify 막는 이유: 다른 이메일로 다시 인증하면 계정이 하나 더 생김
 - 새 공개 페이지는 PUBLIC_PATHS나 PUBLIC_EXACT_PATHS에 추가
-- 지금 /card-demo, / 는 임시로 공개 (나중에 빼기)
+- 지금 /card-demo는 임시로 공개 (나중에 빼기)
 - proxy만 믿지 말고 서버 액션 안에서도 권한 체크 (예: setPassword는 가입 미완료 사용자만)
 
 ## 회원가입 (이메일)
@@ -39,7 +41,7 @@
 
 - 인증 화면: email 쿼리 없으면 /signup으로, 5분 타이머(useCountdown), 재전송은 60초 쿨다운 후 sendSignupCode 다시 호출
 - setPassword: 뒤로 와서 같은 비밀번호 입력하면 same_password 에러 -> 성공으로 처리
-- 닉네임까지 있어야 가입 완료 (is_email_registered 기준)
+- 가입 완료 = 닉네임 && terms_agreed_at (proxy 기준). is_email_registered는 아직 닉네임만 봄 (닉네임 있고 약관 없는 계정은 재가입 대신 로그인하면 proxy가 약관으로 보냄)
 - 중간에 나간 계정은 같은 이메일로 다시 가입하면 그 계정 이어서 씀
 - Supabase Email OTP 설정(300초, 6자리)이 타이머 · 스키마랑 맞아야 함
 - /signup/auth-complete는 AuthSuccess 미리보기용 (실제 흐름에선 안 씀, 삭제 가능)
@@ -62,21 +64,24 @@
 
 ## 소셜 로그인 (Google · Kakao)
 
-외부 설정은 끝, 코드 연결은 아직 (버튼에 signInWithOAuth 없음)
+코드 연결 끝 (실제 로그인 테스트는 아직)
 
+- 버튼: hooks/useOauthLogin.ts 하나를 /login OauthLogin, /login/email CircleButton이 같이 씀
+- redirectTo = window.location.origin + /auth/callback -> Supabase Redirect URLs에 없는 주소(Vercel Preview 등)면 Site URL로 감
+- 실패 · 취소: /login?error=auth -> 로그인 화면에 안내 문구
+- 약관: /signup/nickname 들어오면 terms_agreed_at 없을 때 AgreementSheet("동의하고 계속하기") 자동으로 띄움 -> agreeToTerms 액션 -> record_signup_agreements
+- 시트 닫고 [시작하기] 누르면 시트 다시 띄움, updateNickname 액션도 약관 기록 없으면 거부
 - 흐름: 버튼 -> signInWithOAuth(redirectTo: /auth/callback) -> 구글/카카오 -> Supabase callback -> src/app/auth/callback/route.ts(exchangeCodeForSession) -> ?next(기본 /) -> 신규면 proxy가 /signup/nickname으로
-- 실패하면 /login?error=auth (화면 안내 아직 없음)
-- 버튼은 두 군데 (/login의 OauthLogin, /login/email의 CircleButton) -> 호출 함수 하나로 같이 쓰기
 - Client ID / Secret은 Supabase 대시보드에만, 코드 · .env에 넣지 않기
-- 소셜 가입자는 약관 시트를 안 거침 -> 닉네임 단계쯤에서 약관 받고 record_signup_agreements 호출해야 함
 
 외부 설정
 
 - Google Cloud(프로젝트 chagok): Testing 상태라 Test users만 로그인 가능 (실사용자 받기 전에 Publish)
 - Google JS origins: localhost:3000, chagok-eight.vercel.app / redirect URI는 Supabase callback
-- Kakao(앱 차곡): Redirect URI는 Supabase callback, Client Secret 켬, 동의항목은 닉네임 · 프로필 사진 선택 동의만
-- Kakao 이메일은 비즈 앱 전용이라 안 받음 -> Supabase Kakao provider의 Allow users without an email 켬
-- 첫 로그인에 KOE205 나오면 요청 scope 조정
+- Kakao(앱 차곡): Redirect URI는 Supabase callback, Client Secret 켬, 개인 개발자 비즈 앱 (앱 아이콘 등록 후 전환)
+- Kakao 동의항목: 닉네임 · 프로필 사진 · 카카오계정(이메일) 전부 선택 동의
+- 이메일 동의항목이 꼭 있어야 함: Supabase가 scope에 account_email을 항상 넣어서 없으면 KOE205
+- 선택 동의라 이메일 안 줄 수 있음 -> Supabase Kakao provider의 Allow users without an email 켜 둔 채로 유지
 - Supabase Site URL: chagok-eight.vercel.app
 - Supabase Redirect URLs: localhost:3000/auth/callback, chagok-eight.vercel.app/auth/callback, 폰 테스트용 사설 IP 대역
 
@@ -89,9 +94,8 @@
 
 ## 할 일
 
-- 소셜 로그인 버튼 연결 + /login?error=auth 안내
-- 소셜 가입자 약관 동의
+- 소셜 로그인 실제 테스트: Kakao 로그인 확인됨, Google(Test users 계정) · 가입 끝까지(약관 → 닉네임 → 홈) 확인 남음
 - 아이디 · 비밀번호 찾기 (/find-id, /find-password 빈 페이지, 비번 찾기는 가입 OTP 흐름 재사용 가능)
 - DB 닉네임 제약 2자 이상으로 맞추기 (앱은 2자, DB는 아직 1자)
 - /signup/auth-complete 삭제할지 정하기
-- 홈 임시 로그아웃 버튼, / · /card-demo 임시 공개 정리
+- 홈 임시 로그아웃 버튼, /card-demo 임시 공개 정리 (홈 MyCardList가 CardDemoPage를 import 중이라 같이 정리)

@@ -19,7 +19,7 @@ npm run format
 npx tsc --noEmit
 
 - Biome만 씀 (ESLint, Prettier 없음). 테스트 아직 없음
-- 코드 고치면 tsc, lint 둘 다 통과 시키고 끝내기
+- Stop hook(.claude/hooks/check.sh)이 끝낼 때 tsc · lint 자동 검사, 실패하면 고치고 다시 끝내기
 
 ## 기술 스택
 
@@ -58,6 +58,7 @@ npx tsc --noEmit
 - 컴포넌트는 화살표 함수로 만들고 파일 맨 아래에서 export default
 - 사용자에게 보이는 문구는 해요체
 - 뒤로가기로 돌아오면 안 되는 이동은 router.replace
+- 환경 변수는 src/lib/env.ts의 getSupabaseEnv() / requireEnv()로 꺼내기 (`!` 금지)
 - useMemo, useCallback은 안 씀 (React Compiler가 해줌)
 - 꾸밈 이미지는 alt="" + aria-hidden, 아이콘만 있는 버튼은 aria-label
 
@@ -109,5 +110,8 @@ npx tsc --noEmit
 ## 지금 상태
 
 - 끝: 이메일 가입/로그인, 티켓 카드 · 캐러셀 · 카드 묶음, 홈 레이아웃(목데이터)
-- 남음: 소셜 로그인 연결
+- 남음 (auth.md 할 일 참고)
+  - 소셜 로그인 실제 테스트 (코드 연결 · 약관 동의 · 가입 완료 기준 변경은 끝)
+  - 비밀번호 찾기
+  - DB 닉네임 제약 2자로 맞추기
 - 다음: 티켓 인증 -> 카드 아카이브 (인증 방식 미정)
