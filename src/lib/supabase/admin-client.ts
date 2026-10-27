@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseEnv, requireEnv } from "@/lib/env";
 
 /**
  * ⚠️ 관리자 전용 클라이언트.
@@ -11,12 +12,13 @@ import { createClient } from "@supabase/supabase-js";
  * 로그인한 사용자의 JWT로 요청이 나가 RLS가 그대로 적용되어 버림.
  */
 export function createAdminClient() {
-  const secretKey = process.env.SUPABASE_SECRET_KEY;
-  if (!secretKey) {
-    throw new Error("SUPABASE_SECRET_KEY가 설정되지 않았습니다.");
-  }
+  const { url } = getSupabaseEnv();
+  const secretKey = requireEnv(
+    process.env.SUPABASE_SECRET_KEY,
+    "SUPABASE_SECRET_KEY",
+  );
 
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, secretKey, {
+  return createClient(url, secretKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,

@@ -10,6 +10,8 @@
 - SUPABASE_SECRET_KEY: 비공개 (RLS 우회 키), Vercel Secret (아직 Vercel에 안 넣음)
 - CRON_SECRET: 비공개, Vercel Secret
 - NEXT_PUBLIC_ 붙은 건 빌드할 때 번들에 박힘 -> Vercel에서 값 바꾸면 재배포해야 적용
+- 코드에서 꺼낼 땐 src/lib/env.ts의 getSupabaseEnv() / requireEnv(process.env.XXX, "XXX") 사용 (`!` 금지)
+- process.env[name]처럼 동적으로 꺼내지 않기 (NEXT_PUBLIC_ 값이 번들에 안 박혀서 브라우저에서 undefined)
 
 ## 배포
 
