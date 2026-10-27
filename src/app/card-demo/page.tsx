@@ -1,6 +1,6 @@
 import hopePoster from "@/assets/imgs/hope-poster.png";
 import type { Ticket } from "@/components/ticket-card/TicketCard";
-import { TicketCarousel } from "@/components/ticket-carousel/TicketCarousel";
+import TicketCarousel from "@/components/ticket-carousel/TicketCarousel";
 
 // 예시 데이터 (포스터는 같은 이미지를 돌려 씀)
 const baseTicket: Ticket = {
@@ -51,10 +51,12 @@ const tickets: Ticket[] = [
   },
 ];
 
-export default function CardDemoPage() {
+const CardDemoPage = () => {
   return (
     <main className="flex flex-1 flex-col justify-center gap-4 overflow-hidden">
       <TicketCarousel tickets={tickets} />
     </main>
   );
-}
+};
+
+export default CardDemoPage;

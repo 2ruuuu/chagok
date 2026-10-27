@@ -6,7 +6,7 @@ import type { ComponentProps } from "react";
 import BackIcon from "@/assets/icons/back.svg";
 import { cn } from "@/lib/cn";
 
-type BackButtonProps = Omit<ComponentProps<"button">, "children">;
+interface BackButtonProps extends Omit<ComponentProps<"button">, "children"> {}
 
 /** 뒤로가기 버튼. onClick을 넘기지 않으면 브라우저 뒤로가기(router.back) */
 const BackButton = ({ className, onClick, ...props }: BackButtonProps) => {

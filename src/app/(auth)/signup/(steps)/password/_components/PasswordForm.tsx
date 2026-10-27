@@ -18,7 +18,7 @@ import CheckActiveIcon from "@/assets/icons/check-active.svg";
 import EyeIcon from "@/assets/icons/eye.svg";
 import EyeOffIcon from "@/assets/icons/eye-off.svg";
 import BottomCta from "@/components/bottom-cta/BottomCta";
-import { Button } from "@/components/button/Button";
+import Button from "@/components/button/Button";
 import TextInput from "@/components/text-input/TextInput";
 import { cn } from "@/lib/cn";
 
@@ -38,8 +38,13 @@ const RULES = [
   },
 ];
 
+interface RuleItemProps {
+  passed: boolean;
+  label: string;
+}
+
 /** 규칙 충족 여부 한 줄 (체크 아이콘 + 문구) */
-const RuleItem = ({ passed, label }: { passed: boolean; label: string }) => (
+const RuleItem = ({ passed, label }: RuleItemProps) => (
   <li
     className={cn(
       "flex items-center gap-1 text-label3 transition-colors",
@@ -58,16 +63,18 @@ const RuleItem = ({ passed, label }: { passed: boolean; label: string }) => (
   </li>
 );
 
+interface VisibilityToggleProps {
+  visible: boolean;
+  onToggle: () => void;
+  controls: string;
+}
+
 /** 비밀번호 보기/숨기기 버튼 (TextInput의 suffix로 사용) */
 const VisibilityToggle = ({
   visible,
   onToggle,
   controls,
-}: {
-  visible: boolean;
-  onToggle: () => void;
-  controls: string;
-}) => (
+}: VisibilityToggleProps) => (
   <button
     type="button" // form 안이라 type 없으면 submit 됨
     onClick={onToggle}

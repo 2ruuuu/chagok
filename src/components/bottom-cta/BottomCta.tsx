@@ -9,10 +9,10 @@ const LAYOUT_BOTTOM_SPACE = 56;
 // 키보드가 열렸을 때 버튼과 키보드 사이 간격
 const KEYBOARD_GAP = 12;
 
-type BottomCtaProps = {
+interface BottomCtaProps {
   children: ReactNode;
   className?: string;
-};
+}
 
 /**
  * 화면 하단 버튼 영역. 평소에는 부모 flex 레이아웃에서 하단에 놓이고,

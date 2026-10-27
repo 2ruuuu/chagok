@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useRef, useState } from "react";
-import { type Ticket, TicketCard } from "@/components/ticket-card/TicketCard";
+import TicketCard, { type Ticket } from "@/components/ticket-card/TicketCard";
 import { cn } from "@/lib/cn";
 
 /** 양옆 카드가 가장 멀어졌을 때의 크기·흐림·밝기 */
@@ -9,12 +9,16 @@ const SIDE_SCALE = 0.88;
 const SIDE_BLUR_PX = 3;
 const SIDE_BRIGHTNESS = 0.6;
 
+interface TicketCarouselProps {
+  tickets: Ticket[];
+}
+
 /**
  * 가운데에 가장 가까운 카드에 포커스, 멀어질수록 작고 흐리게.
  * 스크롤은 브라우저 기본(scroll-snap)에 맡기고, 스크롤 위치에 따라
  * 각 카드의 크기·흐림을 손가락을 따라 실시간으로 바꾼다 (리렌더 없이 style 직접 변경).
  */
-export function TicketCarousel({ tickets }: { tickets: Ticket[] }) {
+const TicketCarousel = ({ tickets }: TicketCarouselProps) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -22,7 +26,7 @@ export function TicketCarousel({ tickets }: { tickets: Ticket[] }) {
   // 뒤집혀 있는 카드 (한 번에 하나만)
   const [flippedIndex, setFlippedIndex] = useState<number | null>(null);
 
-  function updateFocus() {
+  const updateFocus = () => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
 
@@ -64,12 +68,12 @@ export function TicketCarousel({ tickets }: { tickets: Ticket[] }) {
       setActiveIndex(nearestIndex);
       setFlippedIndex(null);
     }
-  }
+  };
 
-  function handleScroll() {
+  const handleScroll = () => {
     cancelAnimationFrame(frameRef.current);
     frameRef.current = requestAnimationFrame(updateFocus);
-  }
+  };
 
   // 처음 그릴 때도 양옆 카드를 작고 흐리게
   // biome-ignore lint/correctness/useExhaustiveDependencies: 마운트 시 1회만 실행
@@ -77,7 +81,7 @@ export function TicketCarousel({ tickets }: { tickets: Ticket[] }) {
     updateFocus();
   }, []);
 
-  function scrollToIndex(index: number) {
+  const scrollToIndex = (index: number) => {
     const scroller = scrollerRef.current;
     const item = scroller?.children[index] as HTMLElement | undefined;
     if (!scroller || !item) return;
@@ -90,7 +94,7 @@ export function TicketCarousel({ tickets }: { tickets: Ticket[] }) {
       left: item.offsetLeft + item.offsetWidth / 2 - scroller.clientWidth / 2,
       behavior: reduceMotion ? "auto" : "smooth",
     });
-  }
+  };
 
   return (
     <div
@@ -154,4 +158,6 @@ export function TicketCarousel({ tickets }: { tickets: Ticket[] }) {
       })}
     </div>
   );
-}
+};
+
+export default TicketCarousel;

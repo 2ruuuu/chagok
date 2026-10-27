@@ -1,12 +1,11 @@
 import Image from "next/image";
 import BellIcon from "@/assets/icons/bell.svg";
-import BellRingIcon from "@/assets/icons/bell-ring.svg";
 import MainBg from "@/assets/imgs/main-bg.png";
 import CardDemoPage from "../../card-demo/page";
 
-type MyCardListProps = {
+interface MyCardListProps {
   nickname: string | null;
-};
+}
 
 const MyCardList = ({ nickname }: MyCardListProps) => {
   return (

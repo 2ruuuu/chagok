@@ -35,38 +35,37 @@ const FACE_CLASS =
 const LAYER_CLASS = "pointer-events-none absolute inset-0";
 
 // 인증 번호로 고정된 바코드 패턴 생성 (렌더마다 바뀌지 않도록)
-function barcodeBars(seed: string) {
-  return Array.from({ length: 42 }, (_, i) => {
+const barcodeBars = (seed: string) =>
+  Array.from({ length: 42 }, (_, i) => {
     const code = seed.charCodeAt(i % seed.length) + i * 7;
     return (code % 3) + 1;
   });
-}
 
-type TicketCardProps = {
+interface TicketCardProps {
   ticket: Ticket;
   /** 넘기면 바깥에서 앞/뒷면을 제어 (캐러셀 등). 안 넘기면 카드가 스스로 관리 */
   flipped?: boolean;
   onFlippedChange?: (flipped: boolean) => void;
-};
+}
 
-export function TicketCard({
+const TicketCard = ({
   ticket,
   flipped: flippedProp,
   onFlippedChange,
-}: TicketCardProps) {
+}: TicketCardProps) => {
   const sceneRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef(0);
   const [innerFlipped, setInnerFlipped] = useState(false);
   const isControlled = flippedProp !== undefined;
   const flipped = isControlled ? flippedProp : innerFlipped;
 
-  function toggleFlipped() {
+  const toggleFlipped = () => {
     const next = !flipped;
     if (!isControlled) setInnerFlipped(next);
     onFlippedChange?.(next);
-  }
+  };
 
-  function setVars(px: number, py: number) {
+  const setVars = (px: number, py: number) => {
     const scene = sceneRef.current;
     if (!scene) return;
 
@@ -79,10 +78,10 @@ export function TicketCard({
     scene.style.setProperty("--rx", `${(-dy * 2 * MAX_TILT_X).toFixed(2)}deg`);
     scene.style.setProperty("--ry", `${(dx * 2 * MAX_TILT_Y).toFixed(2)}deg`);
     scene.style.setProperty("--hyp", hyp.toFixed(3));
-  }
+  };
 
   // 회전하는 카드가 아니라 고정된 scene 기준으로 좌표를 잡아야 떨림이 없음
-  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const scene = sceneRef.current;
     if (!scene) return;
 
@@ -98,18 +97,18 @@ export function TicketCard({
 
     cancelAnimationFrame(frameRef.current);
     frameRef.current = requestAnimationFrame(() => setVars(px, py));
-  }
+  };
 
-  function handlePointerEnter() {
+  const handlePointerEnter = () => {
     sceneRef.current?.setAttribute("data-active", "");
-  }
+  };
 
-  function handlePointerLeave() {
+  const handlePointerLeave = () => {
     cancelAnimationFrame(frameRef.current);
     sceneRef.current?.removeAttribute("data-active");
     setVars(0.5, 0.5);
     sceneRef.current?.style.setProperty("--hyp", "0");
-  }
+  };
 
   return (
     <div
@@ -141,11 +140,14 @@ export function TicketCard({
       </div>
     </div>
   );
+};
+
+interface CardFaceProps {
+  ticket: Ticket;
+  flipped: boolean;
 }
 
-type CardFaceProps = { ticket: Ticket; flipped: boolean };
-
-function CardFront({ ticket, flipped }: CardFaceProps) {
+const CardFront = ({ ticket, flipped }: CardFaceProps) => {
   return (
     <span
       className={cn(
@@ -191,9 +193,9 @@ function CardFront({ ticket, flipped }: CardFaceProps) {
       </span>
     </span>
   );
-}
+};
 
-function CardBack({ ticket, flipped }: CardFaceProps) {
+const CardBack = ({ ticket, flipped }: CardFaceProps) => {
   const rows = [
     ["관람평", ticket.review],
     ["극장", ticket.theater],
@@ -217,22 +219,16 @@ function CardBack({ ticket, flipped }: CardFaceProps) {
 
       <span className="relative flex h-full flex-col px-5 pt-6 pb-5">
         <span className="flex items-center justify-between">
-          <span
-            className="foil-text text-label3 font-semibold tracking-widest"
-          >
+          <span className="foil-text text-label3 font-semibold tracking-widest">
             CHAGOK TICKET
           </span>
-          <span
-            className="holo-text text-label3 font-extrabold tracking-widest"
-          >
+          <span className="holo-text text-label3 font-extrabold tracking-widest">
             {ticket.format}
           </span>
         </span>
 
         <span className="mt-4 flex items-baseline gap-2">
-          <span className="foil-text text-display2">
-            {ticket.title}
-          </span>
+          <span className="foil-text text-display2">{ticket.title}</span>
           <span className="text-label2 font-medium tracking-widest text-neutral-20">
             {ticket.originalTitle}
           </span>
@@ -281,4 +277,6 @@ function CardBack({ ticket, flipped }: CardFaceProps) {
       </span>
     </span>
   );
-}
+};
+
+export default TicketCard;

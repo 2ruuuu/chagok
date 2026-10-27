@@ -1,6 +1,10 @@
 import type { TermsBlock, TermsDoc } from "@/constants/terms";
 
-const Block = ({ block }: { block: TermsBlock }) => {
+interface BlockProps {
+  block: TermsBlock;
+}
+
+const Block = ({ block }: BlockProps) => {
   switch (block.type) {
     case "p":
       return <p>{block.text}</p>;
@@ -49,19 +53,16 @@ const Block = ({ block }: { block: TermsBlock }) => {
   }
 };
 
-type TermsContentProps = {
+interface TermsContentProps {
   doc: TermsDoc;
-};
+}
 
 /** 약관 본문. 어두운 배경 기준 (약관 상세 화면, /terms 페이지) */
 const TermsContent = ({ doc }: TermsContentProps) => {
   return (
     <div className="flex flex-col gap-6 text-body2 text-neutral-10">
       {doc.sections.map((section, index) => (
-        <section
-          key={section.heading ?? index}
-          className="flex flex-col gap-2"
-        >
+        <section key={section.heading ?? index} className="flex flex-col gap-2">
           {section.heading && (
             <h2 className="text-label1 text-common-0">{section.heading}</h2>
           )}

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import GoogleIcon from "@/assets/icons/google.svg";
 import KakaoIcon from "@/assets/icons/kakao.svg";
-import { Button } from "@/components/button/Button";
+import Button from "@/components/button/Button";
 
 const OauthLogin = () => {
   return (

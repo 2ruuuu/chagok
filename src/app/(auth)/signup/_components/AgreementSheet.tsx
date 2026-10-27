@@ -6,7 +6,7 @@ import Check from "@/assets/icons/check.svg";
 import CheckActive from "@/assets/icons/check-active.svg";
 import ChevronRight from "@/assets/icons/chevron-right.svg";
 import BottomSheet from "@/components/bottom-sheet/BottomSheet";
-import { Button } from "@/components/button/Button";
+import Button from "@/components/button/Button";
 import Toast from "@/components/toast/Toast";
 import { TERMS, type TermsSlug } from "@/constants/terms";
 import { cn } from "@/lib/cn";
@@ -50,14 +50,14 @@ const INITIAL_AGREEMENTS: Agreements = {
   marketing: false,
 };
 
-type CheckRowProps = {
+interface CheckRowProps {
   id: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
   label: string;
   size: "lg" | "sm";
   disabled?: boolean;
-};
+}
 
 /** 체크 아이콘 + 라벨. 실제 체크박스는 시각적으로 숨기고 라벨 전체를 누를 수 있게 함 */
 const CheckRow = ({
@@ -106,7 +106,7 @@ const CheckRow = ({
   );
 };
 
-type AgreementSheetProps = {
+interface AgreementSheetProps {
   open: boolean;
   onClose: () => void;
   /** [동의하고 인증 번호 받기]. 필수 항목이 모두 체크됐을 때만 호출됨 */
@@ -115,7 +115,7 @@ type AgreementSheetProps = {
   disabled?: boolean;
   /** 시트 위에 띄울 토스트 메시지 (예: "인증 번호를 보냈어요."). null이면 숨김 */
   toastMessage?: string | null;
-};
+}
 
 /** 약관 동의 바텀시트. 동의 상태만 관리하고, 제출 후 처리는 쓰는 쪽에서 함 */
 const AgreementSheet = ({

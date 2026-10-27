@@ -11,7 +11,7 @@ import {
   updateNicknameSchema,
 } from "@/app/(auth)/schemas";
 import BottomCta from "@/components/bottom-cta/BottomCta";
-import { Button } from "@/components/button/Button";
+import Button from "@/components/button/Button";
 import TextInput from "@/components/text-input/TextInput";
 
 type UpdateNicknameOutput = z.output<typeof updateNicknameSchema>;

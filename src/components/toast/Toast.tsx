@@ -1,10 +1,10 @@
 import { cn } from "@/lib/cn";
 
-type ToastProps = {
+interface ToastProps {
   /** 보여줄 메시지. null이면 숨김 */
   message: string | null;
   className?: string;
-};
+}
 
 /**
  * 짧은 안내 메시지. 위치와 표시 시간은 쓰는 쪽에서 정함.

@@ -16,7 +16,7 @@ const TRANSITION_MS = 300;
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-type BottomSheetProps = {
+interface BottomSheetProps {
   open: boolean;
   onClose: () => void;
   children: ReactNode;
@@ -27,7 +27,7 @@ type BottomSheetProps = {
   /** 시트 바로 위에 붙는 영역 (토스트 등). 시트와 함께 움직임 */
   above?: ReactNode;
   className?: string;
-};
+}
 
 /**
  * 화면 하단에서 올라오는 시트.

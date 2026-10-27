@@ -5,7 +5,7 @@ const sizes = {
   sm: "h-12 w-full",
 };
 
-type TextInputProps = Omit<ComponentProps<"input">, "size"> & {
+interface TextInputProps extends Omit<ComponentProps<"input">, "size"> {
   id: string;
   size?: keyof typeof sizes;
   labelText?: string;
@@ -15,7 +15,7 @@ type TextInputProps = Omit<ComponentProps<"input">, "size"> & {
   suffix?: ReactNode;
   /** 입력창 아래 안내 문구 (입력 규칙 등). 에러가 있으면 에러 메시지로 대체됨 */
   helperText?: string;
-};
+}
 
 /**
  * 나머지 input 속성(type, placeholder, value, onChange, name, onBlur, ref 등)은

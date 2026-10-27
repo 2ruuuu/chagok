@@ -12,7 +12,7 @@ import {
   checkSignupEmailSchema,
 } from "@/app/(auth)/schemas";
 import BottomCta from "@/components/bottom-cta/BottomCta";
-import { Button } from "@/components/button/Button";
+import Button from "@/components/button/Button";
 import TextInput from "@/components/text-input/TextInput";
 import AgreementSheet, { type Agreements } from "./AgreementSheet";
 
@@ -21,10 +21,10 @@ type CheckSignupEmailOutput = z.output<typeof checkSignupEmailSchema>;
 /** 토스트를 보여준 뒤 인증 화면으로 넘어가기까지 기다리는 시간 */
 const TOAST_DELAY_MS = 1000;
 
-type SignupFormProps = {
+interface SignupFormProps {
   /** 처음에 채워 둘 이메일 (인증 화면에서 [이메일 다시 입력하기]로 돌아온 경우) */
   defaultEmail?: string;
-};
+}
 
 const SignupForm = ({ defaultEmail = "" }: SignupFormProps) => {
   const router = useRouter();

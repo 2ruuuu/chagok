@@ -11,17 +11,17 @@ export type StackCard = {
   poster: StaticImageData | string;
 };
 
-type CardStackProps = {
+interface CardStackProps {
   /** 최신순. 앞에서 5장만 쓰고, 가장 최신 카드가 오른쪽 맨 위에 온다 */
   cards: StackCard[];
   className?: string;
-};
+}
 
 /**
  * 모은 카드의 앞면을 옆으로 겹쳐 보여주는 묶음 (클릭 없음, 보기 전용).
  * 시안: 카드 80×112, 간격 -26px → 5장이면 80 × 5 - 26 × 4 = 296px
  */
-export function CardStack({ cards, className }: CardStackProps) {
+const CardStack = ({ cards, className }: CardStackProps) => {
   const visibleCards = cards.slice(0, MAX_CARDS).reverse();
 
   return (
@@ -71,4 +71,6 @@ export function CardStack({ cards, className }: CardStackProps) {
       })}
     </ul>
   );
-}
+};
+
+export default CardStack;

@@ -311,9 +311,9 @@
 @utility card-notched {
   mask:
     radial-gradient(circle 12px at 0 var(--notch-y), transparent 98%, black)
-      left / 51% 100% no-repeat,
+    left / 51% 100% no-repeat,
     radial-gradient(circle 12px at 100% var(--notch-y), transparent 98%, black)
-      right / 51% 100% no-repeat;
+    right / 51% 100% no-repeat;
 }
 
 /* 은박 글자: 기울이면 금속 광택이 흐름 */
@@ -386,9 +386,9 @@
 @utility card-stack-item {
   box-shadow:
     -0.5rem 0 1rem -0.25rem
-      color-mix(in srgb, var(--color-common-100) 60%, transparent),
+    color-mix(in srgb, var(--color-common-100) 60%, transparent),
     0 0.5rem 1rem -0.5rem
-      color-mix(in srgb, var(--color-common-100) 50%, transparent);
+    color-mix(in srgb, var(--color-common-100) 50%, transparent);
 
   &::after {
     content: "";

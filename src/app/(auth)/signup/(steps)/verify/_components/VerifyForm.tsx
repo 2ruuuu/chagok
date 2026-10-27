@@ -8,7 +8,7 @@ import {
   SIGNUP_CODE_LENGTH,
 } from "@/app/(auth)/schemas";
 import BottomCta from "@/components/bottom-cta/BottomCta";
-import { Button } from "@/components/button/Button";
+import Button from "@/components/button/Button";
 import TextInput from "@/components/text-input/TextInput";
 import Toast from "@/components/toast/Toast";
 import { formatMinutesSeconds, useCountdown } from "@/hooks/useCountdown";
@@ -25,12 +25,12 @@ const TOAST_DURATION_MS = 2000;
 
 const EXPIRED_MESSAGE = "인증번호가 만료됐어요. [재전송]을 눌러 주세요.";
 
-type VerifyFormProps = {
+interface VerifyFormProps {
   /** 인증번호를 보낸 이메일 */
   email: string;
   /** 약관 시트에서 받은 마케팅 수신 동의 */
   marketing: boolean;
-};
+}
 
 const VerifyForm = ({ email, marketing }: VerifyFormProps) => {
   const router = useRouter();

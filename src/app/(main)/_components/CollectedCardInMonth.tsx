@@ -1,6 +1,6 @@
 import mockImg from "@/assets/imgs/giant-poster.webp";
-import { Button } from "@/components/button/Button";
-import { CardStack } from "@/components/card-stack/CardStack";
+import Button from "@/components/button/Button";
+import CardStack from "@/components/card-stack/CardStack";
 
 const mockData = {
   month: 10,

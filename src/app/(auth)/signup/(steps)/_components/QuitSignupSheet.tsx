@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { signOut } from "@/app/(auth)/actions";
 import BottomSheet from "@/components/bottom-sheet/BottomSheet";
-import { Button } from "@/components/button/Button";
+import Button from "@/components/button/Button";
 
-type QuitSignupSheetProps = {
+interface QuitSignupSheetProps {
   open: boolean;
   onClose: () => void;
-};
+}
 
 /**
  * 가입 중단 확인 시트. 계정이 생긴 뒤의 첫 단계에서 뒤로가기를 누르면 띄움.

@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 
-const buttonVariants = cva(
+export const buttonVariants = cva(
   "inline-flex shrink-0 items-center justify-center gap-3 whitespace-nowrap border border-transparent transition-colors outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-40 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
@@ -27,16 +27,17 @@ const buttonVariants = cva(
   },
 );
 
-type ButtonProps = ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants>;
+interface ButtonProps
+  extends ComponentProps<"button">,
+    VariantProps<typeof buttonVariants> {}
 
-function Button({
+const Button = ({
   className,
   variant,
   size,
   type = "submit",
   ...props
-}: ButtonProps) {
+}: ButtonProps) => {
   return (
     <button
       type={type}
@@ -44,6 +45,6 @@ function Button({
       {...props}
     />
   );
-}
+};
 
-export { Button, buttonVariants };
+export default Button;

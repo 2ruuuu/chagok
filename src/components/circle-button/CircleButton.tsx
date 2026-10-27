@@ -16,10 +16,10 @@ const providers = {
   },
 };
 
-type CircleButtonProps = {
+interface CircleButtonProps {
   provider: keyof typeof providers;
   className?: string;
-};
+}
 
 const CircleButton = ({ provider, className }: CircleButtonProps) => {
   const { icon, label, className: providerClassName } = providers[provider];

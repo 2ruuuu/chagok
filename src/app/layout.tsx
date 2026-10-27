@@ -16,10 +16,12 @@ const pretendard = localFont({
   variable: "--font-pretendard",
 });
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+const RootLayout = ({ children }: LayoutProps<"/">) => {
   return (
     <html lang="ko" className={pretendard.variable}>
       <body className="flex min-h-dvh min-w-93.75 flex-col">{children}</body>
     </html>
   );
-}
+};
+
+export default RootLayout;

@@ -6,7 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import type { z } from "zod";
 import { signIn } from "@/app/(auth)/actions";
 import { type SignInInput, signInSchema } from "@/app/(auth)/schemas";
-import { Button } from "@/components/button/Button";
+import Button from "@/components/button/Button";
 import TextInput from "@/components/text-input/TextInput";
 import Bottom from "./Bottom";
 import OauthLogin from "./OauthLogin";

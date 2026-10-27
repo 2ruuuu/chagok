@@ -6,10 +6,10 @@ import BackButton from "@/components/back-button/BackButton";
 import TermsContent from "@/components/terms-content/TermsContent";
 import type { TermsDoc } from "@/constants/terms";
 
-type TermsDetailProps = {
+interface TermsDetailProps {
   doc: TermsDoc;
   onClose: () => void;
-};
+}
 
 /**
  * 약관 시트에서 '>'를 누르면 시트 위에 전체 화면으로 열리는 약관 본문.

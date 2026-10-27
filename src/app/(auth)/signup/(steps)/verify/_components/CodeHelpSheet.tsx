@@ -2,20 +2,20 @@
 
 import { useRouter } from "next/navigation";
 import BottomSheet from "@/components/bottom-sheet/BottomSheet";
-import { Button } from "@/components/button/Button";
-
-type CodeHelpSheetProps = {
-  open: boolean;
-  onClose: () => void;
-  /** 인증번호를 보낸 이메일. 없으면(주소로 직접 들어온 경우) 이메일 줄을 숨김 */
-  email: string | null;
-};
+import Button from "@/components/button/Button";
 
 const TIPS = [
   "스팸함이나 프로모션함을 확인해 주세요.",
   "메일이 도착하기까지 몇 분 걸릴 수 있어요.",
   "그래도 오지 않으면 [재전송]을 눌러 다시 받아 주세요.",
 ];
+
+interface CodeHelpSheetProps {
+  open: boolean;
+  onClose: () => void;
+  /** 인증번호를 보낸 이메일. 없으면(주소로 직접 들어온 경우) 이메일 줄을 숨김 */
+  email: string | null;
+}
 
 /** [인증번호가 오지 않나요?] 안내 시트. 원인 확인 → 이메일 다시 입력으로 이어줌 */
 const CodeHelpSheet = ({ open, onClose, email }: CodeHelpSheetProps) => {
