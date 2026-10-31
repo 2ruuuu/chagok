@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import type { z } from "zod";
 import { checkSignupEmail, sendSignupCode } from "@/app/(auth)/actions";
 import {
@@ -32,13 +32,27 @@ const SignupForm = ({ defaultEmail = "" }: SignupFormProps) => {
   const {
     register,
     handleSubmit,
+    control,
     setError,
+    setValue,
+    setFocus,
+    clearErrors,
     formState: { errors, isValid, isSubmitting },
   } = useForm<CheckSignupEmailInput, unknown, CheckSignupEmailOutput>({
     resolver: zodResolver(checkSignupEmailSchema), // 서버와 같은 스키마로 검증
     mode: "onTouched", // 포커스가 빠질 때 처음 검사, 이후엔 입력할 때마다 재검사
     defaultValues: { email: defaultEmail },
   });
+
+  // watch() 대신 useWatch: React Compiler와 함께 써도 값 변경이 반영됨
+  const email = useWatch({ control, name: "email" });
+
+  // × 지우기: 값·에러를 비우고 다시 입력할 수 있게 포커스
+  const clearEmail = () => {
+    setValue("email", "");
+    clearErrors("email");
+    setFocus("email");
+  };
 
   /** 중복 확인을 통과한 이메일 (trim·소문자 변환된 값). 있으면 약관 시트를 염 */
   const [checkedEmail, setCheckedEmail] = useState<string | null>(null);
@@ -90,7 +104,8 @@ const SignupForm = ({ defaultEmail = "" }: SignupFormProps) => {
     // 이동할 때까지 sending을 유지해 시트를 닫거나 다시 누르지 못하게 함
   };
 
-  const canSubmit = isValid && !isSubmitting;
+  // 지운 직후에는 isValid가 갱신되기 전일 수 있어서 빈 값도 직접 막음
+  const canSubmit = isValid && email.trim().length > 0 && !isSubmitting;
 
   return (
     <>
@@ -114,6 +129,7 @@ const SignupForm = ({ defaultEmail = "" }: SignupFormProps) => {
             labelText="이메일(아이디)"
             {...register("email")}
             error={errors.email?.message}
+            onClear={email ? clearEmail : undefined}
           />
         </div>
         <BottomCta>

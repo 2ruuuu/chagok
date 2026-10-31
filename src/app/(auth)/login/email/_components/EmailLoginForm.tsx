@@ -7,6 +7,7 @@ import type { z } from "zod";
 import { signIn } from "@/app/(auth)/actions";
 import { type SignInInput, signInSchema } from "@/app/(auth)/schemas";
 import Button from "@/components/button/Button";
+import PasswordInput from "@/components/password-input/PasswordInput";
 import TextInput from "@/components/text-input/TextInput";
 import Bottom from "./Bottom";
 import OauthLogin from "./OauthLogin";
@@ -22,6 +23,9 @@ const EmailLoginForm = () => {
     register,
     handleSubmit,
     control,
+    setValue,
+    setFocus,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<SignInInput, unknown, SignInOutput>({
     resolver: zodResolver(signInSchema), // 서버와 같은 스키마로 검증
@@ -32,6 +36,14 @@ const EmailLoginForm = () => {
   // watch() 대신 useWatch: React Compiler와 함께 써도 값 변경이 반영됨
   const [email, password] = useWatch({ control, name: ["email", "password"] });
   const [serverError, setServerError] = useState<string | null>(null);
+
+  // × 지우기: 값·에러를 비우고 다시 입력할 수 있게 포커스
+  const clearEmail = () => {
+    setValue("email", "");
+    clearErrors("email");
+    setServerError(null);
+    setFocus("email");
+  };
 
   // 성공하면 액션이 / 로 redirect → 돌아오는 값이 없을 수 있음
   const onSubmit = async (values: SignInOutput) => {
@@ -67,10 +79,10 @@ const EmailLoginForm = () => {
                 onChange: () => setServerError(null),
               })}
               error={errors.email?.message}
+              onClear={email ? clearEmail : undefined}
             />
-            <TextInput
+            <PasswordInput
               id="password"
-              type="password"
               autoComplete="current-password"
               placeholder="8자 이상의 비밀번호"
               labelText="비밀번호"

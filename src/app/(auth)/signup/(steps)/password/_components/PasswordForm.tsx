@@ -15,11 +15,9 @@ import {
 } from "@/app/(auth)/schemas";
 import CheckIcon from "@/assets/icons/check.svg";
 import CheckActiveIcon from "@/assets/icons/check-active.svg";
-import EyeIcon from "@/assets/icons/eye.svg";
-import EyeOffIcon from "@/assets/icons/eye-off.svg";
 import BottomCta from "@/components/bottom-cta/BottomCta";
 import Button from "@/components/button/Button";
-import TextInput from "@/components/text-input/TextInput";
+import PasswordInput from "@/components/password-input/PasswordInput";
 import { cn } from "@/lib/cn";
 
 type SetPasswordOutput = z.output<typeof setPasswordSchema>;
@@ -63,38 +61,12 @@ const RuleItem = ({ passed, label }: RuleItemProps) => (
   </li>
 );
 
-interface VisibilityToggleProps {
-  visible: boolean;
-  onToggle: () => void;
-  controls: string;
-}
-
-/** 비밀번호 보기/숨기기 버튼 (TextInput의 suffix로 사용) */
-const VisibilityToggle = ({
-  visible,
-  onToggle,
-  controls,
-}: VisibilityToggleProps) => (
-  <button
-    type="button" // form 안이라 type 없으면 submit 됨
-    onClick={onToggle}
-    aria-label={visible ? "비밀번호 숨기기" : "비밀번호 보기"}
-    aria-pressed={visible}
-    aria-controls={controls}
-    // TextInput의 suffix 영역이 pointer-events-none이라 버튼만 클릭 가능하게
-    className="pointer-events-auto flex size-6 cursor-pointer items-center justify-center rounded-xs outline-none focus-visible:outline-2 focus-visible:outline-primary-40"
-  >
-    {/* 버튼의 aria-label이 이름 역할을 하므로 이미지는 alt="" */}
-    <Image src={visible ? EyeOffIcon : EyeIcon} alt="" />
-  </button>
-);
-
 const PasswordForm = () => {
   const {
     register,
     handleSubmit,
     control,
-    formState: { isValid, isSubmitting },
+    formState: { errors, touchedFields, isValid, isSubmitting },
   } = useForm<SetPasswordInput, unknown, SetPasswordOutput>({
     resolver: zodResolver(setPasswordSchema), // 서버와 같은 스키마로 검증
     mode: "onTouched",
@@ -107,11 +79,16 @@ const PasswordForm = () => {
     name: ["password", "passwordCheck"],
   });
   const [serverError, setServerError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordCheck, setShowPasswordCheck] = useState(false);
 
   // 확인 칸에 입력이 있고 비밀번호와 같을 때만 일치
   const isMatched = passwordCheck.length > 0 && password === passwordCheck;
+
+  // 불일치 에러("비밀번호가 일치하지 않아요.")는 확인 칸을 한 번 입력하고 나간 뒤부터 보여줌.
+  // 비밀번호 칸을 고치면 deps로 확인 칸도 검사되는데, 확인 칸을 아직 안 건드렸을 때 미리 빨갛게 되지 않게 함
+  const passwordCheckError =
+    touchedFields.passwordCheck && passwordCheck.length > 0
+      ? errors.passwordCheck?.message
+      : undefined;
 
   // 성공하면 액션이 /signup/nickname 으로 redirect → 돌아오는 값이 없을 수 있음
   const onSubmit = async (values: SetPasswordOutput) => {
@@ -137,20 +114,12 @@ const PasswordForm = () => {
           비밀번호를 입력해 주세요.
         </h1>
         <div className="flex flex-col gap-2">
-          <TextInput
-            type={showPassword ? "text" : "password"}
+          <PasswordInput
             id="password"
             autoComplete="new-password"
             maxLength={MAX_PASSWORD_LENGTH}
             placeholder="8자 이상의 비밀번호"
             labelText="비밀번호"
-            suffix={
-              <VisibilityToggle
-                visible={showPassword}
-                onToggle={() => setShowPassword((prev) => !prev)}
-                controls="password"
-              />
-            }
             {...register("password", {
               // 비밀번호를 고치면 확인 칸의 일치 여부도 다시 검사
               deps: "passwordCheck",
@@ -167,21 +136,14 @@ const PasswordForm = () => {
           </ul>
         </div>
         <div className="flex flex-col gap-2">
-          <TextInput
-            type={showPasswordCheck ? "text" : "password"}
+          <PasswordInput
             id="passwordCheck"
             autoComplete="new-password"
             maxLength={MAX_PASSWORD_LENGTH}
             placeholder="8자 이상의 비밀번호"
             labelText="비밀번호 확인"
-            suffix={
-              <VisibilityToggle
-                visible={showPasswordCheck}
-                onToggle={() => setShowPasswordCheck((prev) => !prev)}
-                controls="passwordCheck"
-              />
-            }
             {...register("passwordCheck")}
+            error={passwordCheckError}
           />
           <ul className="flex px-1">
             <RuleItem passed={isMatched} label="비밀번호 일치" />

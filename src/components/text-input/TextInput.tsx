@@ -1,4 +1,8 @@
-import type { ComponentProps, ReactNode } from "react";
+"use client";
+
+import Image from "next/image";
+import { type ComponentProps, type ReactNode, useState } from "react";
+import ClearIcon from "@/assets/icons/clear.svg";
 import { cn } from "@/lib/cn";
 
 const sizes = {
@@ -15,6 +19,11 @@ interface TextInputProps extends Omit<ComponentProps<"input">, "size"> {
   suffix?: ReactNode;
   /** 입력창 아래 안내 문구 (입력 규칙 등). 에러가 있으면 에러 메시지로 대체됨 */
   helperText?: string;
+  /**
+   * 넘기면 포커스가 없을 때 × 지우기 버튼을 보여줌 (입력 중에는 숨김).
+   * 값이 있을 때만 넘길 것 → 빈 칸에는 버튼이 안 보임
+   */
+  onClear?: () => void;
 }
 
 /**
@@ -28,9 +37,14 @@ const TextInput = ({
   error,
   helperText,
   suffix,
+  onClear,
   className,
+  onFocus,
+  onBlur,
   ...props
 }: TextInputProps) => {
+  const [focused, setFocused] = useState(false);
+  const showClear = Boolean(onClear) && !focused;
   const errorId = `${id}-error`;
   const helperId = `${id}-helper`;
   const describedBy = error ? errorId : helperText ? helperId : undefined;
@@ -48,18 +62,38 @@ const TextInput = ({
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           {...props}
+          onFocus={(event) => {
+            setFocused(true);
+            onFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setFocused(false);
+            // react-hook-form의 onBlur(검사 시점)도 그대로 호출
+            onBlur?.(event);
+          }}
           className={cn(
             "overflow-hidden rounded-lg border bg-[#ffffff]/10 px-4 py-1 text-common-0 text-label2 outline-none placeholder:text-neutral-50",
             sizes[size],
-            suffix && "pr-16",
+            (suffix || onClear) && "pr-16",
             error
               ? "border-status-danger"
               : "border-line-alternative focus:border-neutral-5",
             className,
           )}
         />
-        {suffix && (
-          <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+        {(suffix || showClear) && (
+          <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center gap-2">
+            {showClear && (
+              <button
+                type="button" // form 안이라 type 없으면 submit 됨
+                onClick={onClear}
+                aria-label="입력 지우기"
+                // suffix 영역이 pointer-events-none이라 버튼만 클릭 가능하게
+                className="pointer-events-auto flex size-6 cursor-pointer items-center justify-center rounded-xs outline-none focus-visible:outline-2 focus-visible:outline-primary-40"
+              >
+                <Image src={ClearIcon} alt="" aria-hidden className="size-4" />
+              </button>
+            )}
             {suffix}
           </div>
         )}
