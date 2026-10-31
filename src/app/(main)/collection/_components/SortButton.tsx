@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import ChevronBottom from "@/assets/icons/chevron-bottom.svg";
+import ChevronBottom from "@/assets/icons/chevron-bottom-white.svg";
 import BottomSheet from "@/components/bottom-sheet/BottomSheet";
 import {
   collectionHref,
