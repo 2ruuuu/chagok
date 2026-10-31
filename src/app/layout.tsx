@@ -19,7 +19,7 @@ const pretendard = localFont({
 const RootLayout = ({ children }: LayoutProps<"/">) => {
   return (
     <html lang="ko" className={pretendard.variable}>
-      <body className="flex min-h-dvh min-w-93.75 flex-col">{children}</body>
+      <body className="flex min-h-dvh flex-col">{children}</body>
     </html>
   );
 };
