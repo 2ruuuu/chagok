@@ -229,6 +229,7 @@
   --shadow-xl: 0 24px 36px -10px #1717171f, 0 10px 16px -4px #1717171a;
   --shadow-spread-sm: 0 0 60px 0 #1717171a;
   --shadow-spread-md: 0 16px 72px 0 #17171729;
+  --shadow-drop-100: 0 1px 4px 0 #0c0c0d0d; /* Figma Drop Shadow/100 (Black/100 = #0c0c0d 5%) */
 
   /* 블러 */
   --blur-chrome: 64px;
@@ -280,4 +281,9 @@ body {
   color: var(--color-static-white);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* 밝은 화면(LightScreen)이 있으면 body 배경을 밝게 (Safari 툴바 색이 body 배경을 따라감) */
+body:has([data-light-screen]) {
+  background-color: var(--color-background-alternative);
 }

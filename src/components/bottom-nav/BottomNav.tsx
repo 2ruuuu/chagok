@@ -15,7 +15,7 @@ import RankingFilledIcon from "@/assets/icons/ranking-filled.svg";
 import { cn } from "@/lib/cn";
 
 /**
- * TODO: 홈 외 페이지는 아직 없음 (누르면 404). 페이지가 생기면 경로 확인.
+ * TODO: 인증 · 랭킹 페이지는 아직 없음 (누르면 404). 페이지가 생기면 경로 확인.
  * icon: 비활성, activeIcon: 현재 페이지일 때 (인증은 원 안의 흰 아이콘 하나뿐)
  */
 const NAV_ITEMS = [

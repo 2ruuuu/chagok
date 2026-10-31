@@ -80,21 +80,22 @@ export const setPasswordSchema = z
     path: ["passwordCheck"],
   });
 
+/** 닉네임 칸 (가입 /signup/nickname · 마이 프로필 편집 /my/edit 공통) */
+export const nicknameField = z
+  .string()
+  .trim()
+  .min(MIN_NICKNAME_LENGTH, {
+    error: `닉네임은 ${MIN_NICKNAME_LENGTH}자 이상 입력해 주세요.`,
+  })
+  .max(MAX_NICKNAME_LENGTH, {
+    error: `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해 주세요.`,
+  })
+  .regex(NICKNAME_PATTERN, {
+    error: "한글, 영문, 숫자만 사용할 수 있어요.",
+  });
+
 /** /signup/nickname */
-export const updateNicknameSchema = z.object({
-  nickname: z
-    .string()
-    .trim()
-    .min(MIN_NICKNAME_LENGTH, {
-      error: `닉네임은 ${MIN_NICKNAME_LENGTH}자 이상 입력해 주세요.`,
-    })
-    .max(MAX_NICKNAME_LENGTH, {
-      error: `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해 주세요.`,
-    })
-    .regex(NICKNAME_PATTERN, {
-      error: "한글, 영문, 숫자만 사용할 수 있어요.",
-    }),
-});
+export const updateNicknameSchema = z.object({ nickname: nicknameField });
 
 /** /login/email */
 export const signInSchema = z.object({

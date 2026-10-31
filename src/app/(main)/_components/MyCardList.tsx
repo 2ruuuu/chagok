@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import BellIcon from "@/assets/icons/bell.svg";
 import MainBg from "@/assets/imgs/main-bg.png";
 import CardDemoPage from "../../card-demo/page";
@@ -26,9 +27,9 @@ const MyCardList = ({ nickname }: MyCardListProps) => {
             지금까지 N장의 카드를 모았어요!
           </h2>
         </div>
-        <button type="button" aria-label="알림">
-          <Image src={BellIcon} alt="" />
-        </button>
+        <Link href="/notifications" aria-label="알림">
+          <Image src={BellIcon} alt="" aria-hidden />
+        </Link>
       </div>
       {/* 섹션의 좌우 여백을 상쇄해서 캐러셀이 화면 끝까지 닿게 */}
       <div className="-mx-5">

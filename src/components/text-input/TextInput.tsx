@@ -24,7 +24,22 @@ interface TextInputProps extends Omit<ComponentProps<"input">, "size"> {
    * 값이 있을 때만 넘길 것 → 빈 칸에는 버튼이 안 보임
    */
   onClear?: () => void;
+  /** 배경 밝기. 기본 dark(어두운 화면), 밝은 화면(마이 · 프로필 편집)은 light */
+  tone?: "dark" | "light";
 }
+
+const tones = {
+  dark: {
+    label: "text-neutral-5",
+    input: "bg-[#ffffff]/10 text-common-0",
+    border: "border-line-alternative focus:border-neutral-5",
+  },
+  light: {
+    label: "text-label-normal",
+    input: "bg-common-0 text-label-normal",
+    border: "border-line-neutral focus:border-label-normal",
+  },
+};
 
 /**
  * 나머지 input 속성(type, placeholder, value, onChange, name, onBlur, ref 등)은
@@ -38,6 +53,7 @@ const TextInput = ({
   helperText,
   suffix,
   onClear,
+  tone = "dark",
   className,
   onFocus,
   onBlur,
@@ -52,7 +68,7 @@ const TextInput = ({
   return (
     <div className="flex flex-col gap-1">
       {labelText && (
-        <label htmlFor={id} className="text-body3 text-neutral-5">
+        <label htmlFor={id} className={cn("text-body3", tones[tone].label)}>
           {labelText}
         </label>
       )}
@@ -72,12 +88,11 @@ const TextInput = ({
             onBlur?.(event);
           }}
           className={cn(
-            "overflow-hidden rounded-lg border bg-[#ffffff]/10 px-4 py-1 text-common-0 text-label2 outline-none placeholder:text-neutral-50",
+            "overflow-hidden rounded-lg border px-4 py-1 text-label2 outline-none placeholder:text-neutral-50",
+            tones[tone].input,
             sizes[size],
             (suffix || onClear) && "pr-16",
-            error
-              ? "border-status-danger"
-              : "border-line-alternative focus:border-neutral-5",
+            error ? "border-status-danger" : tones[tone].border,
             className,
           )}
         />

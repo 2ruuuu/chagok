@@ -19,7 +19,7 @@ const twMerge = extendTailwindMerge({
         "caption1",
         "caption2",
       ],
-      shadow: ["spread-sm", "spread-md"],
+      shadow: ["spread-sm", "spread-md", "drop-100"],
       blur: ["chrome"],
     },
   },
