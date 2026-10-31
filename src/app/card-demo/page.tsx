@@ -18,6 +18,8 @@ const baseTicket: Ticket = {
   country: "한국",
   genres: ["SF", "스릴러"],
   certificateId: "CHG-260715-0001",
+  comment:
+    "너무너무 재밌었음. 쭈랑 봐서 더 재밌었음, 너무너무 재밌었음. 쭈랑 봐서 더 재밌었음, 너무너무 재밌었음. 쭈랑 봐서 더 재밌었음, 너무너무 재밌었음. 쭈랑 봐서 더 재밌었음",
 };
 
 const tickets: Ticket[] = [

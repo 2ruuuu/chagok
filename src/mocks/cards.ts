@@ -49,6 +49,13 @@ const records = [
   ["hope", "2025.03.01", "16:20", 3, "2D", "롯데시네마 건대입구", "7관", "E열 6번", "그럭저럭"],
 ] as const;
 
+// 카드 뒷면 감상평 (comment)이 있는 카드: 카드 순서(index) → 감상평. 마이 "나의 감상" 개수 확인용
+const comments: Record<number, string> = {
+  0: "아이맥스로 다시 봐도 소름 돋았어요. 마지막 바다 장면은 꼭 큰 화면으로.",
+  3: "올해 본 영화 중 최고. 끝나고 한참 자리에서 못 일어났어요.",
+  7: "기대보다 아쉬웠지만 같이 본 사람 덕분에 즐거웠던 날.",
+};
+
 export const collectionCards: CollectionCard[] = records.map(
   (
     [movie, watchedAt, showtime, rating, format, theater, screen, seat, review],
@@ -67,6 +74,7 @@ export const collectionCards: CollectionCard[] = records.map(
       screen,
       seat,
       review,
+      comment: comments[index],
       certificateId: `CHG-${watchedAt.slice(2).replaceAll(".", "")}-${no}`,
     };
   },

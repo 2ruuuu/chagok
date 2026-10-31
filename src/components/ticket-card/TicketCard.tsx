@@ -17,6 +17,8 @@ export type Ticket = {
   showtime: string;
   seat: string;
   review: string;
+  /** 절취선 아래 밑줄 칸에 들어가는 감상평 (티켓 인증 때 작성). 없으면 빈 줄만 보임 */
+  comment?: string;
   releasedAt: string;
   country: string;
   genres: string[];
@@ -34,12 +36,8 @@ const FACE_CLASS =
 // 효과 레이어 공통 (카드 위를 덮고 클릭은 통과)
 const LAYER_CLASS = "pointer-events-none absolute inset-0";
 
-// 인증 번호로 고정된 바코드 패턴 생성 (렌더마다 바뀌지 않도록)
-const barcodeBars = (seed: string) =>
-  Array.from({ length: 42 }, (_, i) => {
-    const code = seed.charCodeAt(i % seed.length) + i * 7;
-    return (code % 3) + 1;
-  });
+// 감상평 칸 밑줄 개수
+const RULED_LINES = [1, 2, 3];
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -249,15 +247,18 @@ const CardBack = ({ ticket, flipped }: CardFaceProps) => {
         <span className="absolute inset-x-0 top-[var(--notch-y)] block before:absolute before:inset-x-4.5 before:top-0 before:border-t-[1.5px] before:border-dashed before:border-common-0/25" />
 
         <span className="mt-auto flex flex-col gap-2">
-          <span className="flex h-10 items-stretch gap-0.5" aria-hidden>
-            {barcodeBars(ticket.certificateId).map((weight, i) => (
+          {/* 감상평 밑줄 3칸: 밑줄은 항상 3줄, 글자는 그 위에 겹쳐서 줄마다 앉음 (줄 높이 h-7 = leading-7) */}
+          <span className="relative block">
+            {RULED_LINES.map((line) => (
               <span
-                // biome-ignore lint/suspicious/noArrayIndexKey: 고정 길이 장식 패턴
-                key={i}
-                className="bg-static-white/85"
-                style={{ flexGrow: weight }}
+                key={line}
+                className="block h-7 border-b border-common-0/25"
+                aria-hidden
               />
             ))}
+            <span className="absolute inset-0 line-clamp-3 text-label2 leading-7 font-medium break-words break-keep text-static-white">
+              {ticket.comment}
+            </span>
           </span>
           <span className="flex items-center justify-between">
             <span className="text-caption2 tracking-wider text-neutral-20">
