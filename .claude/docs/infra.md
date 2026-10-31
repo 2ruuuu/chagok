@@ -44,6 +44,9 @@ curl -H "Authorization: Bearer $(grep '^CRON_SECRET=' .env.local | cut -d= -f2-)
 - next.config.ts의 allowedDevOrigins랑 Supabase Redirect URLs에 같은 사설 IP가 있어야 함
 - 지금 값: 192.168.*.*, 172.30.*.*, 10.64.120.123 (Redirect URLs는 Supabase 대시보드에서 확인)
 - 172.*.*.* 통째로 열지 않기
+- iPhone Safari가 예전 CSS를 계속 쓸 때가 있음 (새로고침해도 그대로) -> 새로 만든 클래스만 안 먹어서 크기 0 · 간격 없음처럼 보임
+- 폰에서만 깨지면 코드 고치기 전에 개인정보 보호 탭이나 새 탭으로 먼저 확인
+- 그래도 이상하면 화면에 측정값 띄우는 임시 컴포넌트로 확인 (getComputedStyle, document.styleSheets에 새 클래스 있는지)
 
 ## Claude Code 설정
 
