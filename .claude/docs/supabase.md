@@ -58,10 +58,11 @@ keep_alive
 profiles
 
 - auth.users랑 1:1 (on delete cascade)
-- 컬럼: id, nickname, created_at, terms_agreed_at, marketing_agreed, marketing_agreed_updated_at
+- 컬럼: id, nickname, created_at, terms_agreed_at, marketing_agreed, marketing_agreed_updated_at, avatar_path
 - 가입하면 on_auth_user_created 트리거가 행 만들어줌 (handle_new_user)
-- 본인 것만 조회 · 수정 가능, 직접 수정은 nickname 컬럼만
-- nickname: null(가입 덜 끝남) 또는 한글 · 영문 · 숫자 1~20자 (profiles_nickname_format), 앱은 2자 이상
+- 본인 것만 조회 · 수정 가능, 직접 수정은 nickname · avatar_path 컬럼만
+- nickname: null(가입 덜 끝남) 또는 한글 · 영문 · 숫자 2~20자 (profiles_nickname_format, 20261031090000에서 1자 -> 2자)
+- avatar_path: avatars 버킷 안 경로(<user id>/<시각>.jpg), null이면 기본 이미지(assets/imgs/profile.png). 본인 id 폴더로 시작해야 함 (profiles_avatar_path_own_folder)
 - nickname은 대소문자 무시하고 unique -> 겹치면 23505
 - 약관 컬럼은 record_signup_agreements RPC로만 기록
 
@@ -74,4 +75,14 @@ profiles
 
 ## 할 일
 
-- profiles_nickname_format을 2자 이상으로 맞추기 (앱 스키마는 2자, DB는 아직 1자)
+- 20261031090000_profile_avatar db push (아직 안 함). 1자 닉네임 계정이 있으면 실패 -> 먼저 데이터 정리
+
+## Storage
+
+avatars
+
+- 프로필 사진, 공개 버킷 (URL로 바로 보임, next.config images.remotePatterns에 등록)
+- 1MB · jpeg/png/webp만, 앱에서 가운데 정사각형 512px jpeg로 줄여서 올림 (my/edit/resize-avatar.ts)
+- 경로 <user id>/<시각>.jpg, 정책: 본인 폴더만 조회 · 업로드 · 삭제 (조회 정책은 remove에 필요)
+- 새 사진 저장하면 이전 파일 삭제, 프로필 저장 실패하면 방금 올린 파일 삭제 (my/edit/actions.ts)
+- URL 만들기는 src/lib/avatar.ts getAvatarUrl

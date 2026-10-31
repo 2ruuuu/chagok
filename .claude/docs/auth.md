@@ -96,6 +96,6 @@
 
 - 소셜 로그인 실제 테스트: Kakao 로그인 확인됨, Google(Test users 계정) · 가입 끝까지(약관 → 닉네임 → 홈) 확인 남음
 - 아이디 · 비밀번호 찾기 (/find-id, /find-password 빈 페이지, 비번 찾기는 가입 OTP 흐름 재사용 가능)
-- DB 닉네임 제약 2자 이상으로 맞추기 (앱은 2자, DB는 아직 1자)
+- DB 닉네임 제약 2자: 마이그레이션 20261031090000_profile_avatar 작성
 - /signup/auth-complete 삭제할지 정하기
 - 홈 임시 로그아웃 버튼, /card-demo 임시 공개 정리 (홈 MyCardList가 CardDemoPage를 import 중이라 같이 정리)

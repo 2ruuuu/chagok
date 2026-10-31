@@ -37,6 +37,7 @@
 
 - shadow-{xs|sm|md|lg|xl} = Figma Shadow/Normal/*
 - shadow-spread-{sm|md} = Figma Shadow/Spread/*
+- shadow-drop-100 = Figma Drop Shadow/100 (0 1 4 0, #0c0c0d 5%), 밝은 화면 흰 카드 (설정)
 - 블러: backdrop-blur-chrome (64px)
 
 ## 간격 · 레이아웃
@@ -84,6 +85,7 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - TextInput: labelText, error, helperText(에러 있으면 에러로 바뀜), suffix
 - TextInput suffix는 기본 pointer-events-none -> 버튼 넣으면 pointer-events-auto
 - TextInput 나머지 props는 input으로 넘어감 -> {...register()} 바로 사용
+- TextInput tone: 기본 dark, 밝은 화면은 tone="light" (흰 바탕 · 어두운 글자)
 - TextInput onClear: 넘기면 포커스 없을 때 × 지우기 버튼 (입력 중엔 숨김), 값 있을 때만 넘기기 (`onClear={email ? clearEmail : undefined}`)
 - 지우기 핸들러는 setValue("") + clearErrors + setFocus
 - PasswordInput: 눈 아이콘(보기/숨기기) 붙은 비밀번호 칸, TextInput props 그대로 받음 (type · suffix 빼고)
@@ -102,6 +104,7 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - 어두운 화면의 바텀시트는 className="bg-neutral-80 px-5 text-static-white"로 덮어씀 (정렬 · 카드 메뉴)
 - HorizontalScroll: 화면 끝까지 닿는 가로 스크롤 <ul> (레이아웃 px-5를 -mx-5로 상쇄), 각 <li>에 snap-start, 간격 · grid는 className으로
 - HorizontalScroll <ul>에 relative 있음 -> 안의 sr-only가 스크롤 밖으로 안 빠짐 (빼지 않기)
+- Avatar: 동그란 프로필 사진 (src 없으면 assets/imgs/profile.png), size는 sizes용 px, 크기는 className으로
 - BottomNav: (main) 레이아웃 공통 하단 바, 화면 아래 고정 → (main) 레이아웃이 아래 여백(바 60 + 안전 영역 + 30) 잡아둠
 - BottomNav 아이콘: 평소 xxx.svg, 현재 페이지면 xxx-filled.svg (home, collection, ranking, mypage), 인증은 certification.svg 하나 (빨간 원 안 흰색)
 
@@ -136,3 +139,37 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - ⋮ 메뉴 시트: 관람평 수정 · 이미지로 저장 · 공유하기 (TODO, 지금은 시트만 닫힘), 카드 삭제 (빨간 글자, 위와 간격 띄움)
 - 카드 삭제 -> 시트 닫고 화면 가운데 Dialog "카드를 삭제할까요? / 삭제한 카드는 복구할 수 없어요." [취소] [삭제하기], 삭제는 TODO
 - 없는 cardId면 notFound()
+
+## 밝은 화면 ((main)/(light) · (detail)/(light))
+
+- 하단 바 있음 (main)/(light): 마이 /my, 프로필 편집 /my/edit, 알림 /notifications, 나의 감상 /my/comments, 관람 리뷰 /my/reviews
+- 하단 바 없음 (detail)/(light): 설정 /settings와 하위 페이지
+- 두 (light)/layout.tsx 모두 components/light-screen/LightScreen: data-light-screen + 글자색 text-label-normal, globals.css의 body:has([data-light-screen])가 body 배경을 background-alternative로 (fixed 배경 div로 하면 하단 바 없는 화면에서 Safari 툴바가 body의 어두운 색으로 보임)
+- 헤더는 components/page-header/PageHeader: 흰 바탕 sticky, back={{ href }}(그 경로로) 또는 back={{ fallback }}(이전 화면, 없으면 fallback으로 replace), right에 아이콘 · 버튼
+- 빈 화면 문구는 components/empty-state/EmptyState
+- 어두운 아이콘: 뒤로가기 chevron-left-black.svg, 종 bell-dark.svg (bell.svg의 흰색을 #171719로 바꾼 것)
+- 메뉴 > 화살표는 chevron-left-black.svg에 rotate-180
+
+## 마이 (/my)
+
+- 헤더: < (홈으로) · 마이 · 종(/notifications) · 톱니(/settings)
+- 프로필: 사진 · 닉네임 · 회색 연필(/my/edit)
+- 보유 카드 · 나의 감상 개수는 src/mocks/cards.ts 기준 (나의 감상 = comment 있는 카드), 카드 테이블 생기면 교체
+- 메뉴: 나의 감상(/my/comments), 관람 리뷰(/my/reviews) -> 지금은 "준비 중이에요"
+- 버전: constants/app.ts APP_VERSION
+
+## 프로필 편집 (/my/edit)
+
+- [저장]은 헤더 버튼 (form 속성으로 폼 제출), 바뀐 게 있고 닉네임 규칙에 맞을 때만 파란색(status-info), 아니면 interaction-inactive
+- 저장하면 updateProfile 액션 -> /my로 redirect(replace)
+- 닉네임: 가입과 같은 규칙(nicknameField, 한글 · 영문 · 숫자 2~20자, 띄어쓰기 X), onBlur 검사 + 입력하면 에러 지움, 중복이면 "이미 사용 중인 닉네임이에요."
+- 사진 연필 배지(profile-edit.svg) -> 바텀시트: 앨범에서 선택 / 기본 이미지로 변경(지금 기본 이미지면 숨김)
+- 고른 사진은 미리보기만, [저장] 때 업로드 (크롭 없음, 가운데 정사각형으로 자름)
+- 카카오 프로필 사진은 안 씀
+
+## 설정 (/settings)
+
+- (detail)/(light) 안이라 하단 바 없음, 헤더는 다른 밝은 화면처럼 흰색 (캡처는 회색이지만 통일)
+- 메뉴는 settings/_constants.ts SETTINGS_SECTIONS (계정 · 알림 · 기록 관리 · 도움말)
+- 프로필 편집 -> /my/edit, 나머지(연결된 계정 · 서비스 알림 · 휴지통 · 카드 내보내기 · 문의하기 · 개인정보 처리 방침)는 /settings/... "준비 중이에요"
+- 개인정보 처리 방침 문서는 아직 없음 (terms.ts privacy는 가입용 수집·이용 동의라 다른 문서)
