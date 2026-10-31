@@ -10,6 +10,12 @@ export const buttonVariants = cva(
         primary:
           "bg-primary-40 text-common-0 hover:bg-primary-50 active:bg-primary-60 cursor-pointer",
         disable: "bg-neutral-20 text-common-0",
+        // 어두운 배경 위 보조 버튼 (카드 상세의 이미지로 저장)
+        secondary:
+          "bg-neutral-75 text-neutral-20 hover:bg-neutral-70 cursor-pointer",
+        // 확인 창의 취소
+        neutral:
+          "bg-neutral-70 text-static-white hover:bg-neutral-60 cursor-pointer",
         outline:
           "bg-none text-common-0 cursor-pointer rounded-lg border border-neutral-50 text-label1",
         google:

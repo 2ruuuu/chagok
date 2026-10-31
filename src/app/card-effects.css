@@ -384,11 +384,12 @@
 
 /* 위 카드가 아래 카드에 드리우는 그림자 + 테두리 하이라이트 */
 @utility card-stack-item {
+  /* 왼쪽: 바로 아래 카드 위에 떨어지는 그림자 (카드 사이 경계) / 아래: 묶음 전체가 떠 보이게 */
   box-shadow:
-    -0.5rem 0 1rem -0.25rem
-    color-mix(in srgb, var(--color-common-100) 60%, transparent),
-    0 0.5rem 1rem -0.5rem
-    color-mix(in srgb, var(--color-common-100) 50%, transparent);
+    -0.25rem 0 0.625rem 0
+    color-mix(in srgb, var(--color-common-100) 75%, transparent),
+    0 0.375rem 0.75rem 0
+    color-mix(in srgb, var(--color-common-100) 55%, transparent);
 
   &::after {
     content: "";
@@ -397,6 +398,22 @@
     border-radius: inherit;
     box-shadow: inset 0 0 0 1px
       color-mix(in srgb, var(--color-common-0) 12%, transparent);
+    pointer-events: none;
+  }
+}
+
+/* 최근 남긴 관람평의 작은 카드: 상자 위로 살짝 떠 보이는 그림자 + 흰 10% 테두리 */
+@utility card-mini-shadow {
+  box-shadow: 0 0.25rem 0.75rem 0
+    color-mix(in srgb, var(--color-common-100) 45%, transparent);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--color-common-0) 10%, transparent);
     pointer-events: none;
   }
 }

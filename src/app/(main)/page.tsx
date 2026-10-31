@@ -1,7 +1,16 @@
 import { signOut } from "@/app/(auth)/actions";
 import { createClient } from "@/lib/supabase/server";
 import CollectedCardInMonth from "./_components/CollectedCardInMonth";
+import EndingSoonMovies from "./_components/EndingSoonMovies";
 import MyCardList from "./_components/MyCardList";
+import PopularMovies from "./_components/PopularMovies";
+import RecentReviews from "./_components/RecentReviews";
+import {
+  endingSoonMovies,
+  monthlyCollection,
+  popularMovies,
+  recentReviews,
+} from "./_mocks/home";
 
 const HomePage = async () => {
   const supabase = await createClient();
@@ -23,7 +32,10 @@ const HomePage = async () => {
   return (
     <div>
       <MyCardList nickname={nickname} />
-      <CollectedCardInMonth />
+      <CollectedCardInMonth collection={monthlyCollection} />
+      <RecentReviews reviews={recentReviews} />
+      <PopularMovies movies={popularMovies} />
+      <EndingSoonMovies movies={endingSoonMovies} />
       {/* 임시: 로그인 테스트용 로그아웃 버튼 */}
       <form action={signOut}>
         <button type="submit" className="cursor-pointer underline">

@@ -1,7 +1,8 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TicketCard, { type Ticket } from "@/components/ticket-card/TicketCard";
+import TicketInfo from "@/components/ticket-info/TicketInfo";
 import { cn } from "@/lib/cn";
 
 /** 양옆 카드가 가장 멀어졌을 때의 크기·흐림·밝기 */
@@ -109,12 +110,6 @@ const TicketCarousel = ({ tickets }: TicketCarouselProps) => {
     >
       {tickets.map((ticket, index) => {
         const isActive = index === activeIndex;
-        const meta = [
-          ticket.releasedAt,
-          ticket.country,
-          ticket.genres.join(", "),
-        ];
-
         return (
           <div
             key={ticket.certificateId}
@@ -127,21 +122,7 @@ const TicketCarousel = ({ tickets }: TicketCarouselProps) => {
               onFlippedChange={(next) => setFlippedIndex(next ? index : null)}
             />
 
-            <div className="flex flex-col items-center gap-1 text-center">
-              <p className="text-heading2 font-bold text-static-white">
-                {ticket.title}
-              </p>
-              <p className="flex items-center gap-2 text-label2 text-neutral-30">
-                {meta.map((text, i) => (
-                  <Fragment key={text}>
-                    {i > 0 && (
-                      <span aria-hidden className="h-3 w-px bg-neutral-60" />
-                    )}
-                    <span>{text}</span>
-                  </Fragment>
-                ))}
-              </p>
-            </div>
+            <TicketInfo ticket={ticket} />
 
             {/* 옆 카드는 뒤집히지 않고, 누르면 가운데로 이동 */}
             {!isActive && (
