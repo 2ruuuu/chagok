@@ -402,6 +402,78 @@
   }
 }
 
+/*
+ * 하단 바 유리 효과 (시안 Tab Bar / Liquid Glass, 어두운 유리)
+ * - 바탕: 반투명 검정 + 뒤 흐림 · 채도 → 뒤 콘텐츠가 어둡게 비침
+ * - ::before: 위 · 아래 가장자리가 밝은 흰 테두리 (빛 받는 유리 테두리)
+ * - 그림자: 떠 있는 느낌의 아래 그림자 + 안쪽 위 하이라이트
+ * 투명도 줄이기 설정이면 불투명한 어두운 바탕으로
+ */
+@utility glass-bar {
+  position: relative;
+  isolation: isolate;
+  background-color: color-mix(in srgb, var(--color-neutral-99) 72%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    0 0.5rem 1.5rem color-mix(in srgb, var(--color-common-100) 40%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-common-0) 10%, transparent);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-common-0) 35%, transparent),
+      color-mix(in srgb, var(--color-common-0) 8%, transparent) 50%,
+      color-mix(in srgb, var(--color-common-0) 30%, transparent)
+    );
+    /* 가운데를 파내서 테두리 1px만 남김 */
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--color-neutral-99);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* 하단 바에서 현재 탭 뒤 알약: 밝은 유리 (옅은 흰 바탕 + 흰 테두리 + 안쪽 위 하이라이트) */
+@utility glass-pressed {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-common-0) 18%, transparent),
+    color-mix(in srgb, var(--color-common-0) 10%, transparent)
+  );
+  box-shadow:
+    inset 0 0 0 0.5px color-mix(in srgb, var(--color-common-0) 22%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-common-0) 18%, transparent),
+    0 0.25rem 0.75rem color-mix(in srgb, var(--color-common-100) 25%, transparent);
+}
+
+/*
+ * 하단 바 가운데 인증 버튼 (시안 값)
+ * 테두리: 흰 30% 0.5 안쪽 / 안쪽 그림자: 0 0 10 흰 12% / 바깥 그림자: 0 4 14 #A8342A(primary-40) 35%
+ */
+@utility tab-primary {
+  box-shadow:
+    inset 0 0 0 0.5px color-mix(in srgb, var(--color-common-0) 30%, transparent),
+    inset 0 0 10px color-mix(in srgb, var(--color-common-0) 12%, transparent),
+    0 4px 14px color-mix(in srgb, var(--color-primary-40) 35%, transparent);
+}
+
 /* 최근 남긴 관람평의 작은 카드: 상자 위로 살짝 떠 보이는 그림자 + 흰 10% 테두리 */
 @utility card-mini-shadow {
   box-shadow: 0 0.25rem 0.75rem 0
