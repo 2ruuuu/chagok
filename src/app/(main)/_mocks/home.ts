@@ -48,6 +48,7 @@ export const recentReviews: RecentReview[] = Array.from(
     title: "오디세이",
     poster: odysseyPoster,
     rating: 1,
-    content: "오디세이, 오디세이, 오디세이오디세이오디세이 두 줄이 넘으면 말줄임표로 잘려요",
+    content:
+      "오디세이, 오디세이, 오디세이오디세이오디세이 두 줄이 넘으면 말줄임표로 잘려요",
   }),
 );

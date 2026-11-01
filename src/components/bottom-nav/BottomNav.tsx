@@ -66,6 +66,7 @@ const ALWAYS_VISIBLE_TOP = 40;
 const useHideOnScrollDown = (resetKey: string) => {
   const [hidden, setHidden] = useState(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 페이지(resetKey)가 바뀌면 다시 보이게 하려고 일부러 넣음
   useEffect(() => {
     setHidden(false);
     let lastY = window.scrollY;

@@ -412,7 +412,11 @@
 @utility glass-bar {
   position: relative;
   isolation: isolate;
-  background-color: color-mix(in srgb, var(--color-neutral-99) 72%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--color-neutral-99) 72%,
+    transparent
+  );
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   backdrop-filter: blur(20px) saturate(160%);
   box-shadow:
@@ -460,7 +464,8 @@
   box-shadow:
     inset 0 0 0 0.5px color-mix(in srgb, var(--color-common-0) 22%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--color-common-0) 18%, transparent),
-    0 0.25rem 0.75rem color-mix(in srgb, var(--color-common-100) 25%, transparent);
+    0 0.25rem 0.75rem
+    color-mix(in srgb, var(--color-common-100) 25%, transparent);
 }
 
 /*
