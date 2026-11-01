@@ -9,7 +9,7 @@ const PUBLIC_PATHS = [
   "/find-password",
   "/auth",
   "/api/cron",
-  "/card-demo", // 임시
+  "",
 ];
 
 /** 회원가입 중 세션이 생기기 전 단계 */

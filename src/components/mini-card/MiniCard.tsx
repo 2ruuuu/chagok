@@ -49,7 +49,7 @@ const MiniCard = ({
         className="card-holo-static pointer-events-none absolute inset-0"
       />
       {showBadge && (
-        <span className="holo-border absolute top-[4cqw] right-[4cqw] flex items-center gap-[1.5cqw] rounded-full bg-material-dimmer py-[1.8cqw] pr-[3.6cqw] pl-[2.4cqw] text-[length:3.6cqw] leading-none font-semibold tracking-[0.04em] text-static-white backdrop-blur-[8px]">
+        <span className="holo-border absolute top-[4cqw] right-[4cqw] flex items-center gap-[1.5cqw] rounded-full bg-material-dimmer py-[1.8cqw] pr-[3.6cqw] pl-[2.4cqw] text-[3.6cqw] leading-none font-semibold tracking-[0.04em] text-static-white backdrop-blur-sm">
           <Image src={BadgeCheck} alt="" aria-hidden className="size-[1.3em]" />
           VERIFIED
         </span>

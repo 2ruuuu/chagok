@@ -26,7 +26,7 @@ const HorizontalScroll = ({
         // relative: 안의 absolute 요소(sr-only 등)가 이 목록을 기준으로 잡혀야 스크롤 영역 안에 갇힘.
         // 없으면 화면 밖 항목의 absolute 요소가 페이지 폭을 늘려 가로 스크롤이 생김
         "relative -mx-5 flex snap-x snap-mandatory scroll-px-5 overflow-x-auto px-5",
-        "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "scrollbar-none [&::-webkit-scrollbar]:hidden",
         className,
       )}
     >

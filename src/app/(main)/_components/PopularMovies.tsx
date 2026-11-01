@@ -28,7 +28,7 @@ const PopularMovies = ({ movies }: PopularMoviesProps) => {
         <HorizontalScroll
           aria-label="요즘 인기 있는 영화"
           // 시안: 항목 247×126, 열 간격 32, 줄 간격 32
-          className="grid auto-cols-[15.4375rem] grid-flow-col grid-rows-2 gap-x-8 gap-y-8"
+          className="grid auto-cols-61.75 grid-flow-col grid-rows-2 gap-x-8 gap-y-8"
         >
           {movies.map((movie) => (
             <li key={movie.id} className="flex snap-start items-center gap-4">

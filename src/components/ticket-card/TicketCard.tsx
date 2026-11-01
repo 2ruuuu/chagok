@@ -112,7 +112,7 @@ const TicketCard = ({
   return (
     <div
       ref={sceneRef}
-      className="card-scene relative aspect-[5/7] w-75 touch-pan-x touch-pan-y perspective-[1000px] md:w-90"
+      className="card-scene relative aspect-5/7 w-75 touch-pan-x touch-pan-y perspective-[1000px] md:w-90"
       onPointerEnter={handlePointerEnter}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
@@ -244,7 +244,7 @@ const CardBack = ({ ticket, flipped }: CardFaceProps) => {
         </span>
 
         {/* 절취선: 양쪽 노치 높이(--notch-y)에 맞춘 점선 */}
-        <span className="absolute inset-x-0 top-[var(--notch-y)] block before:absolute before:inset-x-4.5 before:top-0 before:border-t-[1.5px] before:border-dashed before:border-common-0/25" />
+        <span className="absolute inset-x-0 top-(--notch-y) block before:absolute before:inset-x-4.5 before:top-0 before:border-t-[1.5px] before:border-dashed before:border-common-0/25" />
 
         <span className="mt-auto flex flex-col gap-2">
           {/* 감상평 밑줄 3칸: 밑줄은 항상 3줄, 글자는 그 위에 겹쳐서 줄마다 앉음 (줄 높이 h-7 = leading-7) */}
@@ -256,7 +256,7 @@ const CardBack = ({ ticket, flipped }: CardFaceProps) => {
                 aria-hidden
               />
             ))}
-            <span className="absolute inset-0 line-clamp-3 text-label2 leading-7 font-medium break-words break-keep text-static-white">
+            <span className="absolute inset-0 line-clamp-3 text-label2 leading-7 font-medium wrap-break-word break-keep text-static-white">
               {ticket.comment}
             </span>
           </span>
