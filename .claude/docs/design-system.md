@@ -98,22 +98,27 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - TicketCarousel: 가운데 카드에 포커스, scroll-snap + 스크롤 위치로 크기 · 흐림 직접 바꿈 (리렌더 없음), 뒤집힌 카드는 하나만
 - CardStack: 최신순 카드 중 앞 5장만 겹쳐서 보여줌 (13장 넘겨도 5장), 클릭 없음, 카드는 MiniCard
 - CardStack은 상자 좌우 폭에 꽉 참: 묶음 <ul>은 폭 100% + 비율 296:112, 카드는 그 안에 absolute로 % 배치 (시안 카드 80, 한 장씩 54씩 오른쪽, 296 기준)
-- MiniCard: 80×112 작은 인증 카드 (포스터 + 고정 홀로그램 + VERIFIED 배지), CardStack · 최근 남긴 관람평 · 컬렉션 그리드에서 씀. 크게 쓰면 sizes 넘기기
+- MiniCard: 기본 80×112 작은 인증 카드 (요즘 내가 본은 100×140으로 className · sizes 덮어씀) (포스터 + 고정 홀로그램 + VERIFIED 배지), CardStack · 최근 남긴 관람평 · 컬렉션 그리드에서 씀. 크게 쓰면 sizes 넘기기
 - Dialog: 화면 가운데 확인 창 (네이티브 <dialog> showModal). open, onClose, labelledBy, describedBy. 카드 삭제 확인에서 씀
 - TicketInfo: 티켓 카드 아래 제목 + 개봉일 | 국가 | 장르 (홈 캐러셀 · 카드 상세)
 - 어두운 화면의 바텀시트는 className="bg-neutral-80 px-5 text-static-white"로 덮어씀 (정렬 · 카드 메뉴)
 - HorizontalScroll: 화면 끝까지 닿는 가로 스크롤 <ul> (레이아웃 px-5를 -mx-5로 상쇄), 각 <li>에 snap-start, 간격 · grid는 className으로
 - HorizontalScroll <ul>에 relative 있음 -> 안의 sr-only가 스크롤 밖으로 안 빠짐 (빼지 않기)
 - Avatar: 동그란 프로필 사진 (src 없으면 assets/imgs/profile.png), size는 sizes용 px, 크기는 className으로
-- BottomNav: (main) 레이아웃 공통 하단 바, 화면 아래 고정 → (main) 레이아웃이 아래 여백(바 60 + 안전 영역 + 30) 잡아둠
-- BottomNav 아이콘: 평소 xxx.svg, 현재 페이지면 xxx-filled.svg (home, collection, ranking, mypage), 인증은 certification.svg 하나 (빨간 원 안 흰색)
+- BottomNav: (main) 레이아웃 공통 하단 바 (시안 Tab Bar / Liquid Glass). 343×64 어두운 유리 알약(glass-bar), 화면 아래에서 34 띄움(시안 홈 바 영역, 안전 영역이 더 크면 그 값), 아이콘만(글자는 aria-label) → (main) 레이아웃 아래 여백은 40 + 안전 영역만 (바가 스크롤하면 숨어서 바 높이만큼 안 비움)
+- BottomNav 칸: 5칸 균등(grid-cols-5), 현재 탭 뒤 밝은 알약(glass-pressed)은 칸 폭 × 52 하나만 두고 탭이 바뀌면 미끄러져 이동(누르는 순간 출발), 아래로 스크롤하면 숨김 · 위로 올리면 다시
+- BottomNav 아이콘: 평소 xxx-gray.svg, 현재 탭 xxx-white.svg (home, collection, ranking, my), 인증은 48 빨간 원(bg-primary-40 + tab-primary: 흰 30% 0.5 테두리 · 안쪽 흰 12% · 바깥 0 4 14 primary-40 35%) 안의 certification.svg
 
 ## 홈 (/)
 
-- 섹션: MyCardList(캐러셀) -> CollectedCardInMonth -> RecentReviews -> PopularMovies -> EndingSoonMovies, 2번부터 섹션 사이 60 (mt-15)
+- 섹션: MyCardList(캐러셀) -> CollectedCardInMonth -> PopularMovies(요즘 인기 있는 🔥) -> UpcomingMovies(곧 개봉해요 🎬), 1 · 2번 섹션 사이 40 (캐러셀 아래 여백 30 + mt-2.5), 2번부터 섹션 사이 60 (mt-15)
 - 섹션 제목 + 화살표는 (main)/_components/SectionHeader, 전체 보기 페이지 생기면 href 넘기기
-- 목데이터는 (main)/_mocks/home.ts (타입도 여기), 실제 데이터 생기면 여기만 교체
-- 곧 상영 종료 뱃지: D-10 미만 primary-40, 이상 neutral-70
+- 내 카드 · 관람평 목데이터는 (main)/_mocks/home.ts (타입도 여기), 카드 테이블 생기면 여기만 교체
+- 인기 영화 · 곧 개봉은 실제 데이터: src/lib/movies/home.ts (getPopularMovies, getUpcomingMovies), 타입은 lib/movies/types.ts, 기준은 product.md 영화 데이터
+- 영화 포스터는 (main)/_components/MoviePosterImage (못 찾으면 회색 빈 칸)
+- 불러오기 실패 · 0편이면 섹션 안에 안내 문구
+- 요즘 내가 본(RecentReviews): 홈에서 뺌 (컴포넌트 · 목데이터는 남아 있음). 상자 276×132 · 안쪽 여백 16, MiniCard 100×140이 위로 24 튀어나옴, 글자는 왼쪽 140부터 (제목 label2 · 빨간 별 star-red.svg + 별점 label2 · 공유 리뷰 body2 최대 2줄), 누르는 동작 없음
+- 곧 개봉 뱃지: 개봉까지 남은 날, 당일은 D-Day, D-10 미만 primary-40, 이상 neutral-70
 - 아직 없는 아이콘 (자리만 비워둠): 별(관람평 별점, 컬렉션 카드 아래 별점)
 
 ## 컬렉션 (/collection)

@@ -60,7 +60,7 @@
 - /login/email EmailLoginForm: 본문 전체가 form 하나 (중간 SNS 버튼 CircleButton은 type="button")
 - 로그인 실패하면 어느 칸이 틀렸는지 안 알려줌, 에러는 비밀번호 아래에
 - 성공하면 / (가입 미완료면 proxy가 남은 단계로)
-- 홈 로그아웃 버튼은 테스트용 임시
+- 로그아웃 버튼은 지금 화면에 없음 (홈 임시 버튼 지움, signOut 액션은 남아 있음 → 설정 시안 나오면 연결)
 
 ## 소셜 로그인 (Google · Kakao)
 
@@ -98,4 +98,4 @@
 - 아이디 · 비밀번호 찾기 (/find-id, /find-password 빈 페이지, 비번 찾기는 가입 OTP 흐름 재사용 가능)
 - DB 닉네임 제약 2자: 마이그레이션 20261031090000_profile_avatar 작성
 - /signup/auth-complete 삭제할지 정하기
-- 홈 임시 로그아웃 버튼, /card-demo 임시 공개 정리 (홈 MyCardList가 CardDemoPage를 import 중이라 같이 정리)
+- /card-demo 정리 (홈 MyCardList가 CardDemoPage를 import 중이라 같이 정리), 로그아웃 버튼 자리 정하기
