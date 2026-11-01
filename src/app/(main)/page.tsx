@@ -1,16 +1,10 @@
-import { signOut } from "@/app/(auth)/actions";
+import { getPopularMovies, getUpcomingMovies } from "@/lib/movies/home";
 import { createClient } from "@/lib/supabase/server";
 import CollectedCardInMonth from "./_components/CollectedCardInMonth";
-import EndingSoonMovies from "./_components/EndingSoonMovies";
 import MyCardList from "./_components/MyCardList";
 import PopularMovies from "./_components/PopularMovies";
-import RecentReviews from "./_components/RecentReviews";
-import {
-  endingSoonMovies,
-  monthlyCollection,
-  popularMovies,
-  recentReviews,
-} from "./_mocks/home";
+import UpcomingMovies from "./_components/UpcomingMovies";
+import { monthlyCollection } from "./_mocks/home";
 
 const HomePage = async () => {
   const supabase = await createClient();
@@ -29,20 +23,20 @@ const HomePage = async () => {
     nickname = profile?.nickname ?? null;
   }
 
+  // 영화 데이터는 외부 API를 캐시해서 씀 (src/lib/movies, 방문자 수와 상관없이 호출 수 고정)
+  const [popularMovies, upcomingMovies] = await Promise.all([
+    getPopularMovies(),
+    getUpcomingMovies(),
+  ]);
+
   return (
     <div>
       <MyCardList nickname={nickname} />
       <CollectedCardInMonth collection={monthlyCollection} />
-      <RecentReviews reviews={recentReviews} />
       <PopularMovies movies={popularMovies} />
-      <EndingSoonMovies movies={endingSoonMovies} />
-      {/* 임시: 로그인 테스트용 로그아웃 버튼 */}
-      <form action={signOut}>
-        <button type="submit" className="cursor-pointer underline">
-          로그아웃
-        </button>
-      </form>
+      <UpcomingMovies movies={upcomingMovies} />
     </div>
   );
 };
+
 export default HomePage;
