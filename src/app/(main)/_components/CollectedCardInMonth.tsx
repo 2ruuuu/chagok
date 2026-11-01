@@ -16,7 +16,8 @@ const CollectedCardInMonth = ({ collection }: CollectedCardInMonthProps) => {
   return (
     <section
       aria-labelledby="collected-card-in-month-title"
-      className="flex flex-col gap-4 rounded-lg bg-common-0/4 p-5"
+      // 위 섹션(캐러셀)과 간격 40 = 캐러셀 아래 여백 30(카드 기울기 · 그림자 공간) + 10
+      className="mt-2.5 flex flex-col gap-4 rounded-lg bg-common-0/4 p-5"
     >
       <h2
         id="collected-card-in-month-title"
@@ -25,7 +26,7 @@ const CollectedCardInMonth = ({ collection }: CollectedCardInMonthProps) => {
         {month}월에 모은 카드 {monthCount}장
       </h2>
       <CardStack cards={cards} />
-      <p className="flex items-center gap-0.5 text-caption1 text-neutral-30">
+      <p className="flex items-center gap-0.5 text-caption1 text-neutral-15">
         <span>올 해 누적 {yearCount}장</span>
         <span aria-hidden>·</span>
         <span>지난 달보다 {formatDiff(monthCount - lastMonthCount)}</span>

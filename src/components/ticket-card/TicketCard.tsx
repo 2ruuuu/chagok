@@ -16,8 +16,9 @@ export type Ticket = {
   watchedAt: string;
   showtime: string;
   seat: string;
+  /** 공유 리뷰: 사이트에 공개되는 영화 리뷰 (마이 "관람 리뷰"), 티켓 인증 때 필수. 카드에는 안 보임 */
   review: string;
-  /** 절취선 아래 밑줄 칸에 들어가는 감상평 (티켓 인증 때 작성). 없으면 빈 줄만 보임 */
+  /** 소감: 나만 보는 솔직한 느낌, 절취선 아래 밑줄 칸에 들어감. 없으면 빈 줄만 보임 */
   comment?: string;
   releasedAt: string;
   country: string;
@@ -195,7 +196,6 @@ const CardFront = ({ ticket, flipped }: CardFaceProps) => {
 
 const CardBack = ({ ticket, flipped }: CardFaceProps) => {
   const rows = [
-    ["관람평", ticket.review],
     ["극장", ticket.theater],
     ["상영관", ticket.screen],
     ["일시", `${ticket.watchedAt} ${ticket.showtime}`],

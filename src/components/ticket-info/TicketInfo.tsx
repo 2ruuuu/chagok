@@ -11,10 +11,8 @@ const TicketInfo = ({ ticket }: TicketInfoProps) => {
 
   return (
     <div className="flex flex-col items-center gap-1 text-center">
-      <p className="text-heading2 font-bold text-static-white">
-        {ticket.title}
-      </p>
-      <p className="flex items-center gap-2 text-label2 text-neutral-30">
+      <p className="text-heading2 text-static-white">{ticket.title}</p>
+      <p className="flex items-center gap-2 text-body2 text-neutral-15">
         {meta.map((text, i) => (
           <Fragment key={text}>
             {i > 0 && <span aria-hidden className="h-3 w-px bg-neutral-60" />}

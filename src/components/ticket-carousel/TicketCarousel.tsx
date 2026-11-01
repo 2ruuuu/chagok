@@ -105,7 +105,7 @@ const TicketCarousel = ({ tickets }: TicketCarouselProps) => {
         "relative flex snap-x snap-mandatory gap-4 overflow-x-auto py-7.5",
         // 첫·마지막 카드도 가운데에 올 수 있도록 좌우 여백 = (화면 - 카드 너비) / 2
         "px-[calc(50%-9.375rem)] md:px-[calc(50%-11.25rem)]",
-        "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "scrollbar-none [&::-webkit-scrollbar]:hidden",
       )}
     >
       {tickets.map((ticket, index) => {
