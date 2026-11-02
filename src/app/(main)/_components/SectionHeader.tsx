@@ -13,12 +13,7 @@ interface SectionHeaderProps {
 /** 홈 섹션 제목 + 오른쪽 화살표 (최근 남긴 관람평, 요즘 인기 있는, 곧 상영 종료되는 영화) */
 const SectionHeader = ({ id, title, href }: SectionHeaderProps) => {
   const chevron = (
-    <Image
-      src={ChevronRight}
-      alt=""
-      aria-hidden
-      className="size-4 xl:size-5"
-    />
+    <Image src={ChevronRight} alt="" aria-hidden className="size-4 xl:size-5" />
   );
 
   return (

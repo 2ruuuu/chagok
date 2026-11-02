@@ -73,9 +73,7 @@ const CollectedCardInMonth = ({ collection }: CollectedCardInMonthProps) => {
         </div>
         <div className="flex flex-col gap-1">
           <dt className="text-label2 text-neutral-30">지난 달보다</dt>
-          <dd className="text-heading1 font-bold text-static-white">
-            {diff}
-          </dd>
+          <dd className="text-heading1 font-bold text-static-white">{diff}</dd>
         </div>
       </dl>
       <div className="hidden border-line-normal border-t pt-5 xl:block">
@@ -84,11 +82,7 @@ const CollectedCardInMonth = ({ collection }: CollectedCardInMonthProps) => {
       <div className="hidden border-line-normal border-t pt-5 xl:block">
         <TopFormats formats={topFormats} />
       </div>
-      <Button
-        type="button"
-        variant="outline"
-        className="md:[grid-area:button]"
-      >
+      <Button type="button" variant="outline" className="md:[grid-area:button]">
         다른 티켓 인증하기
       </Button>
     </section>
