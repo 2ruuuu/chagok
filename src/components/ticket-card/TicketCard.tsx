@@ -9,7 +9,8 @@ import { cn } from "@/lib/cn";
 export type Ticket = {
   title: string;
   originalTitle: string;
-  poster: StaticImageData;
+  /** import한 이미지 또는 이미지 URL (TMDB 포스터 등) */
+  poster: StaticImageData | string;
   format: string;
   theater: string;
   screen: string;
@@ -45,12 +46,18 @@ interface TicketCardProps {
   /** 넘기면 바깥에서 앞/뒷면을 제어 (캐러셀 등). 안 넘기면 카드가 스스로 관리 */
   flipped?: boolean;
   onFlippedChange?: (flipped: boolean) => void;
+  /**
+   * 지금 주목받는 카드인지 (캐러셀 가운데). false면 계속 도는 효과(빛 쓸기 · 배지 테두리 회전)를 끔 (화면에 여러 장일 때 성능).
+   * 안 넘기면 true (카드 상세처럼 한 장만 있을 때)
+   */
+  active?: boolean;
 }
 
 const TicketCard = ({
   ticket,
   flipped: flippedProp,
   onFlippedChange,
+  active = true,
 }: TicketCardProps) => {
   const sceneRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef(0);
@@ -132,7 +139,7 @@ const TicketCard = ({
               flipped && "motion-safe:rotate-y-180",
             )}
           >
-            <CardFront ticket={ticket} flipped={flipped} />
+            <CardFront ticket={ticket} flipped={flipped} animated={active} />
             <CardBack ticket={ticket} flipped={flipped} />
           </span>
         </button>
@@ -146,7 +153,12 @@ interface CardFaceProps {
   flipped: boolean;
 }
 
-const CardFront = ({ ticket, flipped }: CardFaceProps) => {
+interface CardFrontProps extends CardFaceProps {
+  /** 계속 도는 효과(빛 쓸기 · 배지 테두리 회전), 가운데 카드만 */
+  animated: boolean;
+}
+
+const CardFront = ({ ticket, flipped, animated }: CardFrontProps) => {
   return (
     <span
       className={cn(
@@ -158,7 +170,9 @@ const CardFront = ({ ticket, flipped }: CardFaceProps) => {
       <Image
         src={ticket.poster}
         alt={`${ticket.title} 포스터`}
-        placeholder="blur"
+        // URL 포스터는 크기 정보가 없어서 fill (앞면 span이 absolute라 기준이 됨)
+        fill
+        placeholder={typeof ticket.poster === "string" ? "empty" : "blur"}
         preload
         sizes="(min-width: 768px) 360px, 300px"
         className="card-parallax size-full object-cover"
@@ -172,12 +186,15 @@ const CardFront = ({ ticket, flipped }: CardFaceProps) => {
         )}
       />
       <span className={cn(LAYER_CLASS, "card-glare")} />
-      <span
-        className={cn(
-          LAYER_CLASS,
-          "card-sheen animate-card-sheen motion-reduce:animate-none",
-        )}
-      />
+      {/* 무한 반복이라 매 프레임 다시 그림 → 가운데 카드에만 (옆 카드까지 돌면 렉) */}
+      {animated && (
+        <span
+          className={cn(
+            LAYER_CLASS,
+            "card-sheen animate-card-sheen motion-reduce:animate-none",
+          )}
+        />
+      )}
 
       <span
         className={cn(
@@ -185,6 +202,15 @@ const CardFront = ({ ticket, flipped }: CardFaceProps) => {
           "bg-material-dimmer backdrop-blur-md",
         )}
       >
+        {/* 회전 테두리: 틀(링 모양)은 가만히, 안의 무지개만 transform으로 돎. 옆 카드는 멈춤 */}
+        <span aria-hidden className="holo-ring-frame">
+          <span
+            className={cn(
+              "holo-ring-gradient",
+              animated && "animate-holo-ring motion-reduce:animate-none",
+            )}
+          />
+        </span>
         <Image src={BadgeCheck} alt="" aria-hidden className="size-4" />
         <span className="text-caption2 font-semibold tracking-wider text-static-white">
           VERIFIED
