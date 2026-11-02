@@ -49,6 +49,11 @@
 - 가로 스크롤 상자(overflow-x-auto) 안에 absolute 요소(sr-only 포함)가 있으면 상자에 relative -> 없으면 화면 밖 항목의 absolute가 페이지 폭을 늘려 가로 스크롤 생김
 - 폭에 맞춰 늘고 주는 카드는 간격 · 좌우 여백 고정, 남는 폭을 카드가 나눠 가짐 (카드 비율 5:7 유지)
 - 브레이크포인트: 기본 375 / md 768 / xl 1440 (sm, lg, 2xl은 꺼져있음)
+- 반응형 (시안 없이 만든 것): 모바일 ~767 최대 430 · 좌우 20 / 태블릿 md 화면 폭 · 좌우 32 / 데스크톱 xl 최대 1200 가운데 · 좌우 여백 없음 ((main)/layout.tsx)
+- 화면 끝까지 닿게 하는 -mx-*는 위 여백에 맞춰 md · xl도 같이 (HorizontalScroll, 홈 MyCardList)
+- 데스크톱 상자 기준: 히어로 · 사이드 패널(수집 현황)은 상자(bg-common-0/4 또는 배경 이미지 + 둥근 모서리), 콘텐츠 목록(인기 · 곧 개봉 등)은 상자 없이 열린 영역
+- 반응형 전 화면은 components/narrow-column/NarrowColumn으로 430 유지 (컬렉션 layout, (main)/(light) layout), 손보면 그 layout에서 빼기
+- 데스크톱(xl)은 하단 바 대신 상단 헤더 components/top-nav/TopNav (mock-logo · 글자 메뉴 · 알림 · [티켓 인증]), 메뉴 목록은 constants/nav.ts (BottomNav와 같이 씀)
 
 ## cn()
 
@@ -67,6 +72,9 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - card-scene 붙은 바깥 요소에 포인터 값(--px, --py, --rx, --ry, --hyp, --lift)이 들어가고 안쪽 레이어가 읽어서 움직임
 - 새로 만들 땐 Tailwind 기본 클래스랑 이름 안 겹치게 (ring -> holo-ring, text-로 시작하면 tailwind-merge가 헷갈려서 foil-text)
 - 움직이는 효과는 prefers-reduced-motion일 때 멈추는 것까지 같이 작성
+- 계속 도는 효과는 transform · opacity로만 (background-position · 커스텀 속성(@property) 애니메이션은 매 프레임 다시 그려서 렉)
+- 인증 배지 회전 테두리: holo-ring(배지) > holo-ring-frame(링 마스크) > holo-ring-gradient(+ animate-holo-ring), 무지개 정사각형을 rotate로 돌림
+- TicketCard active=false(캐러셀 옆 카드)면 빛 쓸기 없음 · 배지 회전 멈춤, 가운데 카드만 움직임
 
 ## 아이콘
 
@@ -96,6 +104,7 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - TermsContent: constants/terms.ts의 약관 데이터를 그려줌
 - TicketCard: flipped, onFlippedChange 넘기면 밖에서 앞뒷면 제어, 안 넘기면 알아서 관리
 - TicketCarousel: 가운데 카드에 포커스, scroll-snap + 스크롤 위치로 크기 · 흐림 직접 바꿈 (리렌더 없음), 뒤집힌 카드는 하나만
+- TicketCarousel 데스크톱(xl): 캐러셀 영역 양 끝(16 안쪽)에 좌우 화살표(chevron-right.svg, 왼쪽은 rotate-180), 첫 · 마지막 카드면 그쪽 화살표 숨김
 - CardStack: 최신순 카드 중 앞 5장만 겹쳐서 보여줌 (13장 넘겨도 5장), 클릭 없음, 카드는 MiniCard
 - CardStack은 상자 좌우 폭에 꽉 참: 묶음 <ul>은 폭 100% + 비율 296:112, 카드는 그 안에 absolute로 % 배치 (시안 카드 80, 한 장씩 54씩 오른쪽, 296 기준)
 - MiniCard: 기본 80×112 작은 인증 카드 (요즘 내가 본은 100×140으로 className · sizes 덮어씀) (포스터 + 고정 홀로그램 + VERIFIED 배지), CardStack · 최근 남긴 관람평 · 컬렉션 그리드에서 씀. 크게 쓰면 sizes 넘기기
@@ -112,6 +121,13 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 ## 홈 (/)
 
 - 섹션: MyCardList(캐러셀) -> CollectedCardInMonth -> PopularMovies(요즘 인기 있는 🔥) -> UpcomingMovies(곧 개봉해요 🎬), 1 · 2번 섹션 사이 40 (캐러셀 아래 여백 30 + mt-2.5), 2번부터 섹션 사이 60 (mt-15)
+- 태블릿(md): 한 줄 그대로, 가로 스크롤 유지, 이번 달 카드만 왼쪽 글자 · 버튼 / 오른쪽 카드 묶음(296)
+- 데스크톱(xl): 히어로 둥근 상자 = 왼쪽 360 인사(display1) · 카드 수 · [내 컬렉션 보기] / 오른쪽 캐러셀(양 끝 흐려짐, 스크롤 영역에만 mask), 히어로 알림 아이콘은 숨김(헤더에 있음)
+- 데스크톱(xl) 아래 2단 = 왼쪽 360 "내 수집 현황" 패널 · 오른쪽 인기(5줄 2열, 포스터 100×150) + 곧 개봉(5열 그리드)
+- 내 수집 현황(CollectedCardInMonth의 xl): 제목 · 카드 묶음 · 올해 누적/지난 달보다 큰 숫자 · 월별 막대(MonthlyCountChart, 최근 6개월, 이번 달만 primary-40) · 많이 본 포맷(TopFormats) · 버튼. 약 730 높이, 화면 높이 848 이상일 때만 sticky
+- 수집 현황 숫자(monthlyCounts · topFormats · totalCardCount)는 (main)/_mocks/home.ts, 서로 맞춰둠
+- 데스크톱(xl) 글자 한 단계 크게: 섹션 제목 heading3 semibold, 영화 제목 body1 semibold, 부가 정보 caption1 -> label2
+- 인사: 닉네임 없으면 "안녕하세요!", 카드 수는 src/mocks/cards.ts 개수 (마이와 같은 기준, 카드 테이블 생기면 교체)
 - 섹션 제목 + 화살표는 (main)/_components/SectionHeader, 전체 보기 페이지 생기면 href 넘기기
 - 내 카드 · 관람평 목데이터는 (main)/_mocks/home.ts (타입도 여기), 카드 테이블 생기면 여기만 교체
 - 인기 영화 · 곧 개봉은 실제 데이터: src/lib/movies/home.ts (getPopularMovies, getUpcomingMovies), 타입은 lib/movies/types.ts, 기준은 product.md 영화 데이터
