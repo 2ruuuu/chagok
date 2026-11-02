@@ -4,7 +4,7 @@ import CollectedCardInMonth from "./_components/CollectedCardInMonth";
 import MyCardList from "./_components/MyCardList";
 import PopularMovies from "./_components/PopularMovies";
 import UpcomingMovies from "./_components/UpcomingMovies";
-import { monthlyCollection } from "./_mocks/home";
+import { monthlyCollection, totalCardCount } from "./_mocks/home";
 
 const HomePage = async () => {
   const supabase = await createClient();
@@ -31,10 +31,15 @@ const HomePage = async () => {
 
   return (
     <div>
-      <MyCardList nickname={nickname} />
-      <CollectedCardInMonth collection={monthlyCollection} />
-      <PopularMovies movies={popularMovies} />
-      <UpcomingMovies movies={upcomingMovies} />
+      <MyCardList nickname={nickname} cardCount={totalCardCount} />
+      {/* 데스크톱(xl): 왼쪽 이번 달 카드(360, 따라 내려옴) · 오른쪽 영화 섹션 2단. 그 아래 폭은 한 줄 */}
+      <div className="xl:mt-10 xl:grid xl:grid-cols-[22.5rem_minmax(0,1fr)] xl:items-start xl:gap-10">
+        <CollectedCardInMonth collection={monthlyCollection} />
+        <div>
+          <PopularMovies movies={popularMovies} />
+          <UpcomingMovies movies={upcomingMovies} />
+        </div>
+      </div>
     </div>
   );
 };

@@ -13,12 +13,21 @@ interface SectionHeaderProps {
 /** 홈 섹션 제목 + 오른쪽 화살표 (최근 남긴 관람평, 요즘 인기 있는, 곧 상영 종료되는 영화) */
 const SectionHeader = ({ id, title, href }: SectionHeaderProps) => {
   const chevron = (
-    <Image src={ChevronRight} alt="" aria-hidden className="size-4" />
+    <Image
+      src={ChevronRight}
+      alt=""
+      aria-hidden
+      className="size-4 xl:size-5"
+    />
   );
 
   return (
     <div className="flex items-center justify-between px-1">
-      <h2 id={id} className="text-label1 text-static-white">
+      {/* 데스크톱(xl)은 한 단계 크게 */}
+      <h2
+        id={id}
+        className="text-label1 text-static-white xl:text-heading3 xl:font-semibold"
+      >
         {title}
       </h2>
       {href ? (

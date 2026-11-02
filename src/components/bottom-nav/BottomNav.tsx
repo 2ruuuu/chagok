@@ -4,55 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import CertificationIcon from "@/assets/icons/certification.svg";
-import CollectionGrayIcon from "@/assets/icons/collection-gray.svg";
-import CollectionWhiteIcon from "@/assets/icons/collection-white.svg";
-import HomeGrayIcon from "@/assets/icons/home-gray.svg";
-import HomeWhiteIcon from "@/assets/icons/home-white.svg";
-import MyGrayIcon from "@/assets/icons/my-gray.svg";
-import MyWhiteIcon from "@/assets/icons/my-white.svg";
-import RankingGrayIcon from "@/assets/icons/ranking-gray.svg";
-import RankingWhiteIcon from "@/assets/icons/ranking-white.svg";
+import { isActivePath, NAV_ITEMS } from "@/constants/nav";
 import { cn } from "@/lib/cn";
-
-/**
- * TODO: 인증 · 랭킹 페이지는 아직 없음 (누르면 404). 페이지가 생기면 경로 확인.
- * icon: 비활성(회색), activeIcon: 현재 탭(흰색). 인증은 빨간 원 안의 흰 아이콘 하나뿐
- * label은 화면에 안 보이고 스크린 리더로만 읽힘
- */
-const NAV_ITEMS = [
-  { href: "/", label: "홈", icon: HomeGrayIcon, activeIcon: HomeWhiteIcon },
-  {
-    href: "/collection",
-    label: "컬렉션",
-    icon: CollectionGrayIcon,
-    activeIcon: CollectionWhiteIcon,
-  },
-  {
-    href: "/verify",
-    label: "인증",
-    icon: CertificationIcon,
-    activeIcon: CertificationIcon,
-    primary: true,
-  },
-  {
-    href: "/ranking",
-    label: "랭킹",
-    icon: RankingGrayIcon,
-    activeIcon: RankingWhiteIcon,
-  },
-  {
-    href: "/my",
-    label: "마이",
-    icon: MyGrayIcon,
-    activeIcon: MyWhiteIcon,
-  },
-] as const;
-
-const isActivePath = (pathname: string, href: string) =>
-  href === "/"
-    ? pathname === "/"
-    : pathname === href || pathname.startsWith(`${href}/`);
 
 /** 이만큼(px) 이상 움직였을 때만 숨기기 · 보이기 판단 (손가락 떨림 무시) */
 const SCROLL_THRESHOLD = 8;
@@ -157,7 +110,8 @@ const BottomNav = () => {
       aria-label="주요 메뉴"
       // 바 바깥 여백은 아래 콘텐츠를 누를 수 있게 통과 (pointer-events-none), 바만 클릭됨
       className={cn(
-        "pointer-events-none fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-107.5 px-4 pb-[max(2.125rem,env(safe-area-inset-bottom))]",
+        // 데스크톱(xl)은 상단 헤더(TopNav)가 대신함
+        "pointer-events-none fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-107.5 px-4 pb-[max(2.125rem,env(safe-area-inset-bottom))] xl:hidden",
         "transition-transform duration-300 ease-out motion-reduce:transition-none",
         // 숨길 땐 인증 버튼 빨간 빛까지 화면 밖으로, 키보드로 포커스가 오면 다시 보임
         hidden && "translate-y-[calc(100%+1rem)] focus-within:translate-y-0",

@@ -12,7 +12,8 @@ interface HorizontalScrollProps {
 
 /**
  * 화면 오른쪽 끝까지 이어지는 가로 스크롤 목록 (홈의 관람평 · 인기 · 곧 종료 캐러셀).
- * 레이아웃의 px-5를 -mx-5로 상쇄하고 안쪽에서 px-5를 다시 줘서, 첫 카드는 여백에 맞고 끝은 화면에 닿음
+ * 레이아웃의 좌우 여백(모바일 20 · 태블릿 32)을 -mx로 상쇄하고 안쪽에서 다시 줘서, 첫 카드는 여백에 맞고 끝은 화면에 닿음.
+ * 데스크톱(xl)은 레이아웃 여백이 없으므로 상쇄하지 않음 (콘텐츠 폭 안에서만). 데스크톱에서 그리드로 바꾸려면 className으로 덮기
  */
 const HorizontalScroll = ({
   children,
@@ -26,6 +27,7 @@ const HorizontalScroll = ({
         // relative: 안의 absolute 요소(sr-only 등)가 이 목록을 기준으로 잡혀야 스크롤 영역 안에 갇힘.
         // 없으면 화면 밖 항목의 absolute 요소가 페이지 폭을 늘려 가로 스크롤이 생김
         "relative -mx-5 flex snap-x snap-mandatory scroll-px-5 overflow-x-auto px-5",
+        "md:-mx-8 md:scroll-px-8 md:px-8 xl:mx-0 xl:scroll-px-0 xl:px-0",
         "scrollbar-none [&::-webkit-scrollbar]:hidden",
         className,
       )}
