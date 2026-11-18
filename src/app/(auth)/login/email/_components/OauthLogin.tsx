@@ -1,6 +1,12 @@
+"use client";
+
 import CircleButton from "@/components/circle-button/CircleButton";
+import { useOauthLogin } from "@/hooks/useOauthLogin";
 
 const OauthLogin = () => {
+  const { signInWithOauth, pendingProvider } = useOauthLogin();
+  const isPending = pendingProvider !== null;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="mt-5 flex items-center gap-3">
@@ -10,9 +16,17 @@ const OauthLogin = () => {
         </span>
         <div className="h-px flex-1 bg-neutral-80" />
       </div>
-      <div className="flex gap-4 justify-center">
-        <CircleButton provider="google" />
-        <CircleButton provider="kakao" />
+      <div className="flex justify-center gap-4">
+        <CircleButton
+          provider="google"
+          disabled={isPending}
+          onClick={() => signInWithOauth("google")}
+        />
+        <CircleButton
+          provider="kakao"
+          disabled={isPending}
+          onClick={() => signInWithOauth("kakao")}
+        />
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./card-effects.css";
 
 @theme {
   /* 폰트  */
@@ -228,6 +229,7 @@
   --shadow-xl: 0 24px 36px -10px #1717171f, 0 10px 16px -4px #1717171a;
   --shadow-spread-sm: 0 0 60px 0 #1717171a;
   --shadow-spread-md: 0 16px 72px 0 #17171729;
+  --shadow-drop-100: 0 1px 4px 0 #0c0c0d0d; /* Figma Drop Shadow/100 (Black/100 = #0c0c0d 5%) */
 
   /* 블러 */
   --blur-chrome: 64px;
@@ -236,6 +238,42 @@
   --breakpoint-*: initial;
   --breakpoint-md: 48rem; /* 768px */
   --breakpoint-xl: 90rem; /* 1440px */
+
+  /* 애니메이션 (인증 성공: 원 등장 → 체크 그리기 → 텍스트 등장) */
+  --animate-pop-in: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-draw-check: draw-check 0.35s ease-out 0.4s both;
+  --animate-fade-up: fade-up 0.4s ease-out 0.6s both;
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes draw-check {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 body {
@@ -243,4 +281,9 @@ body {
   color: var(--color-static-white);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* 밝은 화면(LightScreen)이 있으면 body 배경을 밝게 (Safari 툴바 색이 body 배경을 따라감) */
+body:has([data-light-screen]) {
+  background-color: var(--color-background-alternative);
 }
