@@ -1,5 +1,5 @@
 import type { RecognizedTicket } from "@/app/verify/_stores/useVerifyStore";
-import { type AutoChain, isAutoChain, type Chain } from "./normalize";
+import { type AutoChain, type Chain, isAutoChain } from "./normalize";
 
 /**
  * 티켓 · 영화 값을 인증 화면(RecognizedTicket) 모양으로 바꿈.

@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import type { RecognizeResult } from "@/app/verify/_stores/useVerifyStore";
 import { createAdminClient } from "@/lib/supabase/admin-client";
 import { createClient } from "@/lib/supabase/server";
+import { buildRecognizedTicket } from "@/lib/ticket/display";
 import {
   type ExtractedTicket,
   extractTicket,
   type ImageMediaType,
 } from "@/lib/ticket/extract";
-import { buildRecognizedTicket } from "@/lib/ticket/display";
 import { findMovie } from "@/lib/ticket/movie";
 import {
   isAutoChain,

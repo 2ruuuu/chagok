@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { StaticImageData } from "next/image";
-import projectorImage from "@/assets/imgs/chagok-projector.png";
 import type { RecognizedTicket } from "@/app/verify/_stores/useVerifyStore";
+import projectorImage from "@/assets/imgs/chagok-projector.png";
 import {
   buildRecognizedTicket,
   showtimeParts,

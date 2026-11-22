@@ -3,9 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import CollectedCardInMonth from "./_components/CollectedCardInMonth";
 import MyCardList from "./_components/MyCardList";
 import PendingTickets from "./_components/PendingTickets";
-import { getPendingTickets } from "./_data/pending-tickets";
 import PopularMovies from "./_components/PopularMovies";
 import UpcomingMovies from "./_components/UpcomingMovies";
+import { getPendingTickets } from "./_data/pending-tickets";
 import { monthlyCollection, totalCardCount } from "./_mocks/home";
 
 const HomePage = async () => {

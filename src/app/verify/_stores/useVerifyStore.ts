@@ -97,9 +97,7 @@ export const useVerifyStore = create<VerifyState>()(
           ...EMPTY,
           ticket,
           expiresAt:
-            options?.expires === false
-              ? null
-              : Date.now() + DRAFT_LIFETIME_MS,
+            options?.expires === false ? null : Date.now() + DRAFT_LIFETIME_MS,
         }),
       setSeat: (seat) =>
         set((state) =>
