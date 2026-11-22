@@ -49,6 +49,30 @@ export const normalizeSeat = (raw: string) => {
   return `${match[1]}${Number(match[2])}`;
 };
 
+// 연속 좌석 한 줄 표기: "F열9-10번" · "F9-10" · "F9~F10" · "F9-F10" (같은 열, 앞 번호 < 뒤 번호)
+const SEAT_RANGE_PATTERN =
+  /^([A-Z]{1,2})\s*열?\s*(\d{1,3})\s*번?\s*[-~]\s*([A-Z]{1,2})?\s*열?\s*(\d{1,3})\s*번?$/;
+// 같이 예매한 좌석이 이보다 많이 이어질 일은 거의 없음 (오독으로 F1-100 같은 값이 오면 못 읽은 것으로)
+const MAX_SEAT_RANGE = 10;
+
+/**
+ * 좌석 한 칸을 좌석 목록으로. 보통은 하나, 연속 좌석 표기면 펼침 ("F열9-10번" -> F9, F10). 모양이 다르면 null
+ * "I-12" · "B - 4"는 열 문자 바로 뒤 하이픈이라 한 자리 좌석 (normalizeSeat)
+ */
+export const expandSeat = (raw: string): string[] | null => {
+  const single = normalizeSeat(raw);
+  if (single) return [single];
+
+  const match = raw.trim().toUpperCase().match(SEAT_RANGE_PATTERN);
+  if (!match) return null;
+  const [, row, fromText, toRow, toText] = match;
+  if (toRow && toRow !== row) return null;
+  const from = Number(fromText);
+  const to = Number(toText);
+  if (from >= to || to - from >= MAX_SEAT_RANGE) return null;
+  return Array.from({ length: to - from + 1 }, (_, i) => `${row}${from + i}`);
+};
+
 /** 예매번호: 숫자 · 영문만 (하이픈 · 공백 제거) */
 export const normalizeBookingNumber = (raw: string | null) => {
   const value = raw?.replace(/[^0-9A-Za-z]/g, "").toUpperCase();

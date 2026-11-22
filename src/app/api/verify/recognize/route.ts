@@ -7,13 +7,14 @@ import {
   type ExtractedTicket,
   extractTicket,
   type ImageMediaType,
+  isAcceptedScreen,
 } from "@/lib/ticket/extract";
 import { findMovie } from "@/lib/ticket/movie";
 import {
+  expandSeat,
   isAutoChain,
   normalizeBookingNumber,
   normalizeChain,
-  normalizeSeat,
   normalizeTheater,
   resolveShowtime,
 } from "@/lib/ticket/normalize";
@@ -75,9 +76,12 @@ export async function POST(request: Request) {
     return errorResponse(502, "티켓을 읽지 못했어요.");
   }
 
-  // 티켓이 아님 · 여러 장 (예약 · 결제 내역 화면도 여기)
-  if (!extracted.is_ticket || extracted.ticket_count !== 1) {
-    return result({ status: "unreadable" });
+  // 티켓이 아님 (예매 상세 · 결제 내역 화면도 여기, 인정 안 함: ticket-verify.md "LLM 추출") · 여러 장
+  if (!isAcceptedScreen(extracted)) {
+    return result({ status: "unreadable", reason: "not_ticket" });
+  }
+  if (extracted.ticket_count !== 1) {
+    return result({ status: "unreadable", reason: "multiple" });
   }
 
   const showtimeResult = resolveShowtime({
@@ -86,9 +90,8 @@ export async function POST(request: Request) {
     weekday: extracted.show_weekday,
     time: extracted.show_time,
   });
-  // TODO: 아직 상영 전인 티켓 전용 안내가 없어서 일단 "알아보지 못했어요"로
   if (!showtimeResult.ok && showtimeResult.reason === "future") {
-    return result({ status: "unreadable" });
+    return result({ status: "unreadable", reason: "future" });
   }
   const showtime = showtimeResult.ok ? showtimeResult.showtime : null;
 
@@ -99,8 +102,9 @@ export async function POST(request: Request) {
   const standardTheater =
     autoChain && theaterName ? findTheater(autoChain, theaterName) : null;
   const theater = standardTheater ?? theaterName;
-  const normalizedSeats = extracted.seats.map(normalizeSeat);
-  const seats = [...new Set(normalizedSeats.filter((seat) => seat !== null))];
+  // 연속 좌석 표기("F열9-10번")는 펼침, 못 읽은 표기는 null
+  const normalizedSeats = extracted.seats.map(expandSeat);
+  const seats = [...new Set(normalizedSeats.flatMap((seat) => seat ?? []))];
   const seat = seats.length === 1 ? seats[0] : null;
   const bookingNumber = normalizeBookingNumber(extracted.reservation_number);
 

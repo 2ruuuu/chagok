@@ -11,6 +11,7 @@ export const MAX_RATING = 5;
 
 /**
  * 사진 짧은 변이 이보다 작으면 인식 요청 전에 다시 찍으라고 안내 (px).
- * TODO: 기준값은 샘플을 더 돌려 보고 확정 (ticket-verify.md "업로드")
+ * 1000 -> 700 (2026-11-22): 카카오톡 일반 화질(짧은 변 약 720)로 받은 선명한 종이 티켓이 막혀서.
+ * 600 안팎에서 예매번호 오독이 있었음 -> 700 근처 사진으로 샘플 더 돌려 보기 (ticket-verify.md "업로드")
  */
-export const MIN_IMAGE_SHORT_SIDE = 1000;
+export const MIN_IMAGE_SHORT_SIDE = 700;
