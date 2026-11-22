@@ -26,6 +26,9 @@ if ! tsc_out=$(npx tsc --noEmit 2>&1); then
   report+=$'## npx tsc --noEmit 실패\n'"$(echo "$tsc_out" | head -40)"$'\n\n'
 fi
 
+# 포맷 · import 정렬 같은 자동 수정 가능한 건 먼저 고침 (남는 에러만 Claude에게 돌려줌)
+npx biome check --write --colors=off >/dev/null 2>&1
+
 if ! lint_out=$(npx biome check --colors=off --max-diagnostics=20 2>&1); then
   failed=1
   report+=$'## npm run lint (biome check) 실패\n'"$(echo "$lint_out" | tail -60)"$'\n\n'
@@ -34,7 +37,6 @@ fi
 if [ "$failed" -eq 1 ]; then
   {
     echo "tsc / lint를 통과하지 못해서 아직 끝낼 수 없어요. 아래 에러를 고친 뒤 끝내 주세요."
-    echo "(포맷 문제는 npm run format 으로 고칠 수 있음)"
     echo
     echo "$report"
   } >&2
