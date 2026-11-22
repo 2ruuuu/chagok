@@ -175,7 +175,9 @@ export async function issueCard(input: {
   rating: number;
   review: string;
   memo: string;
-}): Promise<{ error: string } | { error: null; certificateId: string }> {
+}): Promise<
+  { error: string } | { error: null; certificateId: string; cardId: string }
+> {
   const parsed = issueSchema.safeParse(input);
   if (!parsed.success) return { error: "입력값을 확인해 주세요." };
   const { ticketId, seat, rating, review, memo } = parsed.data;
@@ -206,7 +208,11 @@ export async function issueCard(input: {
     return { error: "잠시 후 다시 시도해 주세요." };
   }
 
-  return { error: null, certificateId: data.certificate_id };
+  return {
+    error: null,
+    certificateId: data.certificate_id,
+    cardId: data.card_id,
+  };
 }
 
 /**
