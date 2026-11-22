@@ -148,12 +148,13 @@
 }
 
 /* 224 높이 상자 안에서 56 높이 선이 위 끝 ~ 아래 끝을 오감 (transform만 움직임) */
+/* 이동 거리 = 일러스트 높이 - 선 높이(56). 일러스트가 커지는 태블릿부터는 쓰는 쪽에서 --scan-distance로 넘김 */
 @keyframes scan-line {
   from {
     transform: translateY(0);
   }
   to {
-    transform: translateY(168px);
+    transform: translateY(var(--scan-distance, 168px));
   }
 }
 

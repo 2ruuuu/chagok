@@ -33,7 +33,7 @@ const VerifyNotice = ({
         <span className="flex size-14 items-center justify-center rounded-full bg-common-0/10">
           <Image src={icon} alt="" aria-hidden />
         </span>
-        <h1 className="mt-6 text-heading2 font-semibold text-static-white">
+        <h1 className="mt-6 text-heading2 font-semibold text-static-white md:text-heading1">
           {title}
         </h1>
         <p className="mt-1 text-body2 text-neutral-10">{description}</p>

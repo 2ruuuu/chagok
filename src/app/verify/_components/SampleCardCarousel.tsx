@@ -27,7 +27,7 @@ const SampleCardCarousel = ({ posters }: SampleCardCarouselProps) => {
   return (
     <div
       aria-hidden
-      className="pointer-events-none relative h-56 w-40 perspective-[800px]"
+      className="pointer-events-none relative h-56 w-40 perspective-[800px] md:h-70 md:w-50"
     >
       {PLACES.map(({ place, delay }, index) => {
         const poster = posters[index];
@@ -43,8 +43,8 @@ const SampleCardCarousel = ({ posters }: SampleCardCarouselProps) => {
           >
             <MiniCard
               poster={poster}
-              sizes="160px"
-              className="h-56 w-40 shadow-lg"
+              sizes="(min-width: 768px) 200px, 160px"
+              className="h-56 w-40 shadow-lg md:h-70 md:w-50"
             />
           </div>
         );

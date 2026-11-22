@@ -27,7 +27,7 @@ const RatingView = () => {
           <main className="flex flex-1 flex-col">
             <MovieSummary ticket={ticket} />
             <div className="mt-10 flex flex-col items-center gap-1 text-center">
-              <h1 className="text-heading2 font-semibold text-static-white">
+              <h1 className="text-heading2 font-semibold text-static-white md:text-heading1">
                 이 영화는 어땠나요?
               </h1>
               <p id="rating-hint" className="text-body2 text-neutral-10">
