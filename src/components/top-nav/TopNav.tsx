@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import BellIcon from "@/assets/icons/bell.svg";
 import CertificationIcon from "@/assets/icons/certification.svg";
-import mockLogo from "@/assets/imgs/mock-logo.png";
+import chagokLogo from "@/assets/imgs/chagok-logo.png";
 import { isActivePath, NAV_ITEMS, VERIFY_HREF } from "@/constants/nav";
 import { cn } from "@/lib/cn";
 
@@ -28,7 +28,13 @@ const TopNav = () => {
           aria-label="차곡 홈"
           className={cn("shrink-0 rounded-xs", FOCUS_CLASS)}
         >
-          <Image src={mockLogo} alt="" aria-hidden className="size-9" />
+          <Image
+            src={chagokLogo}
+            alt=""
+            aria-hidden
+            preload
+            className="h-8 w-auto"
+          />
         </Link>
         <nav aria-label="주요 메뉴" className="flex-1">
           <ul className="flex items-center gap-8">
