@@ -45,7 +45,8 @@ const BottomSheet = ({
   className,
 }: BottomSheetProps) => {
   // rendered: DOM에 있는지 / visible: 올라온 상태인지 (닫힐 때 애니메이션 후 제거)
-  const [rendered, setRendered] = useState(open);
+  // 처음엔 항상 안 그림 (서버 렌더와 맞춤, 하이드레이션 오류 방지). open이면 마운트 후 effect가 띄움
+  const [rendered, setRendered] = useState(false);
   const [visible, setVisible] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
@@ -122,7 +123,8 @@ const BottomSheet = ({
     }
   };
 
-  if (!rendered || typeof document === "undefined") {
+  // rendered는 effect(브라우저)에서만 true가 되므로 document가 항상 있음
+  if (!rendered) {
     return null;
   }
 

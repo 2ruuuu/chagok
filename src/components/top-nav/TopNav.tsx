@@ -70,7 +70,7 @@ const TopNav = () => {
               isActivePath(pathname, VERIFY_HREF) ? "page" : undefined
             }
             className={cn(
-              "flex h-10 items-center gap-1.5 rounded-full bg-primary-40 pr-4 pl-3 text-label1 font-semibold text-static-white transition-colors hover:bg-primary-50 active:bg-primary-60",
+              "flex h-10 items-center gap-1.5 rounded-2xl bg-primary-40 pr-3 pl-3 text-label1 font-semibold text-static-white transition-colors hover:bg-primary-50 active:bg-primary-60",
               FOCUS_CLASS,
             )}
           >
@@ -80,7 +80,6 @@ const TopNav = () => {
               aria-hidden
               className="size-5"
             />
-            티켓 인증
           </Link>
         </div>
       </div>

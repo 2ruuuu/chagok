@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { type StaticImageData } from "next/image";
-import { type PointerEvent, useRef, useState } from "react";
+import { type PointerEvent, useEffect, useRef, useState } from "react";
 import BadgeCheck from "@/assets/icons/badge-check.svg";
 import BadgeCheckGreen from "@/assets/icons/badge-check-green.svg";
 import { cn } from "@/lib/cn";
@@ -30,6 +30,11 @@ export type Ticket = {
 const MAX_TILT_X = 10;
 const MAX_TILT_Y = 14;
 
+// 발급 순간 연출: 빛이 카드 가장자리를 따라 한 바퀴 도는 시간 · 반지름(카드 폭 대비)
+const INTRO_DURATION_MS = 1600;
+const INTRO_DELAY_MS = 300;
+const INTRO_RADIUS = 0.4;
+
 // 카드 한 면 공통. 효과 클래스(card-*)는 src/app/card-effects.css
 // 모션 줄이기 설정이면 뒤집기는 회전 대신 페이드
 const FACE_CLASS =
@@ -51,6 +56,10 @@ interface TicketCardProps {
    * 안 넘기면 true (카드 상세처럼 한 장만 있을 때)
    */
   active?: boolean;
+  /** false면 탭해도 뒤집히지 않음 (발급 완료 화면). 기본 true */
+  flippable?: boolean;
+  /** true면 화면에 나올 때 카드가 한 바퀴 기울며 홀로그램이 반짝임, 한 번만 (발급 완료 화면) */
+  intro?: boolean;
 }
 
 const TicketCard = ({
@@ -58,6 +67,8 @@ const TicketCard = ({
   flipped: flippedProp,
   onFlippedChange,
   active = true,
+  flippable = true,
+  intro = false,
 }: TicketCardProps) => {
   const sceneRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef(0);
@@ -116,6 +127,46 @@ const TicketCard = ({
     sceneRef.current?.style.setProperty("--hyp", "0");
   };
 
+  // 발급 순간 연출: 포인터 대신 시간으로 같은 변수(--px · --py · --rx · --ry · --hyp)를 한 바퀴 움직임
+  // setVars · sceneRef는 렌더마다 같은 요소를 가리켜서 intro가 바뀔 때만 다시 실행하면 됨
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 위 설명
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!intro || !scene) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let frame = 0;
+    let startedAt = 0;
+
+    const step = (now: number) => {
+      if (!startedAt) startedAt = now;
+      const progress = Math.min((now - startedAt) / INTRO_DURATION_MS, 1);
+      const angle = progress * Math.PI * 2 - Math.PI / 2;
+      setVars(
+        0.5 + Math.cos(angle) * INTRO_RADIUS,
+        0.5 + Math.sin(angle) * INTRO_RADIUS,
+      );
+
+      if (progress < 1) {
+        frame = requestAnimationFrame(step);
+        return;
+      }
+      scene.removeAttribute("data-active");
+      setVars(0.5, 0.5);
+      scene.style.setProperty("--hyp", "0");
+    };
+
+    const timer = setTimeout(() => {
+      scene.setAttribute("data-active", "");
+      frame = requestAnimationFrame(step);
+    }, INTRO_DELAY_MS);
+
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(frame);
+    };
+  }, [intro]);
+
   return (
     <div
       ref={sceneRef}
@@ -128,10 +179,19 @@ const TicketCard = ({
       <div className="size-full transform-3d animate-card-wobble motion-reduce:animate-none">
         <button
           type="button"
-          aria-pressed={flipped}
-          aria-label={`${ticket.title} 관람 인증 카드, ${flipped ? "앞면" : "뒷면"} 보기`}
-          onClick={toggleFlipped}
-          className="card-tilt block size-full cursor-pointer rounded-[20px] text-left outline-none transform-3d"
+          aria-pressed={flippable ? flipped : undefined}
+          aria-disabled={flippable ? undefined : true}
+          tabIndex={flippable ? undefined : -1}
+          aria-label={
+            flippable
+              ? `${ticket.title} 관람 인증 카드, ${flipped ? "앞면" : "뒷면"} 보기`
+              : `${ticket.title} 관람 인증 카드`
+          }
+          onClick={flippable ? toggleFlipped : undefined}
+          className={cn(
+            "card-tilt block size-full rounded-[20px] text-left outline-none transform-3d",
+            flippable ? "cursor-pointer" : "cursor-default",
+          )}
         >
           <span
             className={cn(
