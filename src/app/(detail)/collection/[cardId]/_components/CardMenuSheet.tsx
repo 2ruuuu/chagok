@@ -13,6 +13,9 @@ const TITLE_ID = "card-menu-sheet-title";
 interface CardMenuSheetProps {
   open: boolean;
   onClose: () => void;
+  onSaveImage: () => void;
+  /** 이미지 공유가 안 되는 브라우저면 안 넘김 -> 메뉴에서 숨김 */
+  onShare?: () => void;
   /** 카드 삭제를 누르면 (시트를 닫고 확인 창 띄우기) */
   onDelete: () => void;
 }
@@ -41,8 +44,14 @@ const MenuItem = ({ icon, label, onClick, danger }: MenuItemProps) => (
 );
 
 /** 카드 상세의 ⋮ 메뉴 */
-const CardMenuSheet = ({ open, onClose, onDelete }: CardMenuSheetProps) => {
-  // TODO: 관람평 수정 · 이미지로 저장 · 공유하기 동작 (지금은 시트만 닫힘)
+const CardMenuSheet = ({
+  open,
+  onClose,
+  onSaveImage,
+  onShare,
+  onDelete,
+}: CardMenuSheetProps) => {
+  // TODO: 관람평 수정 동작 (지금은 시트만 닫힘)
   return (
     <BottomSheet
       open={open}
@@ -58,9 +67,11 @@ const CardMenuSheet = ({ open, onClose, onDelete }: CardMenuSheetProps) => {
         <MenuItem
           icon={ImageSaveIcon}
           label="이미지로 저장"
-          onClick={onClose}
+          onClick={onSaveImage}
         />
-        <MenuItem icon={ShareIcon} label="공유하기" onClick={onClose} />
+        {onShare && (
+          <MenuItem icon={ShareIcon} label="공유하기" onClick={onShare} />
+        )}
       </ul>
       <ul className="mt-3">
         <MenuItem
