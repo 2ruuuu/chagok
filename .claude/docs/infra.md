@@ -9,6 +9,7 @@
 - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 공개 가능, Vercel Config
 - SUPABASE_SECRET_KEY: 비공개 (RLS 우회 키), Vercel Secret (아직 Vercel에 안 넣음)
 - CRON_SECRET: 비공개, Vercel Secret
+- DISCORD_WEBHOOK_URL: 비공개, 새 검수 요청 알림용 디스코드 웹훅 (src/lib/discord.ts, 서버에서만), Vercel에도 넣어야 함
 - KOBIS_API_KEY: 비공개, 영화진흥위원회 오픈API 키 (kobis.or.kr/kobisopenapi), Vercel에도 넣어야 함
 - TMDB_ACCESS_TOKEN: 비공개, TMDB API Read Access Token (비상업 개인 용도로 발급), Vercel에도 넣어야 함
 - NEXT_PUBLIC_ 붙은 건 빌드할 때 번들에 박힘 -> Vercel에서 값 바꾸면 재배포해야 적용
@@ -48,6 +49,12 @@ curl -H "Authorization: Bearer $(grep '^CRON_SECRET=' .env.local | cut -d= -f2-)
 - 172.*.*.* 통째로 열지 않기
 - iPhone Safari가 예전 CSS를 계속 쓸 때가 있음 (새로고침해도 그대로) -> 새로 만든 클래스만 안 먹어서 크기 0 · 간격 없음처럼 보임
 - 폰에서만 깨지면 코드 고치기 전에 개인정보 보호 탭이나 새 탭으로 먼저 확인
+- 아이폰 핫스팟(통신사 데이터)에 맥북을 붙이면 IPv6 전용이라 맥북에 IPv4 주소가 없음 (ipconfig getifaddr en0이 비어 있음)
+  - next dev의 Network 주소 192.0.0.x는 맥북 안의 가상 주소라 폰에서 안 닿음
+  - 이럴 땐 터널: 개발 서버 켠 채로 npx cloudflared tunnel --url http://localhost:3000 -> https://xxxx.trycloudflare.com 주소로 폰 접속 (https라 PWA 테스트에도 맞음)
+  - allowedDevOrigins에 *.trycloudflare.com 있음. 터널 주소는 누구나 들어올 수 있으니 테스트 끝나면 끄기
+  - 로그인 · OAuth를 터널 주소로 하려면 Supabase Redirect URLs에도 추가해야 함
+- 학교 · 회사 · 카페 Wi-Fi는 기기끼리 통신을 막는 경우가 많음 (같은 Wi-Fi여도 폰에서 안 열림)
 - 그래도 이상하면 화면에 측정값 띄우는 임시 컴포넌트로 확인 (getComputedStyle, document.styleSheets에 새 클래스 있는지)
 
 ## Claude Code 설정

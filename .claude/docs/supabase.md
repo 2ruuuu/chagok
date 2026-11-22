@@ -66,16 +66,53 @@ profiles
 - nickname은 대소문자 무시하고 unique -> 겹치면 23505
 - 약관 컬럼은 record_signup_agreements RPC로만 기록
 
+tickets (20261122093000)
+
+- 티켓 인증 시도 1건 = 1행, 사용자는 본인 것 select만 · insert/update는 admin-client만
+- status: holding(3사 임시 30분) · pending(검수) · verified · rejected · released(임시 해제)
+- 지문 unique (holding · pending · verified끼리만): (chain, theater, screened_at, seat), (chain, booking_number, seat) -> 겹치면 23505
+- 값은 서버가 정규화해서 넣음, verified는 기본 지문 값이 다 있어야 함 (check)
+- user_id on delete set null (탈퇴해도 지문 유지), 행은 지우지 않음
+- movie_id: 인식 때 영화를 찾으면 연결 (20261122110000)
+
+movies (20261122110000)
+
+- 인식 때 찾은 영화, kobis_code unique로 upsert (인식할 때마다 최신 정보로 덮어씀)
+- 컬럼: title, original_title, poster_url(TMDB), production_year, runtime, director, cast_members(상위 3명), grade, released_on, country, genres, tmdb_id
+- anon · authenticated 조회 가능, 쓰기는 서버만
+
+reviews (20261122110000)
+
+- 관람평 = rating(1~5) + body(1~500자) + has_spoiler, 티켓 1장당 1개 (ticket_id unique)
+- 카드를 지워도 남음, 탈퇴하면 같이 삭제 (user_id cascade)
+- 지금은 본인 것만 조회. 사이트 공개는 user_id 숨긴 뷰로, 수정은 컬럼 단위 grant로 (화면 만들 때)
+
+cards (20261122110000)
+
+- 티켓 1장당 1장 (ticket_id unique), memo(선택, 500자), serial(card_serial_seq 전체 발급 순번), certificate_id (CHG-관람일YYMMDD-순번 4자리, 넘으면 그대로)
+- 본인 것만 조회, 쓰기는 issue_card로만. 메모 수정 · 휴지통은 카드 상세 작업 때
+
+notifications (20261122120000)
+
+- 앱 안 알림: type ticket_approved · ticket_rejected · notice, body, ticket_id, read_at
+- 본인 것만 조회, 직접 수정은 read_at만 (읽음 표시). 만드는 건 approve_ticket · reject_ticket (공지는 나중)
+
 ## RPC
 
 - is_email_registered(p_email): 가입 완료된 이메일인지 (닉네임까지 있어야 완료), anon · authenticated 호출 가능
+- issue_card(p_ticket_id, p_user_id, p_seat, p_rating, p_review, p_memo): 카드 발급, service_role만 (앱 서버가 세션에서 user id 꺼내 호출)
+  - 티켓 verified 확정(좌석 포함) + reviews + cards를 한 트랜잭션으로, 반환 card_id · certificate_id
+  - 발급 가능: holding(30분 안 · review_reason 없음) 또는 verified인데 카드 없음(검수 승인)
+  - 에러 메시지: ticket_not_found · ticket_expired · needs_review · invalid_seat · already_issued, 좌석 겹침은 23505
+- approve_ticket(p_ticket_id, p_movie_id?, p_chain?, p_theater?, p_screened_at?, p_seat?) · reject_ticket(p_ticket_id, p_reason): 검수, service_role만 (SQL Editor에서 호출)
+  - pending만 처리, 상태 변경 + notifications 생성을 한 번에. 사용법은 ticket-verify.md "검수 운영"
 - record_signup_agreements(p_marketing): 약관 동의 기록, authenticated만
   - 필수 약관 시각은 처음 한 번만, 마케팅은 바뀔 때마다 시각 갱신
   - 나중에 마케팅 수신 설정 화면에서도 재사용 가능
 
 ## 할 일
 
-- 20261031090000_profile_avatar db push (아직 안 함). 1자 닉네임 계정이 있으면 실패 -> 먼저 데이터 정리
+- 없음
 
 ## Storage
 
@@ -86,3 +123,11 @@ avatars
 - 경로 <user id>/<시각>.jpg, 정책: 본인 폴더만 조회 · 업로드 · 삭제 (조회 정책은 remove에 필요)
 - 새 사진 저장하면 이전 파일 삭제, 프로필 저장 실패하면 방금 올린 파일 삭제 (my/edit/actions.ts)
 - URL 만들기는 src/lib/avatar.ts getAvatarUrl
+
+ticket-images (20261122094000)
+
+- 티켓 원본 이미지, private 버킷
+- 4MB · jpeg/png/webp만, 앱에서 긴 변 1600px jpeg로 줄여 인식 Route Handler로 보내고 서버가 저장
+- storage 정책 없음 -> 사용자는 조회 · 업로드 · 삭제 전부 불가, admin-client만 접근
+- 경로 <user id>/<ticket id>.jpg (tickets.image_path)
+- 보관: 카드 발급 후 90일, 반려 30일 뒤 삭제 (지문은 유지)
