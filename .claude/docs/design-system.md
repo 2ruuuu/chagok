@@ -52,8 +52,14 @@
 - 반응형 (시안 없이 만든 것): 모바일 ~767 최대 430 · 좌우 20 / 태블릿 md 화면 폭 · 좌우 32 / 데스크톱 xl 최대 1200 가운데 · 좌우 여백 없음 ((main)/layout.tsx)
 - 화면 끝까지 닿게 하는 -mx-*는 위 여백에 맞춰 md · xl도 같이 (HorizontalScroll, 홈 MyCardList)
 - 데스크톱 상자 기준: 히어로 · 사이드 패널(수집 현황)은 상자(bg-common-0/4 또는 배경 이미지 + 둥근 모서리), 콘텐츠 목록(인기 · 곧 개봉 등)은 상자 없이 열린 영역
-- 반응형 전 화면은 components/narrow-column/NarrowColumn으로 430 유지 (컬렉션 layout, (main)/(light) layout), 손보면 그 layout에서 빼기
-- 데스크톱(xl)은 하단 바 대신 상단 헤더 components/top-nav/TopNav (mock-logo · 글자 메뉴 · 알림 · [티켓 인증]), 메뉴 목록은 constants/nav.ts (BottomNav와 같이 씀)
+- 반응형 전 화면은 components/narrow-column/NarrowColumn으로 430 유지 ((main)/(light) layout), 손보면 그 layout에서 빼기
+- 컬렉션(/collection) 반응형 (시안 없이 만든 것, 2026-11-22): 카드 그리드 모바일 2열 / md 4열(간격 20 · 32) / xl 6열(간격 24 · 40), 데스크톱은 뒤로가기 숨기고 제목 왼쪽 heading1, 카드 제목 body1 · 정보 label2, 연도 탭은 넘치면 가로 스크롤(HorizontalScroll)
+  - 카드 상세(/collection/[cardId], (detail) layout)는 아직 430 고정
+- 티켓 인증(/verify) 반응형 (시안 없이 만든 것, 2026-11-22): 입력에 집중하는 흐름이라 가운데 한 열, 상단 헤더 없이 뒤로가기만 (verify/layout.tsx)
+  - 태블릿(md): 최대 480, 높이는 화면 그대로 (BottomCta 키보드 계산이 화면 아래 기준이라 높이를 줄이지 않음)
+  - 데스크톱(xl): 높이 최대 768 상자를 세로 가운데 (버튼이 화면 맨 아래로 멀어지지 않게)
+  - md부터 제목 heading2 -> heading1, 예시 카드 · 읽는 중 일러스트 160×224 -> 200×280 (스캔 선 거리 --scan-distance 224px), 글 상자 높이 200 -> 240
+- 데스크톱(xl)은 하단 바 대신 상단 헤더 components/top-nav/TopNav (chagok 로고 · 글자 메뉴 · 알림 · [티켓 인증]), 메뉴 목록은 constants/nav.ts (BottomNav와 같이 씀)
 
 ## cn()
 
@@ -127,7 +133,7 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - 내 수집 현황(CollectedCardInMonth의 xl): 제목 · 카드 묶음 · 올해 누적/지난 달보다 큰 숫자 · 월별 막대(MonthlyCountChart, 최근 6개월, 이번 달만 primary-40) · 많이 본 포맷(TopFormats) · 버튼. 약 730 높이, 화면 높이 848 이상일 때만 sticky
 - 수집 현황 숫자(monthlyCounts · topFormats · totalCardCount)는 (main)/_mocks/home.ts, 서로 맞춰둠
 - 데스크톱(xl) 글자 한 단계 크게: 섹션 제목 heading3 semibold, 영화 제목 body1 semibold, 부가 정보 caption1 -> label2
-- 인사: 닉네임 없으면 "안녕하세요!", 카드 수는 src/mocks/cards.ts 개수 (마이와 같은 기준, 카드 테이블 생기면 교체)
+- 인사: 닉네임 없으면 "안녕하세요!", 카드 수는 아직 (main)/_mocks/home.ts totalCardCount (목데이터, cards로 교체 예정 · 마이는 이미 getMyCardCounts)
 - 섹션 제목 + 화살표는 (main)/_components/SectionHeader, 전체 보기 페이지 생기면 href 넘기기
 - 내 카드 · 관람평 목데이터는 (main)/_mocks/home.ts (타입도 여기), 카드 테이블 생기면 여기만 교체
 - 인기 영화 · 곧 개봉은 실제 데이터: src/lib/movies/home.ts (getPopularMovies, getUpcomingMovies), 타입은 lib/movies/types.ts, 기준은 product.md 영화 데이터
@@ -148,7 +154,7 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - 그리드: 2열, 좌우 간격 15.5px · 상하 24px, 카드는 폭에 맞춰 커짐 (375에서 약 160×224, 430에서 약 187×262)
 - 카드 아래: 제목 + 포맷 뱃지, 관람일 · 별점 (시안 없이 추가한 것)
 - 카드 + 아래 정보 전체가 상세 링크, 0장이면 "아직 모은 카드가 없어요"
-- 목데이터는 src/mocks/cards.ts (컬렉션 · 상세 같이 씀), 연도 탭 확인용 2025 기록도 들어 있음
+- 데이터: cards 테이블 (src/lib/cards/my-cards.ts getMyCards · getMyCard, 컬렉션 · 상세 같이 씀), 목데이터 mocks/cards.ts는 삭제 (2026-11-22)
 
 ## 카드 상세 (/collection/[cardId])
 
@@ -175,7 +181,7 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 
 - 헤더: < (홈으로) · 마이 · 종(/notifications) · 톱니(/settings)
 - 프로필: 사진 · 닉네임 · 회색 연필(/my/edit)
-- 보유 카드 · 나의 감상 개수는 src/mocks/cards.ts 기준 (나의 감상 = comment 있는 카드), 카드 테이블 생기면 교체
+- 보유 카드 · 나의 감상 개수는 cards 테이블 (getMyCardCounts, 나의 감상 = 카드 메모가 있는 카드)
 - 메뉴: 나의 감상(/my/comments), 관람 리뷰(/my/reviews) -> 지금은 "준비 중이에요"
 - 버전: constants/app.ts APP_VERSION
 

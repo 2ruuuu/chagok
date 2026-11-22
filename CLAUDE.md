@@ -15,11 +15,12 @@
 npm run dev
 npm run build
 npm run lint(biome check)
-npm run format
+npm run format(biome check --write, 포맷 + import 정렬)
 npx tsc --noEmit
 
 - Biome만 씀 (ESLint, Prettier 없음). 테스트 아직 없음
-- Stop hook(.claude/hooks/check.sh)이 끝낼 때 tsc · lint 자동 검사, 실패하면 고치고 다시 끝내기
+- Stop hook(.claude/hooks/check.sh)이 끝낼 때 Biome 자동 수정 후 tsc · lint 검사, 실패하면 고치고 다시 끝내기
+- git pre-commit hook(.githooks/pre-commit)이 커밋할 때 스테이징된 파일을 Biome으로 자동 수정, 못 고치는 에러면 커밋 막음 (npm install 때 prepare가 core.hooksPath 설정)
 
 ## 기술 스택
 
@@ -116,11 +117,11 @@ npx tsc --noEmit
 
 ## 지금 상태
 
-- 끝: 이메일 가입/로그인, 티켓 카드 · 캐러셀 · 카드 묶음, 홈 레이아웃(목데이터), 하단 바 아이콘, 컬렉션 · 카드 상세(목데이터), 마이 · 프로필 편집(닉네임 · 사진), 홈 인기 영화(KOBIS) · 곧 개봉(TMDB) 실데이터, 티켓 인증 서버(인식 · 3사 지점 대조 · 확인 요청 · 카드 발급 · 검수 승인/반려, ticket-verify.md 구현 상태)
+- 끝: 이메일 가입/로그인, 티켓 카드 · 캐러셀 · 카드 묶음, 홈 레이아웃(목데이터), 하단 바 아이콘, 컬렉션 · 카드 상세(cards 실데이터, 이미지로 저장 · 공유), 마이 · 프로필 편집(닉네임 · 사진), 홈 인기 영화(KOBIS) · 곧 개봉(TMDB) 실데이터, 티켓 인증 서버(인식 · 3사 지점 대조 · 확인 요청 · 카드 발급 · 검수 승인/반려, ticket-verify.md 구현 상태)
 - 남음 (auth.md 할 일 참고)
   - 소셜 로그인 실제 테스트 (코드 연결 · 약관 동의 · 가입 완료 기준 변경은 끝)
   - 비밀번호 찾기
   - 알림 · 나의 감상 · 관람 리뷰 · 설정 하위 항목: 빈 화면만 (시안 대기)
-  - 카드 상세 TODO: 이미지로 저장 · 관람평 수정 · 공유하기 · 카드 삭제 동작 (지금은 UI만)
+  - 카드 상세 TODO: 관람평 수정 · 카드 삭제 동작 (지금은 UI만)
   - 별 아이콘 (관람평 · 컬렉션 별점, 지금은 자리 비움 / "별점" 글자)
-- 다음: 컬렉션 · 카드 상세 · 홈 "내 카드" 목데이터를 cards 테이블로 교체 -> 알림 목록 화면 (시안 대기)
+- 다음: 홈 "내 카드" · 이번 달 수집 현황 목데이터를 cards로 교체 -> 카드 삭제 · 관람평 수정 -> 알림 목록 화면 (시안 대기)
