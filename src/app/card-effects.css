@@ -55,6 +55,106 @@
   --animate-card-sheen: card-sheen 6s ease-in-out 2s infinite both;
   /* animate-holo-ring: 인증 배지 테두리 회전 (holo-ring-gradient에 붙임, 가운데 카드만) */
   --animate-holo-ring: holo-ring-spin 4s linear infinite;
+  /* animate-scan-line: 티켓 읽는 중 화면의 위아래로 오가는 스캔 선 (/verify) */
+  --animate-scan-line: scan-line 1600ms ease-in-out infinite alternate;
+  /* 스플래시 로고 연출 (components/splash): chagok 로고가 살짝 아래에서 커지며 떠오름 */
+  --animate-splash-logo-in: splash-logo-in 900ms cubic-bezier(0.22, 1, 0.36, 1)
+    200ms both;
+}
+
+/* 예시 카드 3장이 앞 · 왼쪽 뒤 · 오른쪽 뒤를 돌아감 (한 자리에 3초: 2.4초 머물고 0.6초 이동).
+   카드마다 시작 시점은 --coverflow-delay로 줌.
+   - animation-delay를 따로 주면 animation 단축 속성이 0으로 덮어씀
+   - @theme의 --animate-*에 var()를 넣으면 :root에서 미리 계산돼 카드별 값이 안 먹음
+   그래서 theme 변수 대신 utility로 두고 카드 요소에서 var()가 계산되게 함 */
+@utility coverflow-spin {
+  animation: coverflow 9s var(--coverflow-delay, 0s) infinite;
+}
+
+/* 예시 카드 자리 (SampleCardCarousel). 애니메이션이 없을 때(동작 줄이기)도 세 장이 이 자리에 보임 */
+@utility coverflow-front {
+  transform: none;
+  opacity: 1;
+  z-index: 3;
+}
+
+@utility coverflow-left {
+  transform: translateX(-62%) scale(0.78) rotateY(28deg);
+  opacity: 0.55;
+  z-index: 2;
+}
+
+@utility coverflow-right {
+  transform: translateX(62%) scale(0.78) rotateY(-28deg);
+  opacity: 0.55;
+  z-index: 1;
+}
+
+/* 한 장 기준: 앞 -> 왼쪽 뒤 -> 오른쪽 뒤 -> 앞. 세 장은 delay를 3초씩 어긋나게 줘서 늘 한 자리씩 차지함.
+   z-index는 이동을 시작하는 순간 바꿈: 앞으로 오는 카드는 바로 맨 위, 왼쪽에서 오른쪽으로 가는 카드는 맨 뒤로 지나감.
+   timing-function은 그 키프레임에서 다음 키프레임까지에 적용 (머무는 구간은 값이 같아 영향 없음) */
+@keyframes coverflow {
+  0%,
+  26.67% {
+    transform: none;
+    opacity: 1;
+    z-index: 3;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  26.7% {
+    z-index: 2;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  33.33%,
+  60% {
+    transform: translateX(-62%) scale(0.78) rotateY(28deg);
+    opacity: 0.55;
+    z-index: 2;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  60.03% {
+    z-index: 1;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  66.67%,
+  93.33% {
+    transform: translateX(62%) scale(0.78) rotateY(-28deg);
+    opacity: 0.55;
+    z-index: 1;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  93.36% {
+    z-index: 3;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+    z-index: 3;
+  }
+}
+
+@keyframes splash-logo-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+    scale: 0.92;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+/* 224 높이 상자 안에서 56 높이 선이 위 끝 ~ 아래 끝을 오감 (transform만 움직임) */
+@keyframes scan-line {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(168px);
+  }
 }
 
 @keyframes card-wobble {

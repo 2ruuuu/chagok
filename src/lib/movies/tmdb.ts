@@ -40,6 +40,11 @@ const releaseDatesSchema = z.object({
   ),
 });
 
+const creditsSchema = z.object({
+  cast: z.array(z.object({ name: z.string(), order: z.number() })),
+  crew: z.array(z.object({ name: z.string(), job: z.string() })),
+});
+
 export type TmdbMovie = z.infer<typeof movieListSchema>["results"][number];
 
 const tmdbFetch = async <T extends z.ZodType>(
@@ -124,4 +129,23 @@ export const getKoreanReleaseDate = async (movieId: number) => {
       .map((item) => item.release_date.slice(0, 10))
       .sort()[0];
   return pick(3) ?? pick(2) ?? null;
+};
+
+/** 감독 · 출연 (출연은 크레딧 순서대로). 잘 안 바뀌어서 7일 캐시 */
+export const getMovieCredits = async (movieId: number) => {
+  const data = await tmdbFetch(
+    `/movie/${movieId}/credits`,
+    {},
+    creditsSchema,
+    7 * DAY,
+  );
+  if (!data) return null;
+  return {
+    directors: data.crew
+      .filter((person) => person.job === "Director")
+      .map((person) => person.name),
+    cast: [...data.cast]
+      .sort((a, b) => a.order - b.order)
+      .map((person) => person.name),
+  };
 };

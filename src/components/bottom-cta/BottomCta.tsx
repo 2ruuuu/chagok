@@ -5,12 +5,14 @@ import { useKeyboardInset } from "@/hooks/useKeyboardInset";
 import { cn } from "@/lib/cn";
 
 // AuthLayout의 하단 여백(pb-14 = 56px)
-const LAYOUT_BOTTOM_SPACE = 56;
+const AUTH_LAYOUT_BOTTOM_SPACE = 56;
 // 키보드가 열렸을 때 버튼과 키보드 사이 간격
 const KEYBOARD_GAP = 12;
 
 interface BottomCtaProps {
   children: ReactNode;
+  /** 버튼 아래 레이아웃 여백(px). 기본은 AuthLayout의 56, 여백이 다른 레이아웃에서는 넘김 */
+  bottomSpace?: number;
   className?: string;
 }
 
@@ -20,12 +22,13 @@ interface BottomCtaProps {
  * 위치 방식(fixed 등)을 바꾸지 않고 transform만 움직여서 키보드와 함께 부드럽게 이동함.
  * 페이지가 화면 높이를 넘지 않는다는 전제 (스크롤되는 페이지에서는 위치가 어긋남).
  */
-const BottomCta = ({ children, className }: BottomCtaProps) => {
+const BottomCta = ({
+  children,
+  bottomSpace = AUTH_LAYOUT_BOTTOM_SPACE,
+  className,
+}: BottomCtaProps) => {
   const keyboardInset = useKeyboardInset();
-  const offset = Math.max(
-    0,
-    keyboardInset - LAYOUT_BOTTOM_SPACE + KEYBOARD_GAP,
-  );
+  const offset = Math.max(0, keyboardInset - bottomSpace + KEYBOARD_GAP);
 
   return (
     <div
