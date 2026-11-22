@@ -38,13 +38,36 @@ const movieInfoSchema = z.object({
       prdtYear: z.string(),
       openDt: z.string(),
       genres: z.array(z.object({ genreNm: z.string() })),
+      nations: z.array(z.object({ nationNm: z.string() })).default([]),
+      directors: z.array(z.object({ peopleNm: z.string() })).default([]),
+      actors: z.array(z.object({ peopleNm: z.string() })).default([]),
+      /** 관람등급 (심의 이력 순서대로, 마지막이 최신) */
+      audits: z.array(z.object({ watchGradeNm: z.string() })).default([]),
     }),
+  }),
+});
+
+const movieListSchema = z.object({
+  movieListResult: z.object({
+    movieList: z.array(
+      z.object({
+        movieCd: z.string(),
+        movieNm: z.string(),
+        movieNmEn: z.string(),
+        prdtYear: z.string(),
+        /** YYYYMMDD, 없으면 빈 문자열 */
+        openDt: z.string(),
+      }),
+    ),
   }),
 });
 
 export type KobisBoxOfficeItem = z.infer<
   typeof dailyBoxOfficeSchema
 >["boxOfficeResult"]["dailyBoxOfficeList"][number];
+export type KobisMovieListItem = z.infer<
+  typeof movieListSchema
+>["movieListResult"]["movieList"][number];
 export type KobisMovieInfo = z.infer<
   typeof movieInfoSchema
 >["movieInfoResult"]["movieInfo"];
@@ -105,4 +128,15 @@ export const getMovieInfo = async (movieCd: string) => {
     7 * DAY,
   );
   return data?.movieInfoResult.movieInfo ?? null;
+};
+
+/** 제목으로 영화 목록 검색 (티켓 인증 영화 대조). 하루 캐시 */
+export const searchMovieList = async (movieNm: string) => {
+  const data = await kobisFetch(
+    "/movie/searchMovieList.json",
+    { movieNm, itemPerPage: "20" },
+    movieListSchema,
+    DAY,
+  );
+  return data?.movieListResult.movieList ?? [];
 };

@@ -45,3 +45,5 @@ next-env.d.ts
 .claude/settings.local.json
 .claude/backup/
 CLAUDE.local.md
+# 티켓 인증 추출 테스트용 샘플 (개인정보가 찍혀 있을 수 있어 깃에 안 올림)
+/samples/
