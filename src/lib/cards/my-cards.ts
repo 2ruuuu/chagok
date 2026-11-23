@@ -16,10 +16,13 @@ export type CollectionCard = Ticket & {
   id: string;
   /** 관람평 별점 (1~5 정수) */
   rating: number;
+  /** 카드 받은 날 YYYY.MM.DD (KST). 홈 월별 막대 */
+  collectedAt: string;
 };
 
 type CardRow = {
   id: string;
+  created_at: string;
   certificate_id: string;
   memo: string | null;
   movies: {
@@ -46,7 +49,7 @@ type CardRow = {
 };
 
 const CARD_SELECT =
-  "id, certificate_id, memo, movies(title, original_title, poster_url, released_on, country, genres), tickets(chain, theater, screen, screened_at, seat, extracted, reviews(rating, body))";
+  "id, created_at, certificate_id, memo, movies(title, original_title, poster_url, released_on, country, genres), tickets(chain, theater, screen, screened_at, seat, extracted, reviews(rating, body))";
 
 const toCollectionCard = (row: CardRow): CollectionCard | null => {
   const { movies: movie, tickets: ticket } = row;
@@ -83,6 +86,7 @@ const toCollectionCard = (row: CardRow): CollectionCard | null => {
     genres: movie.genres,
     certificateId: row.certificate_id,
     rating: review?.rating ?? 0,
+    collectedAt: showtimeParts(new Date(row.created_at)).watchedAt,
   };
 };
 

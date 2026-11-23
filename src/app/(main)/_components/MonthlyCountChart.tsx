@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import type { MonthlyCollection } from "../_mocks/home";
+import type { MonthlyCollection } from "../_data/home-cards";
 
 interface MonthlyCountChartProps {
   counts: MonthlyCollection["monthlyCounts"];

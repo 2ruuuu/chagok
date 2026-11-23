@@ -1,12 +1,15 @@
-import Button from "@/components/button/Button";
+import Link from "next/link";
+import { buttonVariants } from "@/components/button/Button";
 import CardStack from "@/components/card-stack/CardStack";
 import { cn } from "@/lib/cn";
-import type { MonthlyCollection } from "../_mocks/home";
+import type { MonthlyCollection } from "../_data/home-cards";
 import MonthlyCountChart from "./MonthlyCountChart";
 import TopFormats from "./TopFormats";
 
 interface CollectedCardInMonthProps {
   collection: MonthlyCollection;
+  /** 카드가 한 장이라도 있는지 (없으면 버튼 문구가 "티켓 인증하기") */
+  hasCards: boolean;
 }
 
 /** 지난 달과 차이: 늘면 +N, 같으면 0, 줄면 -N */
@@ -20,7 +23,10 @@ const formatDiff = (diff: number) => (diff > 0 ? `+${diff}` : `${diff}`);
  *   누적 · 지난 달 비교를 큰 숫자로, 월별 막대 · 많이 본 포맷 추가 (시안 없이 만든 것).
  *   sticky라 패널 높이가 화면(900 - 헤더)보다 커지지 않게 유지
  */
-const CollectedCardInMonth = ({ collection }: CollectedCardInMonthProps) => {
+const CollectedCardInMonth = ({
+  collection,
+  hasCards,
+}: CollectedCardInMonthProps) => {
   const {
     month,
     monthCount,
@@ -54,10 +60,19 @@ const CollectedCardInMonth = ({ collection }: CollectedCardInMonthProps) => {
           {month}월에 모은 카드 {monthCount}장
         </h2>
       </div>
-      <CardStack
-        cards={cards}
-        className="md:self-center md:[grid-area:stack]"
-      />
+      {cards.length > 0 ? (
+        <CardStack
+          cards={cards}
+          className="md:self-center md:[grid-area:stack]"
+        />
+      ) : (
+        // 이번 달 카드가 없을 때: 카드 묶음과 같은 크기의 빈 칸 (시안 없이 만든 것)
+        <div className="flex aspect-296/112 w-full items-center justify-center rounded-md border border-line-normal border-dashed md:self-center md:[grid-area:stack]">
+          <p className="text-label2 text-neutral-30">
+            이번 달에 모은 카드가 아직 없어요
+          </p>
+        </div>
+      )}
       {/* 모바일 · 태블릿: 한 줄 요약 / 데스크톱: 아래 큰 숫자 2칸 */}
       <p className="flex items-center gap-0.5 self-start text-caption1 text-neutral-15 md:[grid-area:meta] xl:hidden">
         <span>올해 누적 {yearCount}장</span>
@@ -82,9 +97,15 @@ const CollectedCardInMonth = ({ collection }: CollectedCardInMonthProps) => {
       <div className="hidden border-line-normal border-t pt-5 xl:block">
         <TopFormats formats={topFormats} />
       </div>
-      <Button type="button" variant="outline" className="md:[grid-area:button]">
-        다른 티켓 인증하기
-      </Button>
+      <Link
+        href="/verify"
+        className={cn(
+          buttonVariants({ variant: "outline" }),
+          "md:[grid-area:button]",
+        )}
+      >
+        {hasCards ? "다른 티켓 인증하기" : "티켓 인증하기"}
+      </Link>
     </section>
   );
 };
