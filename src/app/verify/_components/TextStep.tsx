@@ -44,7 +44,7 @@ const TextStep = ({
     <>
       <VerifyHeader />
       <form className="flex flex-1 flex-col" onSubmit={handleSubmit}>
-        <h1 className="mt-5 text-center text-heading2 font-semibold text-static-white">
+        <h1 className="mt-5 text-center text-heading2 font-semibold text-static-white md:text-heading1">
           {title}
         </h1>
         <label
@@ -53,7 +53,7 @@ const TextStep = ({
         >
           {label} <span className="text-neutral-30">{note}</span>
         </label>
-        <div className="relative mt-1 h-50 rounded-lg border border-line-normal bg-common-0/10 focus-within:border-neutral-30">
+        <div className="relative mt-1 h-50 rounded-lg md:h-60 border border-line-normal bg-common-0/10 focus-within:border-neutral-30">
           {/* maxLength: 최대 글자 수를 넘으면 입력이 막힘 */}
           <textarea
             id={id}

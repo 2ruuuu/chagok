@@ -13,7 +13,7 @@ export const VERIFY_HREF = "/verify";
 
 /**
  * 주요 메뉴 (모바일 · 태블릿 하단 바 BottomNav, 데스크톱 상단 헤더 TopNav 같이 씀).
- * TODO: 인증 · 랭킹 페이지는 아직 없음 (누르면 404). 페이지가 생기면 경로 확인.
+ * 인증(/verify) · 랭킹(/ranking) 페이지 있음.
  * icon: 비활성(회색), activeIcon: 현재 탭(흰색). 인증은 빨간 원 안의 흰 아이콘 하나뿐
  */
 export const NAV_ITEMS = [

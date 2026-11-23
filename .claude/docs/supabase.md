@@ -97,6 +97,14 @@ notifications (20261122120000)
 - 앱 안 알림: type ticket_approved · ticket_rejected · notice, body, ticket_id, read_at
 - 본인 것만 조회, 직접 수정은 read_at만 (읽음 표시). 만드는 건 approve_ticket · reject_ticket (공지는 나중)
 
+rankings · ranking_runs (20261123090000)
+
+- rankings: 마지막 집계 결과 (user_id, rank 공동 순위, card_count, reached_at 지금 장수가 된 시각, nickname · avatar_path 집계 때 복사)
+- profiles는 본인 것만 조회라 닉네임 · 사진을 집계 때 같이 저장 -> 닉네임 · 사진 바꿔도 다음 집계 전까지 예전 값
+- ranking_runs: 1행 (counted_until = 셈한 기준 시각, ranked_count = 순위에 든 사람 수)
+- 순위 변화 (20261123100000): rankings.prev_rank (지난 집계 순위, 없으면 null = NEW), ranking_runs.prev_counted_until (null이면 첫 집계 -> 변화 안 보여줌)
+- 둘 다 로그인한 사람 누구나 조회, 쓰기는 refresh_rankings로만
+
 ## RPC
 
 - is_email_registered(p_email): 가입 완료된 이메일인지 (닉네임까지 있어야 완료), anon · authenticated 호출 가능
@@ -106,6 +114,10 @@ notifications (20261122120000)
   - 에러 메시지: ticket_not_found · ticket_expired · needs_review · invalid_seat · already_issued, 좌석 겹침은 23505
 - approve_ticket(p_ticket_id, p_movie_id?, p_chain?, p_theater?, p_screened_at?, p_seat?) · reject_ticket(p_ticket_id, p_reason): 검수, service_role만 (SQL Editor에서 호출)
   - pending만 처리, 상태 변경 + notifications 생성을 한 번에. 사용법은 ticket-verify.md "검수 운영"
+- refresh_rankings(): 랭킹 다시 집계, service_role만 (/api/cron/rankings)
+  - 오늘 00:00(KST) 전에 받은 카드만 셈 (cron이 늦게 돌아도 기준 같음), 닉네임 없는 사람 빠짐
+  - 순위: rank() over (장수 내림차순), 같은 순위 안 순서는 reached_at
+  - 새 날이면 지금 순위를 prev_rank로 넘김, 같은 기준으로 다시 돌리면(수동) prev_rank · prev_counted_until 그대로 (변화가 0으로 안 바뀌게)
 - record_signup_agreements(p_marketing): 약관 동의 기록, authenticated만
   - 필수 약관 시각은 처음 한 번만, 마케팅은 바뀔 때마다 시각 갱신
   - 나중에 마케팅 수신 설정 화면에서도 재사용 가능

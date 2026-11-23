@@ -8,8 +8,8 @@ import Avatar from "@/components/avatar/Avatar";
 import PageHeader from "@/components/page-header/PageHeader";
 import { APP_VERSION } from "@/constants/app";
 import { getAvatarUrl } from "@/lib/avatar";
+import { getMyCardCounts } from "@/lib/cards/my-cards";
 import { createClient } from "@/lib/supabase/server";
-import { collectionCards } from "@/mocks/cards";
 import { mockProfile } from "@/mocks/profile";
 
 const ICON_LINK_CLASS =
@@ -43,9 +43,9 @@ const MyPage = async () => {
         .maybeSingle()
     : { data: mockProfile };
 
-  // TODO: 카드 테이블이 생기면 DB 개수로 교체
-  const cardCount = collectionCards.length;
-  const commentCount = collectionCards.filter((card) => card.comment).length;
+  const { cardCount, memoCount: commentCount } = userId
+    ? await getMyCardCounts(supabase, userId)
+    : { cardCount: 0, memoCount: 0 };
 
   const stats = [
     { label: "보유 카드", value: cardCount },

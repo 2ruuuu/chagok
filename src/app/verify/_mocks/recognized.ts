@@ -38,6 +38,7 @@ export const mockRecognizedTicket: RecognizedTicket = {
 /**
  * 목 인식 결과 고르기 (개발용). 주소에 ?mock=값 을 붙여서 각 화면을 확인함.
  * seats: 좌석 여러 개 / review: 검수 대상 / unreadable · duplicate · unsupported · network: 실패 화면
+ * not_ticket · multiple · future · too_small: 알아보지 못한 이유별 안내
  * 예: /verify?mock=review
  */
 export const getMockRecognizeResult = (
@@ -61,6 +62,11 @@ export const getMockRecognizeResult = (
       };
     case "unsupported":
       return { status: "unsupported", ticketId: MOCK_TICKET_ID };
+    case "not_ticket":
+    case "multiple":
+    case "future":
+    case "too_small":
+      return { status: "unreadable", reason: scenario };
     case "unreadable":
     case "duplicate":
     case "network":

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   type ChangeEvent,
+  type ReactNode,
   useEffect,
   useRef,
   useState,
@@ -26,6 +27,7 @@ import {
 } from "../_mocks/recognized";
 import {
   type RecognizeResult,
+  type UnreadableReason,
   useVerifyStore,
 } from "../_stores/useVerifyStore";
 import { compressTicketImage } from "../_utils/compress-ticket-image";
@@ -41,10 +43,51 @@ const TOAST_DURATION_MS = 2000;
 const SUB_BUTTON_CLASS =
   "border-line-normal bg-common-0/10 text-body1 font-semibold text-static-white";
 
+/** 알아보지 못한 이유별 안내 (이유가 없으면 흐림 · 잘림 일반 안내 + 팁) */
+const UNREADABLE_NOTICES: Record<
+  UnreadableReason,
+  { title: string; description: ReactNode }
+> = {
+  not_ticket: {
+    title: "티켓 화면이 아니에요",
+    description: (
+      <>
+        예매 상세 · 결제 내역 화면은 인증할 수 없어요.
+        <br />
+        앱의 모바일 티켓 화면이나 종이 티켓을 올려 주세요.
+      </>
+    ),
+  },
+  multiple: {
+    title: "티켓이 여러 장 보여요",
+    description: (
+      <>
+        티켓은 한 장씩 인증할 수 있어요.
+        <br />한 장만 나오게 다시 찍어 주세요.
+      </>
+    ),
+  },
+  too_small: {
+    title: "사진이 너무 작아요",
+    description: (
+      <>
+        원본 사진으로 다시 올려 주세요.
+        <br />
+        메신저로 받은 사진은 원본으로 받으면 돼요.
+      </>
+    ),
+  },
+  future: {
+    title: "아직 상영 전인 티켓이에요",
+    description: "영화를 보고 난 뒤에 인증할 수 있어요.",
+  },
+};
+
 const UNREADABLE_TIPS = [
   "티켓 전체가 화면 안에 들어오게",
   "빛 반사 없이 밝은 곳에서",
-  "영화 제목 · 일시 · 좌석이 보이게",
+  "구겨진 종이 티켓은 펴서",
+  "영화 제목 · 일시 · 극장 · 좌석이 보이게",
   "티켓은 한 장만",
 ];
 
@@ -89,6 +132,8 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
   const [source, setSource] = useState<Source>("camera");
   // 작성 중이던 인증의 영화 제목. 있으면 "이어서 할까요?"를 물어봄
   const [resumeTitle, setResumeTitle] = useState<string | null>(null);
+  const [unreadableReason, setUnreadableReason] =
+    useState<UnreadableReason | null>(null);
   // 자동 인증이 어려운 티켓: 인식 때 사진과 함께 잡아 둔 티켓 (확인 요청에 씀)
   const [unsupportedTicketId, setUnsupportedTicketId] = useState<string | null>(
     null,
@@ -166,12 +211,14 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
     stopReading();
     const run = runRef.current;
     fileRef.current = file;
+    setUnreadableReason(null);
     setView("reading");
 
     // 해상도가 낮으면 인식 요청 전에 다시 찍으라고 안내 (비용 안 듦)
     const shortSide = await getShortSide(file);
     if (run !== runRef.current) return;
     if (shortSide !== null && shortSide < MIN_IMAGE_SHORT_SIDE) {
+      setUnreadableReason("too_small");
       setView("unreadable");
       return;
     }
@@ -184,6 +231,9 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
       }
       setUnsupportedTicketId(
         result.status === "unsupported" ? result.ticketId : null,
+      );
+      setUnreadableReason(
+        result.status === "unreadable" ? (result.reason ?? null) : null,
       );
       setView(result.status);
     };
@@ -297,7 +347,7 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
         <main className="flex flex-1 flex-col items-center">
           {/* <output>은 role="status"(live region)를 기본으로 가짐 */}
           <output className="mt-29.5 flex flex-col items-center gap-1 text-center">
-            <h1 className="text-heading2 font-semibold text-static-white">
+            <h1 className="text-heading2 font-semibold text-static-white md:text-heading1">
               티켓을 읽고 있어요.
             </h1>
             <p className="text-body2 text-neutral-10">
@@ -307,16 +357,16 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
           {/* 티켓 일러스트 위로 빨간 선이 오르내림 */}
           <div
             aria-hidden
-            className="relative mt-6 h-56 w-40 overflow-hidden rounded-lg bg-neutral-99"
+            className="relative mt-6 h-56 w-40 overflow-hidden rounded-lg bg-neutral-99 md:h-70 md:w-50"
           >
             <Image
               src={ticketReading}
               alt=""
               fill
-              sizes="160px"
+              sizes="(min-width: 768px) 200px, 160px"
               className="object-cover"
             />
-            <span className="absolute inset-x-0 top-0 h-14 animate-scan-line bg-linear-to-b from-primary-50/0 via-primary-50/28 via-85% to-primary-50 motion-reduce:animate-none" />
+            <span className="absolute inset-x-0 top-0 h-14 animate-scan-line bg-linear-to-b md:[--scan-distance:224px] from-primary-50/0 via-primary-50/28 via-85% to-primary-50 motion-reduce:animate-none" />
           </div>
         </main>
         <Button
@@ -332,19 +382,42 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
   }
 
   if (view === "unreadable") {
+    const notice = unreadableReason
+      ? UNREADABLE_NOTICES[unreadableReason]
+      : null;
+
+    // 상영 전 티켓은 다시 찍어도 같아서 처음으로만
+    if (unreadableReason === "future") {
+      return (
+        <VerifyNotice
+          icon={ScanIcon}
+          title={UNREADABLE_NOTICES.future.title}
+          description={UNREADABLE_NOTICES.future.description}
+          onBack={backToStart}
+          actions={
+            <Button type="button" onClick={backToStart}>
+              확인
+            </Button>
+          }
+        />
+      );
+    }
+
     return (
       <>
         <VerifyNotice
           icon={ScanIcon}
-          title="티켓을 알아보지 못했어요"
+          title={notice?.title ?? "티켓을 알아보지 못했어요"}
           description={
-            <>
-              사진이 흐리거나 티켓 일부가 잘렸을 수 있어요.
-              <br />
-              아래를 확인하고 다시 찍어주세요.
-            </>
+            notice?.description ?? (
+              <>
+                사진이 흐리거나 티켓 일부가 잘렸을 수 있어요.
+                <br />
+                아래를 확인하고 다시 찍어주세요.
+              </>
+            )
           }
-          tips={UNREADABLE_TIPS}
+          tips={notice ? undefined : UNREADABLE_TIPS}
           onBack={backToStart}
           actions={
             <>
@@ -469,7 +542,7 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
       <VerifyHeader />
       <main className="flex flex-1 flex-col items-center">
         <div className="mt-5 flex flex-col items-center gap-1 text-center">
-          <h1 className="text-heading2 font-semibold text-static-white">
+          <h1 className="text-heading2 font-semibold text-static-white md:text-heading1">
             티켓을 카드로 간직하세요
           </h1>
           <p className="text-body2 text-neutral-10">
@@ -488,6 +561,8 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
         {/* TODO: 촬영 가이드 시안이 나오면 맞추기 (지금은 문구만) */}
         <p className="text-center text-body2 text-neutral-20">
           티켓 전체가 나오게, 한 장씩 찍어 주세요.
+          <br />
+          구겨진 종이 티켓은 펴서 찍으면 더 잘 읽혀요.
           <br />
           모바일 티켓과 종이 티켓을 모두 인증할 수 있어요.
         </p>

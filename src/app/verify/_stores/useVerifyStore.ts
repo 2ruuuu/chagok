@@ -38,6 +38,17 @@ export type RecognizedTicket = {
 };
 
 /**
+ * 티켓을 알아보지 못한 이유 (안내 문구가 달라짐). 없으면 흐림 · 잘림 · 해상도 부족 등 일반 안내
+ * not_ticket: 티켓 화면이 아님 (예매 상세 · 결제 내역 화면 등) / multiple: 티켓 여러 장 / future: 아직 상영 전
+ * too_small: 사진이 너무 작음 (서버로 보내기 전 화면에서 판단)
+ */
+export type UnreadableReason =
+  | "not_ticket"
+  | "multiple"
+  | "future"
+  | "too_small";
+
+/**
  * 티켓 인식 요청 결과.
  * recognized: 관람 정보 확인 화면으로
  * unreadable: 티켓을 알아보지 못함 (티켓이 아님 · 여러 장 · 흐림 · 결제 내역 화면)
@@ -49,7 +60,8 @@ export type RecognizeResult =
   | { status: "recognized"; ticket: RecognizedTicket }
   /** 사진은 이미 접수돼 있음. [확인 요청하기]에서 이 id로 검수 요청 */
   | { status: "unsupported"; ticketId: string }
-  | { status: "unreadable" | "duplicate" | "network" };
+  | { status: "unreadable"; reason?: UnreadableReason }
+  | { status: "duplicate" | "network" };
 
 type VerifyState = {
   ticket: RecognizedTicket | null;
@@ -60,6 +72,8 @@ type VerifyState = {
   memo: string;
   /** 카드 발급까지 끝났는지 (발급 완료 화면에서만 true) */
   issued: boolean;
+  /** 발급된 카드 id (공유 이미지에 씀). 목 발급이면 null */
+  cardId: string | null;
   /**
    * 티켓 인식 성공: 이전 입력을 지우고 새로 시작.
    * expires: false면 30분 제한 없음 (검수 승인된 티켓, 서버에서도 시간 제한 없음)
@@ -70,8 +84,8 @@ type VerifyState = {
   setRating: (rating: number) => void;
   setReview: (review: string) => void;
   setMemo: (memo: string) => void;
-  /** 발급 끝: 서버가 정한 인증번호를 넣고 발급 완료 상태로 */
-  issue: (certificateId: string) => void;
+  /** 발급 끝: 서버가 정한 인증번호 · 카드 id를 넣고 발급 완료 상태로 */
+  issue: (certificateId: string, cardId: string | null) => void;
   reset: () => void;
 };
 
@@ -82,6 +96,7 @@ const EMPTY = {
   review: "",
   memo: "",
   issued: false,
+  cardId: null,
 };
 
 /**
@@ -106,9 +121,10 @@ export const useVerifyStore = create<VerifyState>()(
       setRating: (rating) => set({ rating }),
       setReview: (review) => set({ review }),
       setMemo: (memo) => set({ memo }),
-      issue: (certificateId) =>
+      issue: (certificateId, cardId) =>
         set((state) => ({
           issued: true,
+          cardId,
           ticket: state.ticket ? { ...state.ticket, certificateId } : null,
         })),
       reset: () => set(EMPTY),

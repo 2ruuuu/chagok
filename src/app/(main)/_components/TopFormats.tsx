@@ -1,4 +1,4 @@
-import type { MonthlyCollection } from "../_mocks/home";
+import type { MonthlyCollection } from "../_data/home-cards";
 
 interface TopFormatsProps {
   formats: MonthlyCollection["topFormats"];

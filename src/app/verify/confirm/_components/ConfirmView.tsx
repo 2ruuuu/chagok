@@ -94,7 +94,7 @@ const ConfirmView = () => {
             <VerifyHeader onBack={backToStart} />
             <main className="flex flex-1 flex-col">
               <div className="mt-5 flex flex-col items-center gap-1 text-center">
-                <h1 className="text-heading2 font-semibold text-static-white">
+                <h1 className="text-heading2 font-semibold text-static-white md:text-heading1">
                   관람 정보를 확인해 주세요.
                 </h1>
                 <p className="text-body2 text-neutral-10">

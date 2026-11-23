@@ -65,6 +65,10 @@ export const showtimeParts = (screenedAt: Date) => {
   };
 };
 
+/** 상영관 이름에서 상영 포맷 (IMAX · 4DX · SCREENX · DOLBY 등, 없으면 2D) */
+export const formatFromScreen = (screen: string | null) =>
+  screen?.match(FORMAT_PATTERN)?.[0].toUpperCase() ?? "2D";
+
 export const buildRecognizedTicket = (input: {
   ticketId: string;
   movie: TicketMovie;
@@ -89,7 +93,7 @@ export const buildRecognizedTicket = (input: {
   releasedAt: `${input.movie.releasedAt.replaceAll("-", ".")}.`,
   country: input.movie.country,
   genres: input.movie.genres,
-  format: input.screen?.match(FORMAT_PATTERN)?.[0].toUpperCase() ?? "2D",
+  format: formatFromScreen(input.screen),
   theater: theaterLabel(input.chain, input.theater, input.rawTheater),
   screen: input.screen ?? "",
   ...showtimeParts(input.screenedAt),

@@ -22,10 +22,17 @@ const SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
-    is_ticket: {
-      type: "boolean",
+    screen_type: {
+      type: "string",
+      enum: [
+        "paper_ticket",
+        "mobile_ticket",
+        "booking_detail",
+        "payment_history",
+        "other",
+      ],
       description:
-        "종이 영화 입장권(결제 내역이 같이 인쇄돼 있어도 됨) 또는 CGV · 롯데시네마 · 메가박스 앱의 모바일 티켓 화면이면 true. 예약 · 결제 내역 화면, 영화제 · 예매 대행 사이트 화면은 false",
+        "사진 속 화면 종류. paper_ticket: 극장에서 뽑은 종이 입장권 (결제 내역이 같이 인쇄돼 있어도 됨). mobile_ticket: CGV · 롯데시네마 · 메가박스 앱의 모바일 티켓(입장권) 화면, 보통 QR · 바코드가 있음. booking_detail: 예매 상세 · 예매 확인 화면 (예매번호로 극장에서 티켓을 찾으라는 안내, 취소기한, 관람인원 같은 항목이 있음, QR · 바코드 없음). payment_history: 결제 · 구매 내역 화면. other: 영화제 · 예매 대행 사이트 화면, 영화 티켓이 아닌 사진 등",
     },
     ticket_count: {
       type: "integer",
@@ -68,7 +75,7 @@ const SCHEMA = {
     },
   },
   required: [
-    "is_ticket",
+    "screen_type",
     "ticket_count",
     "ticket_type",
     "chain",
@@ -95,11 +102,18 @@ const PROMPT = `이 사진에서 영화 티켓 정보를 읽어 주세요.
 - 모바일 티켓 위쪽에 이름표 없이 적힌 번호(예: 9043-530-22874)도 예매번호예요
 - 번호는 한 자리씩 끊어 읽고, 같은 번호가 두 번(글자 + 바코드 아래) 있으면 둘을 대조해요. 0이 연달아 나오는 부분을 특히 조심해요
 - chain은 로고가 없어도 극장 이름 · 화면 모양 · 문구(CJ ONE, L.POINT 등)로 알 수 있으면 적어요
+- screen_type은 화면 종류만 골라요. 예매 상세 화면도 극장 · 일시 · 좌석이 보이지만 입장권이 아니에요 (QR · 바코드 없이 "티켓을 찾으세요" · 취소기한 · 관람인원이 있으면 booking_detail)
 - ticket_count는 티켓(화면 · 종이) 장수예요. 한 장에 좌석이 2개여도 1이에요`;
 
 // 구조화 출력이어도 서버에서 한 번 더 확인 (모델 응답을 그대로 믿지 않음)
 const extractedSchema = z.object({
-  is_ticket: z.boolean(),
+  screen_type: z.enum([
+    "paper_ticket",
+    "mobile_ticket",
+    "booking_detail",
+    "payment_history",
+    "other",
+  ]),
   ticket_count: z.number().int(),
   ticket_type: z.string().nullable(),
   chain: z.string().nullable(),
@@ -116,6 +130,11 @@ const extractedSchema = z.object({
 });
 
 export type ExtractedTicket = z.infer<typeof extractedSchema>;
+
+/** 인정하는 화면: 종이 티켓 · 앱 모바일 티켓만 (예매 상세 · 결제 내역은 막음, ticket-verify.md "LLM 추출") */
+export const isAcceptedScreen = (extracted: ExtractedTicket) =>
+  extracted.screen_type === "paper_ticket" ||
+  extracted.screen_type === "mobile_ticket";
 
 export type ImageMediaType = "image/jpeg" | "image/png" | "image/webp";
 

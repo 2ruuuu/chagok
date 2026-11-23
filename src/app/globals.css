@@ -41,6 +41,11 @@
   --color-neutral-90: #171717;
   --color-neutral-99: #0f0f0f;
 
+  /* 랭킹 1 · 2 · 3위 (시안 값, 시맨틱 토큰 없음) */
+  --color-medal-gold: #e3a948;
+  --color-medal-silver: #c3c8d0;
+  --color-medal-bronze: #c98b5a;
+
   --color-cool-neutral-5: #f7f7f8;
   --color-cool-neutral-6: #f4f4f5;
   --color-cool-neutral-7: #eaebec;
@@ -230,6 +235,7 @@
   --shadow-spread-sm: 0 0 60px 0 #1717171a;
   --shadow-spread-md: 0 16px 72px 0 #17171729;
   --shadow-drop-100: 0 1px 4px 0 #0c0c0d0d; /* Figma Drop Shadow/100 (Black/100 = #0c0c0d 5%) */
+  --shadow-medal-gold: 0 -8px 32px 0 #e3a94838; /* 랭킹 1위 시상대 (#e3a948 22%) */
 
   /* 블러 */
   --blur-chrome: 64px;

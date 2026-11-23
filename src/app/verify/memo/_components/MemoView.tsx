@@ -39,7 +39,7 @@ const MemoView = () => {
   // 발급 뒤 뒤로가기로 작성 화면에 돌아오지 않게 replace
   const handleSubmit = (ticket: RecognizedTicket) => {
     if (ticket.ticketId === MOCK_TICKET_ID) {
-      issue(ticket.certificateId);
+      issue(ticket.certificateId, null);
       router.replace("/verify/complete");
       return;
     }
@@ -56,7 +56,7 @@ const MemoView = () => {
         showToast(result.error);
         return;
       }
-      issue(result.certificateId);
+      issue(result.certificateId, result.cardId);
       router.replace("/verify/complete");
     });
   };

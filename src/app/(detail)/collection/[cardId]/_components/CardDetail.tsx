@@ -6,9 +6,12 @@ import { useState } from "react";
 import ThreeDotIcon from "@/assets/icons/three-dot.svg";
 import CloseIcon from "@/assets/icons/X.svg";
 import Button from "@/components/button/Button";
+import ShareCardSheet from "@/components/share-card-sheet/ShareCardSheet";
 import TicketCard from "@/components/ticket-card/TicketCard";
 import TicketInfo from "@/components/ticket-info/TicketInfo";
-import type { CollectionCard } from "@/mocks/cards";
+import Toast from "@/components/toast/Toast";
+import { useCardImage } from "@/hooks/useCardImage";
+import type { CollectionCard } from "@/lib/cards/my-cards";
 import CardMenuSheet from "./CardMenuSheet";
 import DeleteCardDialog from "./DeleteCardDialog";
 
@@ -32,8 +35,8 @@ const CardDetail = ({ card }: CardDetailProps) => {
     }
   };
 
-  // TODO: 카드를 이미지로 저장
-  const handleSaveImage = () => {};
+  // 이미지로 저장 · 공유하기 (발급 완료 화면과 같음)
+  const cardImage = useCardImage(card.id, card.certificateId);
 
   return (
     <>
@@ -75,9 +78,10 @@ const CardDetail = ({ card }: CardDetailProps) => {
       <div className="flex gap-2.5 pt-8 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
         <Button
           type="button"
-          variant="secondary"
+          variant={cardImage.busy ? "disable" : "secondary"}
+          disabled={cardImage.busy}
           className="flex-1"
-          onClick={handleSaveImage}
+          onClick={cardImage.save}
         >
           이미지로 저장
         </Button>
@@ -89,6 +93,18 @@ const CardDetail = ({ card }: CardDetailProps) => {
       <CardMenuSheet
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
+        onSaveImage={() => {
+          setMenuOpen(false);
+          cardImage.save();
+        }}
+        onShare={
+          cardImage.canShare
+            ? () => {
+                setMenuOpen(false);
+                cardImage.openShare();
+              }
+            : undefined
+        }
         onDelete={() => {
           setMenuOpen(false);
           setDeleteOpen(true);
@@ -97,6 +113,11 @@ const CardDetail = ({ card }: CardDetailProps) => {
       <DeleteCardDialog
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
+      />
+      <ShareCardSheet {...cardImage.sheet} />
+      <Toast
+        message={cardImage.toastMessage}
+        className="fixed inset-x-0 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] z-50 flex justify-center px-5"
       />
     </>
   );

@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/keep-alive",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/rankings",
+      "schedule": "0 15 * * *"
     }
   ]
 }

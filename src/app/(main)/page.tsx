@@ -1,3 +1,4 @@
+import { getMyCards } from "@/lib/cards/my-cards";
 import { getPopularMovies, getUpcomingMovies } from "@/lib/movies/home";
 import { createClient } from "@/lib/supabase/server";
 import CollectedCardInMonth from "./_components/CollectedCardInMonth";
@@ -5,8 +6,8 @@ import MyCardList from "./_components/MyCardList";
 import PendingTickets from "./_components/PendingTickets";
 import PopularMovies from "./_components/PopularMovies";
 import UpcomingMovies from "./_components/UpcomingMovies";
+import { buildHomeCards } from "./_data/home-cards";
 import { getPendingTickets } from "./_data/pending-tickets";
-import { monthlyCollection, totalCardCount } from "./_mocks/home";
 
 const HomePage = async () => {
   const supabase = await createClient();
@@ -25,10 +26,15 @@ const HomePage = async () => {
     nickname = profile?.nickname ?? null;
   }
 
-  // 검수 대상 티켓 (확인 중 · 확인 완료 · 확인 실패)
-  const pendingTickets = userId
-    ? await getPendingTickets(supabase, userId)
-    : [];
+  // 검수 대상 티켓 (확인 중 · 확인 완료 · 확인 실패) · 내 카드 (캐러셀 · 이번 달 수집 현황)
+  const [pendingTickets, myCards] = userId
+    ? await Promise.all([
+        getPendingTickets(supabase, userId),
+        getMyCards(supabase, userId),
+      ])
+    : [[], []];
+  const { totalCount, carouselCards, monthlyCollection } =
+    buildHomeCards(myCards);
 
   // 영화 데이터는 외부 API를 캐시해서 씀 (src/lib/movies, 방문자 수와 상관없이 호출 수 고정)
   const [popularMovies, upcomingMovies] = await Promise.all([
@@ -38,11 +44,18 @@ const HomePage = async () => {
 
   return (
     <div>
-      <MyCardList nickname={nickname} cardCount={totalCardCount} />
+      <MyCardList
+        nickname={nickname}
+        cardCount={totalCount}
+        cards={carouselCards}
+      />
       <PendingTickets tickets={pendingTickets} />
       {/* 데스크톱(xl): 왼쪽 이번 달 카드(360, 따라 내려옴) · 오른쪽 영화 섹션 2단. 그 아래 폭은 한 줄 */}
       <div className="xl:mt-10 xl:grid xl:grid-cols-[22.5rem_minmax(0,1fr)] xl:items-start xl:gap-10">
-        <CollectedCardInMonth collection={monthlyCollection} />
+        <CollectedCardInMonth
+          collection={monthlyCollection}
+          hasCards={totalCount > 0}
+        />
         <div>
           <PopularMovies movies={popularMovies} />
           <UpcomingMovies movies={upcomingMovies} />
