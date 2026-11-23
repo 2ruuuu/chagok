@@ -32,6 +32,7 @@ const REASON_LABELS: Record<string, string> = {
   showtime_missing: "상영일시 못 읽음",
   showtime_mismatch: "연도 · 요일 안 맞음",
   year_guessed: "연도 추정",
+  year_ambiguous: "연도 애매 (개봉 1년 넘게 지남 · 재개봉?)",
   movie_not_found: "영화 못 찾음",
   seat_missing: "좌석 없음",
   seat_unparsed: "좌석 표기 못 읽음",

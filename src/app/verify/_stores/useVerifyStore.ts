@@ -40,8 +40,13 @@ export type RecognizedTicket = {
 /**
  * 티켓을 알아보지 못한 이유 (안내 문구가 달라짐). 없으면 흐림 · 잘림 · 해상도 부족 등 일반 안내
  * not_ticket: 티켓 화면이 아님 (예매 상세 · 결제 내역 화면 등) / multiple: 티켓 여러 장 / future: 아직 상영 전
+ * too_small: 사진이 너무 작음 (서버로 보내기 전 화면에서 판단)
  */
-export type UnreadableReason = "not_ticket" | "multiple" | "future";
+export type UnreadableReason =
+  | "not_ticket"
+  | "multiple"
+  | "future"
+  | "too_small";
 
 /**
  * 티켓 인식 요청 결과.

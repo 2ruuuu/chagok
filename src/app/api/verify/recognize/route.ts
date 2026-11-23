@@ -16,6 +16,7 @@ import {
   normalizeBookingNumber,
   normalizeChain,
   normalizeTheater,
+  pickShowtimeByRelease,
   resolveShowtime,
 } from "@/lib/ticket/normalize";
 import { findTheater } from "@/lib/ticket/theaters";
@@ -93,7 +94,7 @@ export async function POST(request: Request) {
   if (!showtimeResult.ok && showtimeResult.reason === "future") {
     return result({ status: "unreadable", reason: "future" });
   }
-  const showtime = showtimeResult.ok ? showtimeResult.showtime : null;
+  let showtime = showtimeResult.ok ? showtimeResult.showtime : null;
 
   const chain = normalizeChain(extracted.chain);
   // 자동 인증 대상 체인 (3사)만, 아니면 null
@@ -115,12 +116,21 @@ export async function POST(request: Request) {
   // TODO: 포스터 없는 영화를 4번 화면에 그릴 빈 포스터가 없어서 일단 검수로
   if (movie && !movie.poster) movie = null;
 
+  // 연도 없는 모바일 티켓은 영화 개봉일로 해를 다시 고름 ("돈" 2019년 3/23(토)가 2024년으로 잡히던 문제)
+  let yearReason: string | null = null;
+  if (movie && showtime) {
+    const picked = pickShowtimeByRelease(showtime, movie.releasedAt);
+    showtime = picked.showtime;
+    yearReason = picked.reason;
+  }
+
   // 하나라도 있으면 자동 인증하지 않고 검수 (pending 사유는 검수할 때 보려고 저장)
   const reviewReasons = [
     !autoChain && (chain === null ? "chain_unknown" : "other_chain"),
     autoChain && !standardTheater && "theater_not_found",
     !showtimeResult.ok && `showtime_${showtimeResult.reason}`,
     showtime?.yearGuessed && "year_guessed",
+    yearReason,
     !movie && "movie_not_found",
     seats.length === 0 && "seat_missing",
     normalizedSeats.includes(null) && "seat_unparsed",

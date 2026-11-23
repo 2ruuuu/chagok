@@ -67,6 +67,16 @@ const UNREADABLE_NOTICES: Record<
       </>
     ),
   },
+  too_small: {
+    title: "사진이 너무 작아요",
+    description: (
+      <>
+        원본 사진으로 다시 올려 주세요.
+        <br />
+        메신저로 받은 사진은 원본으로 받으면 돼요.
+      </>
+    ),
+  },
   future: {
     title: "아직 상영 전인 티켓이에요",
     description: "영화를 보고 난 뒤에 인증할 수 있어요.",
@@ -76,7 +86,8 @@ const UNREADABLE_NOTICES: Record<
 const UNREADABLE_TIPS = [
   "티켓 전체가 화면 안에 들어오게",
   "빛 반사 없이 밝은 곳에서",
-  "영화 제목 · 일시 · 좌석이 보이게",
+  "구겨진 종이 티켓은 펴서",
+  "영화 제목 · 일시 · 극장 · 좌석이 보이게",
   "티켓은 한 장만",
 ];
 
@@ -207,6 +218,7 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
     const shortSide = await getShortSide(file);
     if (run !== runRef.current) return;
     if (shortSide !== null && shortSide < MIN_IMAGE_SHORT_SIDE) {
+      setUnreadableReason("too_small");
       setView("unreadable");
       return;
     }
@@ -549,6 +561,8 @@ const VerifyStart = ({ samplePosters }: VerifyStartProps) => {
         {/* TODO: 촬영 가이드 시안이 나오면 맞추기 (지금은 문구만) */}
         <p className="text-center text-body2 text-neutral-20">
           티켓 전체가 나오게, 한 장씩 찍어 주세요.
+          <br />
+          구겨진 종이 티켓은 펴서 찍으면 더 잘 읽혀요.
           <br />
           모바일 티켓과 종이 티켓을 모두 인증할 수 있어요.
         </p>

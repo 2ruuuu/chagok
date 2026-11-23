@@ -113,6 +113,8 @@ export type Showtime = {
   yearInferred: boolean;
   /** 연도도 요일도 없어 가장 가까운 지난 날짜로 정함 -> 검수 */
   yearGuessed: boolean;
+  /** 연도를 요일로 정했을 때 요일이 맞는 다른 해들 (최근 해부터). 영화 개봉일로 다시 고를 때 씀 (pickShowtimeByRelease) */
+  alternatives: Showtime[];
 };
 
 export type ShowtimeResult =
@@ -148,14 +150,16 @@ export const resolveShowtime = (
     const date = `${year}-${md}`;
     const weekday = weekdayOf(date);
     if (!weekday) return null;
-    return {
+    const showtime: Showtime = {
       screenedAt: new Date(`${date}T${hm}:00+09:00`),
       date,
       time: hm,
       weekday,
       yearInferred,
       yearGuessed,
+      alternatives: [],
     };
+    return showtime;
   };
 
   if (input.year !== null) {
@@ -169,11 +173,55 @@ export const resolveShowtime = (
   }
 
   const thisYear = kstYear(now);
+  const matches: Showtime[] = [];
   for (let year = thisYear; year >= thisYear - YEAR_LOOKBACK; year -= 1) {
     const showtime = build(year, true, input.weekday === null);
     if (!showtime || showtime.screenedAt > now) continue;
     if (input.weekday && input.weekday !== showtime.weekday) continue;
-    return { ok: true, showtime };
+    matches.push(showtime);
+    // 요일이 없으면 해를 가릴 단서가 없어서 가장 가까운 해 하나만
+    if (!input.weekday) break;
   }
-  return { ok: false, reason: "mismatch" };
+  const [nearest, ...alternatives] = matches;
+  if (!nearest) return { ok: false, reason: "mismatch" };
+  return { ok: true, showtime: { ...nearest, alternatives } };
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+// 개봉 전 시사회로 볼 수 있는 기간 (movie.ts PREVIEW_DAYS와 같음)
+const PREVIEW_DAYS = 30;
+// 개봉 후 이 안이면 첫 상영 기간으로 봄. 넘으면 재개봉일 수도 있어서 해를 확신 못 함
+const FIRST_RUN_DAYS = 365;
+
+/**
+ * 연도 없는 모바일 티켓: 요일이 맞는 해 중에서 영화 개봉일과 맞는 해를 고름 (ticket-verify.md "LLM 추출")
+ * - 개봉 전(시사회 30일 제외)인 해는 뺌
+ * - 남은 해 중 가장 이른 해가 개봉 후 1년 안이면 그 해 (첫 상영 기간)
+ * - 1년 넘게 지난 해만 남으면 가장 가까운 해로 두고 검수 (재개봉일 수도 있음)
+ * - 맞는 해가 없으면 검수
+ * 연도가 적힌 티켓은 그대로 (여기서 안 바꿈)
+ */
+export const pickShowtimeByRelease = (
+  showtime: Showtime,
+  releasedAt: string,
+): {
+  showtime: Showtime;
+  reason: "year_ambiguous" | "showtime_mismatch" | null;
+} => {
+  if (!showtime.yearInferred) return { showtime, reason: null };
+
+  const released = Date.parse(`${releasedAt}T00:00:00+09:00`);
+  const candidates = [showtime, ...showtime.alternatives].filter(
+    (item) => item.screenedAt.getTime() >= released - PREVIEW_DAYS * DAY_MS,
+  );
+  if (candidates.length === 0) return { showtime, reason: "showtime_mismatch" };
+
+  const earliest = candidates[candidates.length - 1];
+  if (earliest.screenedAt.getTime() - released <= FIRST_RUN_DAYS * DAY_MS) {
+    return {
+      showtime: earliest,
+      reason: showtime.yearGuessed ? "year_ambiguous" : null,
+    };
+  }
+  return { showtime: candidates[0], reason: "year_ambiguous" };
 };
