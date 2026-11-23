@@ -42,6 +42,13 @@ Supabase 무료 플랜은 한동안 안 쓰면 일시정지됨 -> 매일 한 번
 
 curl -H "Authorization: Bearer $(grep '^CRON_SECRET=' .env.local | cut -d= -f2-)" http://localhost:3000/api/cron/keep-alive
 
+## 랭킹 집계 cron
+
+- vercel.json: 매일 15:00 UTC (한국 00:00), Hobby라 최대 1시간 늦을 수 있음 -> 기준 시각은 refresh_rankings가 00:00으로 고정
+- src/app/api/cron/rankings/route.ts: CRON_SECRET 확인 후 admin-client로 refresh_rankings 호출
+- 확인 방법은 keep-alive와 같음 (Request Logs requestPath:/api/cron/rankings)
+- 로컬: curl -H "Authorization: Bearer $(grep '^CRON_SECRET=' .env.local | cut -d= -f2-)" http://localhost:3000/api/cron/rankings
+
 ## 폰으로 개발 서버 접속
 
 - next.config.ts의 allowedDevOrigins랑 Supabase Redirect URLs에 같은 사설 IP가 있어야 함

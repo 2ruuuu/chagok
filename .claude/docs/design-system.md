@@ -131,11 +131,17 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - 데스크톱(xl): 히어로 둥근 상자 = 왼쪽 360 인사(display1) · 카드 수 · [내 컬렉션 보기] / 오른쪽 캐러셀(양 끝 흐려짐, 스크롤 영역에만 mask), 히어로 알림 아이콘은 숨김(헤더에 있음)
 - 데스크톱(xl) 아래 2단 = 왼쪽 360 "내 수집 현황" 패널 · 오른쪽 인기(5줄 2열, 포스터 100×150) + 곧 개봉(5열 그리드)
 - 내 수집 현황(CollectedCardInMonth의 xl): 제목 · 카드 묶음 · 올해 누적/지난 달보다 큰 숫자 · 월별 막대(MonthlyCountChart, 최근 6개월, 이번 달만 primary-40) · 많이 본 포맷(TopFormats) · 버튼. 약 730 높이, 화면 높이 848 이상일 때만 sticky
-- 수집 현황 숫자(monthlyCounts · topFormats · totalCardCount)는 (main)/_mocks/home.ts, 서로 맞춰둠
+- 내 카드 · 수집 현황은 cards 실데이터 (2026-11-23): page.tsx에서 getMyCards 한 번 → (main)/_data/home-cards.ts buildHomeCards로 계산
+  - 수집 현황(이번 달 · 올해 누적 · 지난 달보다 · 카드 묶음 · 월별 막대 · 많이 본 포맷)은 카드 받은 날(cards.created_at, KST) 기준 ("모은" 기록이라서, 컬렉션 연도 탭은 관람일 기준이라 다름), 이번 달 · 올해는 KST 오늘 기준
+  - 캐러셀: 최근 관람순 10장, 카드 누르면 뒤집기만 (상세 이동 없음)
+  - 많이 본 포맷: 올해 받은 카드의 format(2D 포함) 상위 3개, 같은 수면 이름순
+  - 카드 묶음은 이번 달에 받은 카드 최근 받은순
+  - 0장 (시안 없이 만든 것): 캐러셀 자리에 같은 크기 점선 빈 칸 + [티켓 인증하기](/verify), 이번 달 0장이면 카드 묶음 자리에 점선 빈 칸, 버튼 문구는 카드 0장이면 "티켓 인증하기"
+  - [다른 티켓 인증하기] → /verify
 - 데스크톱(xl) 글자 한 단계 크게: 섹션 제목 heading3 semibold, 영화 제목 body1 semibold, 부가 정보 caption1 -> label2
-- 인사: 닉네임 없으면 "안녕하세요!", 카드 수는 아직 (main)/_mocks/home.ts totalCardCount (목데이터, cards로 교체 예정 · 마이는 이미 getMyCardCounts)
+- 인사: 닉네임 없으면 "안녕하세요!", 카드 수는 cards 전체 장수
 - 섹션 제목 + 화살표는 (main)/_components/SectionHeader, 전체 보기 페이지 생기면 href 넘기기
-- 내 카드 · 관람평 목데이터는 (main)/_mocks/home.ts (타입도 여기), 카드 테이블 생기면 여기만 교체
+- (main)/_mocks/home.ts에는 홈에서 뺀 "요즘 내가 본" 목데이터만 남음
 - 인기 영화 · 곧 개봉은 실제 데이터: src/lib/movies/home.ts (getPopularMovies, getUpcomingMovies), 타입은 lib/movies/types.ts, 기준은 product.md 영화 데이터
 - 영화 포스터는 (main)/_components/MoviePosterImage (못 찾으면 회색 빈 칸)
 - 불러오기 실패 · 0편이면 섹션 안에 안내 문구
@@ -166,6 +172,37 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - ⋮ 메뉴 시트: 관람평 수정 · 이미지로 저장 · 공유하기 (TODO, 지금은 시트만 닫힘), 카드 삭제 (빨간 글자, 위와 간격 띄움)
 - 카드 삭제 -> 시트 닫고 화면 가운데 Dialog "카드를 삭제할까요? / 삭제한 카드는 복구할 수 없어요." [취소] [삭제하기], 삭제는 TODO
 - 없는 cardId면 notFound()
+
+## 랭킹 (/ranking)
+
+- (main) 안이라 하단 바 있음, 헤더는 BackButton + 가운데 "랭킹" (컬렉션과 같은 모양)
+- 반응형 (시안 없이 만든 것, 2026-11-23)
+  - 태블릿(md): 한 줄 그대로, 내 순위 띠는 화면 끝까지(-mx-8), 시상대는 가운데 최대 480, 목록은 폭 그대로
+  - 데스크톱(xl): 컬렉션처럼 뒤로가기 숨기고 제목 왼쪽 heading1, 아래 2단 = 왼쪽 360 내 순위 패널 · 오른쪽 시상대(가운데 최대 560) + 목록 (홈 아래 2단과 같은 비율)
+  - 내 순위 패널(xl): 둥근 상자, 트로피 128을 위 가운데에 선명하게, 글자 label2 -> body1 · heading2 -> display2 · caption1 -> label2, sticky top-26 (홈 수집 현황과 같은 위치)
+  - 시상대(xl): 왕관 64 · 사진 80 · 이름 body1 · 장수 label2 · 받침 56 높이 heading3, 빛 360
+  - 목록(xl): 줄 80 · px-6, 사진 48, 순위 · 이름 body1, 장수 label2
+- 순서: "YYYY.MM.DD 00:00 기준" (caption1 neutral-50) -> 내 순위 띠 -> 1~3위 시상대 -> 4~100위 목록
+- 기준: 받은 카드 전체 누적 장수, 매일 00:00(KST) 집계, 0장은 빠짐, 공동 순위(4 · 4 · 4 · 7), 같은 순위 안에서는 그 장수에 먼저 도달한 사람이 위. 월별 · 분기별은 사용자 생긴 뒤
+- 데이터: src/lib/ranking/get-ranking.ts (rankings · ranking_runs, supabase.md)
+- 내 순위(MyRankBox): 화면 끝까지 닿는 띠 120 높이, bg-common-0/8, 왼쪽 trophy.png 160 · 투명도 20%(시안 값, 띠 아래로 잘림) + 뒤 trophy-glow.png는 투명도 그대로 (같이 20%로 하면 안 보임), 글자 가운데
+  - "{닉네임} 님 현재 랭킹" label2 / "N위" heading2 bold / "상위 N% · {위 순위}위까지 N장 남았어요" caption1 (강조는 medal-gold)
+  - 시안 없이 만든 것: 1위면 상위 % 없이 "지금 1위예요!", 카드는 있는데 집계 전이면 "집계 전 / 매일 00:00 집계에 들어가요", 0장이면 "순위 없음" + /verify 링크
+  - 상위 N% = 올림(내 순위 / 순위에 든 사람 수 × 100), 최소 1
+- 시상대(Podium): 3칸 grid gap-4, DOM은 1 · 2 · 3위 순서 그대로 두고 칸만 2 · 1 · 3으로 (col-start). 가운데 칸만 20 위로(mb-5) + shadow-medal-gold(0 -8 32 #e3a948 22%) + 뒤에 podium-glow.png(250, opacity 40)
+  - 왕관 crown-{gold|silver|bronze}.png 56 (숫자 그려져 있음), 칸 위로 32 튀어나옴
+  - 위 칸: 사진 60 · 이름 label1 semibold · 장수 caption1 (1위만 금색), 배경 색 16% -> 흰 4% 세로 그라디언트 + 테두리 색 45%
+  - 받침: 높이 46, neutral-85(시안 1D1C1B) 위에 색 34% -> 12% + 테두리 45%(위 없음), 숫자 body1 semibold (금 · 흰 · 동)
+  - 메달 색은 순위로 정함 (공동 1위면 금 · 금 · 동)
+  - 색 토큰: medal-gold #e3a948, medal-silver #c3c8d0, medal-bronze #c98b5a (globals.css, 시맨틱 없음)
+- 목록(RankingList): bg-common-0/4 둥근 상자, 줄 72 · px-5, 순위(w-5 가운데) · 사진 40 · 이름 label1 semibold · 오른쪽 장수 caption1, 줄 사이 line-alternative
+- 아무도 없으면(집계 전 · 0명) "아직 랭킹에 오른 사람이 없어요"
+- 추가 (시안 없이 만든 것, 2026-11-23)
+  - 순위 변화 RankChangeBadge: ▲N(red-40) · ▼N(blue-40) · -(neutral-50) · NEW(medal-gold), 첫 집계면 안 보임. 내 순위 숫자 옆 · 시상대 장수 옆 · 목록 순위 아래
+  - 내 줄: 목록에서 bg-common-0/8 + 이름 옆 "나"(primary-40 작은 뱃지), id="my-rank" (scroll-mt 모바일 16 · xl 112)
+  - [내 순위로 이동]: 내 줄이 목록(4~100위)에 있을 때만. 모바일 · 태블릿은 기준 시각 줄 오른쪽 글자 링크, 데스크톱은 내 순위 패널 안 outline 버튼. 시상대 · 100위 밖 · 집계 전이면 없음
+  - 랭킹 기준 안내 RankingGuide: 모바일 · 태블릿은 목록 아래, 데스크톱은 내 순위 패널 아래 (패널과 같이 sticky)
+- 시안 캡처만 보고 값을 잰 것: 간격 · 크기 · 트로피 · 빛 투명도 -> 시안과 대조 필요
 
 ## 밝은 화면 ((main)/(light) · (detail)/(light))
 
