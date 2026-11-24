@@ -179,9 +179,13 @@ const ProfileEditForm = ({ nickname, avatarUrl }: ProfileEditFormProps) => {
         noValidate
         className="flex flex-col"
       >
-        <div className="mt-6 flex flex-col items-center gap-3">
+        <div className="mt-6 flex flex-col items-center gap-3 md:mt-10 md:gap-4">
           <div className="relative">
-            <Avatar src={shownAvatarUrl} size={96} className="size-24" />
+            <Avatar
+              src={shownAvatarUrl}
+              size={120}
+              className="size-24 md:size-30"
+            />
             <button
               type="button"
               aria-label="프로필 사진 변경"
@@ -201,7 +205,7 @@ const ProfileEditForm = ({ nickname, avatarUrl }: ProfileEditFormProps) => {
           </p>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 md:mt-10">
           <TextInput
             id="nickname"
             tone="light"
@@ -238,7 +242,7 @@ const ProfileEditForm = ({ nickname, avatarUrl }: ProfileEditFormProps) => {
 
       <Toast
         message={toastMessage}
-        className="fixed inset-x-0 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] z-50 flex justify-center px-5"
+        className="fixed inset-x-0 bottom-[calc(2.5rem+env(safe-area-inset-bottom))] z-50 flex justify-center px-5"
       />
     </>
   );

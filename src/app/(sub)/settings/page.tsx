@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import ChevronLeftBlackIcon from "@/assets/icons/chevron-left-black.svg";
+import ChevronRightIcon from "@/assets/icons/chevron-right.svg";
 import TmdbLogo from "@/assets/icons/tmdb.svg";
 import PageHeader from "@/components/page-header/PageHeader";
 import { APP_VERSION } from "@/constants/app";
@@ -11,28 +11,30 @@ const SettingsPage = () => {
     <>
       <PageHeader title="설정" back={{ fallback: "/my" }} />
 
-      <div className="flex flex-col gap-6 pt-6">
+      <div className="flex flex-col gap-6 pt-6 md:gap-8">
         {SETTINGS_SECTIONS.map((section) => {
           const titleId = `settings-${section.title}`;
           return (
             <section key={section.title} aria-labelledby={titleId}>
-              <h2 id={titleId} className="text-body1 font-semibold">
+              <h2
+                id={titleId}
+                className="text-body1 font-semibold md:text-heading3"
+              >
                 {section.title}
               </h2>
-              <ul className="mt-3 divide-y divide-line-alternative rounded-xl bg-common-0 shadow-drop-100">
+              <ul className="mt-3 divide-y divide-line-alternative overflow-hidden rounded-xl border border-line-alternative bg-background-elevated-normal">
                 {section.items.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="flex h-14 items-center justify-between px-4 text-body2 font-medium outline-none focus-visible:outline-2 focus-visible:outline-primary-40"
+                      className="flex h-14 items-center justify-between px-4 text-body2 font-medium outline-none transition-colors hover:bg-fill-alternative focus-visible:outline-2 focus-visible:outline-primary-40 md:h-16 md:px-5 md:text-body1"
                     >
                       {item.label}
-                      {/* 왼쪽 화살표를 뒤집어서 > 로 씀 */}
                       <Image
-                        src={ChevronLeftBlackIcon}
+                        src={ChevronRightIcon}
                         alt=""
                         aria-hidden
-                        className="size-4 rotate-180"
+                        className="size-4"
                       />
                     </Link>
                   </li>

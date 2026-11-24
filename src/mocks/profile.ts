@@ -2,4 +2,5 @@
 export const mockProfile = {
   nickname: "2ru",
   avatar_path: null,
+  marketing_agreed: true,
 };

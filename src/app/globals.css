@@ -289,7 +289,43 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 밝은 화면(LightScreen)이 있으면 body 배경을 밝게 (Safari 툴바 색이 body 배경을 따라감) */
-body:has([data-light-screen]) {
+/*
+ * 화면 테마 (components/themed-screen/ThemedScreen)
+ * - @theme의 시맨틱 토큰 값이 밝은(light) 기준, [data-theme="dark"] 안에서는 아래 값으로 덮어씀
+ * - 값은 hex로 직접 씀: 안 쓰는 아토믹 토큰 변수는 빌드에서 빠질 수 있어서 var(--color-neutral-*)로 참조하지 않음
+ * - 토큰을 새로 만들면 여기(dark)와 @theme(light)에 둘 다 넣기
+ */
+[data-theme="dark"] {
+  --color-label-normal: #f7f7f8;
+  --color-label-strong: #ffffff;
+  --color-label-neutral: #f7f7f8cc;
+  --color-label-alternative: #f7f7f899;
+  --color-label-assistive: #f7f7f847;
+  --color-label-disable: #f7f7f829;
+
+  /* 페이지 배경 = 앱 기본 배경(secondary-100), 카드 · 메뉴 상자는 elevated */
+  --color-background-alternative: #161514;
+  --color-background-elevated-normal: #282726;
+  --color-background-elevated-alternative: #201f1e;
+
+  --color-fill-normal: #ffffff0f;
+  --color-fill-strong: #ffffff1f;
+  --color-fill-alternative: #ffffff08;
+
+  --color-line-normal: #ffffff29;
+  --color-line-neutral: #ffffff1f;
+  --color-line-alternative: #ffffff14;
+
+  --color-interaction-inactive: #767676;
+  --color-interaction-disable: #2a2a2a;
+}
+
+/* 테마 화면이 있으면 body 배경도 그 테마 배경으로 (Safari 툴바 색이 body 배경을 따라감) */
+body:has([data-theme]) {
   background-color: var(--color-background-alternative);
+}
+
+/* body는 [data-theme] 밖이라 위 덮어쓰기가 안 닿음 → 테마별로 직접 지정 */
+body:has([data-theme="dark"]) {
+  background-color: var(--color-secondary-100);
 }
