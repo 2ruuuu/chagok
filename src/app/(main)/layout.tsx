@@ -1,5 +1,6 @@
 import BottomNav from "@/components/bottom-nav/BottomNav";
 import TopNav from "@/components/top-nav/TopNav";
+import { getHasUnreadNotifications } from "@/lib/notifications";
 
 /**
  * 콘텐츠 폭 · 좌우 여백
@@ -7,12 +8,14 @@ import TopNav from "@/components/top-nav/TopNav";
  * - 태블릿(md 768~): 화면 폭 그대로, 좌우 32
  * - 데스크톱(xl 1440~): 최대 1200 가운데, 좌우 여백 없음 (화면 양옆이 남음)
  * 화면 끝까지 닿게 하는 요소(-mx-*)는 이 여백에 맞춰 같이 바꿔야 함 (HorizontalScroll, 홈 MyCardList)
- * 반응형 전 화면은 NarrowColumn으로 430 유지 (컬렉션 · 밝은 화면)
+ * 마이((themed))는 그 안에서 다시 가운데 한 열 (태블릿 560 · 데스크톱 640)
  */
-const MainLayout = ({ children }: LayoutProps<"/">) => {
+const MainLayout = async ({ children }: LayoutProps<"/">) => {
+  const hasUnreadNotifications = await getHasUnreadNotifications();
+
   return (
     <>
-      <TopNav />
+      <TopNav hasUnreadNotifications={hasUnreadNotifications} />
       {/*
         아래 여백 40 (+ 안전 영역): 하단 바는 아래로 스크롤하면 숨으니까 바 높이만큼 비워두지 않음.
         맨 아래에서 위로 살짝 올려 바가 다시 나오면 마지막 내용 일부를 덮을 수 있음.

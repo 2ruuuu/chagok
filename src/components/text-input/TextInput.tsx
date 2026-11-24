@@ -24,7 +24,7 @@ interface TextInputProps extends Omit<ComponentProps<"input">, "size"> {
    * 값이 있을 때만 넘길 것 → 빈 칸에는 버튼이 안 보임
    */
   onClear?: () => void;
-  /** 배경 밝기. 기본 dark(어두운 화면), 밝은 화면(마이 · 프로필 편집)은 light */
+  /** 입력창 색. 기본 dark(반투명 어두운 입력창), light는 흰 입력창 (프로필 편집) */
   tone?: "dark" | "light";
 }
 
@@ -34,10 +34,11 @@ const tones = {
     input: "bg-[#ffffff]/10 text-common-0",
     border: "border-line-alternative focus:border-neutral-5",
   },
+  // 흰 입력창 (프로필 편집). 라벨은 화면 테마를 따르고, 입력창은 테마와 상관없이 흰 바탕 · 어두운 글자
   light: {
     label: "text-label-normal",
-    input: "bg-common-0 text-label-normal",
-    border: "border-line-neutral focus:border-label-normal",
+    input: "bg-common-0 text-cool-neutral-90",
+    border: "border-transparent focus:border-cool-neutral-50",
   },
 };
 

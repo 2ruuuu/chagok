@@ -3,9 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import BellIcon from "@/assets/icons/bell.svg";
 import CertificationIcon from "@/assets/icons/certification.svg";
 import chagokLogo from "@/assets/imgs/chagok-logo.png";
+import NotificationBell from "@/components/notification-bell/NotificationBell";
 import { isActivePath, NAV_ITEMS, VERIFY_HREF } from "@/constants/nav";
 import { cn } from "@/lib/cn";
 
@@ -16,7 +16,12 @@ const FOCUS_CLASS =
  * 데스크톱(xl 1440~) 상단 헤더. 모바일 · 태블릿은 하단 바(BottomNav)를 씀 (시안 없이 만든 것).
  * 왼쪽 로고 · 글자 메뉴(홈 · 컬렉션 · 랭킹 · 마이), 오른쪽 알림 · [티켓 인증]
  */
-const TopNav = () => {
+interface TopNavProps {
+  /** 안 읽은 알림 · 공지가 있으면 종에 빨간 점 */
+  hasUnreadNotifications: boolean;
+}
+
+const TopNav = ({ hasUnreadNotifications }: TopNavProps) => {
   const pathname = usePathname();
 
   return (
@@ -63,13 +68,10 @@ const TopNav = () => {
           </ul>
         </nav>
         <div className="flex items-center gap-6">
-          <Link
-            href="/notifications"
-            aria-label="알림"
+          <NotificationBell
+            hasUnread={hasUnreadNotifications}
             className={cn("rounded-xs", FOCUS_CLASS)}
-          >
-            <Image src={BellIcon} alt="" aria-hidden />
-          </Link>
+          />
           <Link
             href={VERIFY_HREF}
             aria-current={

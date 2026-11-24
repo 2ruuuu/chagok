@@ -37,7 +37,7 @@
 
 - shadow-{xs|sm|md|lg|xl} = Figma Shadow/Normal/*
 - shadow-spread-{sm|md} = Figma Shadow/Spread/*
-- shadow-drop-100 = Figma Drop Shadow/100 (0 1 4 0, #0c0c0d 5%), 밝은 화면 흰 카드 (설정)
+- shadow-drop-100 = Figma Drop Shadow/100 (0 1 4 0, #0c0c0d 5%)
 - 블러: backdrop-blur-chrome (64px)
 
 ## 간격 · 레이아웃
@@ -52,7 +52,6 @@
 - 반응형 (시안 없이 만든 것): 모바일 ~767 최대 430 · 좌우 20 / 태블릿 md 화면 폭 · 좌우 32 / 데스크톱 xl 최대 1200 가운데 · 좌우 여백 없음 ((main)/layout.tsx)
 - 화면 끝까지 닿게 하는 -mx-*는 위 여백에 맞춰 md · xl도 같이 (HorizontalScroll, 홈 MyCardList)
 - 데스크톱 상자 기준: 히어로 · 사이드 패널(수집 현황)은 상자(bg-common-0/4 또는 배경 이미지 + 둥근 모서리), 콘텐츠 목록(인기 · 곧 개봉 등)은 상자 없이 열린 영역
-- 반응형 전 화면은 components/narrow-column/NarrowColumn으로 430 유지 ((main)/(light) layout), 손보면 그 layout에서 빼기
 - 컬렉션(/collection) 반응형 (시안 없이 만든 것, 2026-11-22): 카드 그리드 모바일 2열 / md 4열(간격 20 · 32) / xl 6열(간격 24 · 40), 데스크톱은 뒤로가기 숨기고 제목 왼쪽 heading1, 카드 제목 body1 · 정보 label2, 연도 탭은 넘치면 가로 스크롤(HorizontalScroll)
   - 카드 상세(/collection/[cardId], (detail) layout)는 아직 430 고정
 - 티켓 인증(/verify) 반응형 (시안 없이 만든 것, 2026-11-22): 입력에 집중하는 흐름이라 가운데 한 열, 상단 헤더 없이 뒤로가기만 (verify/layout.tsx)
@@ -99,7 +98,7 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - TextInput: labelText, error, helperText(에러 있으면 에러로 바뀜), suffix
 - TextInput suffix는 기본 pointer-events-none -> 버튼 넣으면 pointer-events-auto
 - TextInput 나머지 props는 input으로 넘어감 -> {...register()} 바로 사용
-- TextInput tone: 기본 dark, 밝은 화면은 tone="light" (흰 바탕 · 어두운 글자)
+- TextInput tone: 기본 dark(반투명 어두운 입력창), tone="light"는 테마와 상관없이 흰 입력창 · 어두운 글자 (프로필 편집), 라벨은 화면 테마를 따름
 - TextInput onClear: 넘기면 포커스 없을 때 × 지우기 버튼 (입력 중엔 숨김), 값 있을 때만 넘기기 (`onClear={email ? clearEmail : undefined}`)
 - 지우기 핸들러는 setValue("") + clearErrors + setFocus
 - PasswordInput: 눈 아이콘(보기/숨기기) 붙은 비밀번호 칸, TextInput props 그대로 받음 (type · suffix 빼고)
@@ -204,19 +203,28 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
   - 랭킹 기준 안내 RankingGuide: 모바일 · 태블릿은 목록 아래, 데스크톱은 내 순위 패널 아래 (패널과 같이 sticky)
 - 시안 캡처만 보고 값을 잰 것: 간격 · 크기 · 트로피 · 빛 투명도 -> 시안과 대조 필요
 
-## 밝은 화면 ((main)/(light) · (detail)/(light))
+## 테마 화면 ((main)/(themed) · (sub))
 
-- 하단 바 있음 (main)/(light): 마이 /my, 프로필 편집 /my/edit, 알림 /notifications, 나의 감상 /my/comments, 관람 리뷰 /my/reviews
-- 하단 바 없음 (detail)/(light): 설정 /settings와 하위 페이지
-- 두 (light)/layout.tsx 모두 components/light-screen/LightScreen: data-light-screen + 글자색 text-label-normal, globals.css의 body:has([data-light-screen])가 body 배경을 background-alternative로 (fixed 배경 div로 하면 하단 바 없는 화면에서 Safari 툴바가 body의 어두운 색으로 보임)
-- 헤더는 components/page-header/PageHeader: 흰 바탕 sticky, back={{ href }}(그 경로로) 또는 back={{ fallback }}(이전 화면, 없으면 fallback으로 replace), right에 아이콘 · 버튼
+- 하단 바 있음 (main)/(themed): 마이 /my
+- 하단 바 없음 (sub): 프로필 편집 /my/edit, 알림 /notifications, 나의 감상 /my/comments, 관람 리뷰 /my/reviews, 설정 /settings와 하위 페이지
+- (main)/(themed) · (sub) layout 모두 components/themed-screen/ThemedScreen: data-theme(지금은 dark) + 글자색 text-label-normal
+- globals.css [data-theme="dark"]가 시맨틱 토큰(label · background · fill · line · interaction)을 어두운 값(hex 직접)으로 덮어씀 -> 이 화면들은 시맨틱 토큰만 쓰기 (bg-common-0 같은 아토믹 X)
+  - 페이지 배경 background-alternative(#161514 = secondary-100), 카드 · 메뉴 상자 background-elevated-normal + border line-alternative, 목록 호버 fill-normal
+  - body:has([data-theme="dark"])가 body 배경도 같은 색으로 (Safari 툴바 색)
+  - 바텀시트 · 다이얼로그는 body 포털이라 테마 밖 -> 앱 공통 흰 시트 그대로
+  - 화이트 모드 넣을 때: [data-theme="light"]는 @theme 기본값 그대로 쓰면 됨, 아이콘(흰색)은 테마별로 나눠야 함
+- 반응형 (시안 없이 만든 것, 2026-11-23): 가운데 한 열, 모바일 최대 430 / 태블릿(md) 560 / 데스크톱(xl) 640
+  - (sub) layout은 데스크톱에 TopNav (하단 바 대신), 좌우 여백 20 · 아래 여백 40(xl 80)
+  - md부터 글자 · 간격만 키움: 마이 사진 72->88 · 닉네임 heading2 · 숫자 heading2, 메뉴 · 설정 줄 높이 56->64 · body1, 프로필 편집 사진 96->120, 알림 탭 높이 48->56
+  - 메뉴 · 설정 줄은 호버하면 bg-fill-alternative (상자 overflow-hidden)
+- 헤더는 components/page-header/PageHeader (데스크톱은 고정 안 함 · 제목 왼쪽 heading1, 뒤로가기는 하위 화면만 — 마이는 hideBackOnDesktop, 마이 종은 TopNav와 겹쳐서 xl:hidden): 페이지 배경색 sticky, back={{ href }}(그 경로로) 또는 back={{ fallback }}(이전 화면, 없으면 fallback으로 replace), right에 아이콘 · 버튼
 - 빈 화면 문구는 components/empty-state/EmptyState
-- 어두운 아이콘: 뒤로가기 chevron-left-black.svg, 종 bell-dark.svg (bell.svg의 흰색을 #171719로 바꾼 것)
-- 메뉴 > 화살표는 chevron-left-black.svg에 rotate-180
+- 아이콘(흰색): 뒤로가기 back.svg, 종은 components/notification-bell/NotificationBell (bell.svg / 안 읽음 있으면 bell-ring-white.svg, 홈 · 마이 · TopNav 공통, 값은 lib/notifications getHasUnreadNotifications), 톱니 setting-white.svg, 메뉴 > chevron-right.svg
+  - 어두운 버전(setting-black.svg · bell-dark.svg · chevron-left-black.svg)은 화이트 모드 · 흰 시트용으로 남겨둠
 
 ## 마이 (/my)
 
-- 헤더: < (홈으로) · 마이 · 종(/notifications) · 톱니(/settings)
+- 헤더: < (홈으로) · 마이 · 종(/notifications, 안 읽은 알림 · 공지 있으면 빨간 점 — 데이터 생기기 전이라 지금은 항상 숨김) · 톱니(/settings)
 - 프로필: 사진 · 닉네임 · 회색 연필(/my/edit)
 - 보유 카드 · 나의 감상 개수는 cards 테이블 (getMyCardCounts, 나의 감상 = 카드 메모가 있는 카드)
 - 메뉴: 나의 감상(/my/comments), 관람 리뷰(/my/reviews) -> 지금은 "준비 중이에요"
@@ -231,9 +239,18 @@ Tailwind로 쓰기 힘든 효과(포인터 따라 움직이는 그라디언트, 
 - 고른 사진은 미리보기만, [저장] 때 업로드 (크롭 없음, 가운데 정사각형으로 자름)
 - 카카오 프로필 사진은 안 씀
 
+## 알림 (/notifications)
+
+- 탭: 알림 / 공지사항, ?tab=notice 주소로 (탭 이동은 replace), 탭 줄은 헤더 아래 sticky(top-14, 데스크톱은 TopNav 아래 top-18)
+- 알림 탭: 검수 대상 티켓 확인 완료 · 확인 실패만 (카드 발급 알림은 안 보냄), 아이콘 bell-red.svg
+- 공지 탭: info(점검 · 업데이트 · 장애, 모두) · promotion(이벤트 · 혜택, profiles.marketing_agreed인 사람만), 아이콘 megaphone.svg
+- 한 줄: 아이콘 16 · 종류(caption1 alternative) · 내용(body1) · 시각(caption1 semibold, lib/relative-time: 방금 전 · N분 · N시간 · N일 전, 30일 넘으면 날짜), 호버하면 bg-fill-normal (화면 끝까지)
+- 둘 다 없으면 탭 없이 "도착한 알림이 없어요", 한 탭만 비면 "도착한 알림이 없어요" / "등록된 공지사항이 없어요"
+- 데이터 없음: 지금은 빈 목록이라 항상 "도착한 알림이 없어요". 타입 · 마케팅 동의 필터 · 안 읽음 계산은 lib/notifications.ts, 테이블 생기면 연결 (열면 읽음 처리 · 누르면 이동은 그때)
+
 ## 설정 (/settings)
 
-- (detail)/(light) 안이라 하단 바 없음, 헤더는 다른 밝은 화면처럼 흰색 (캡처는 회색이지만 통일)
+- (sub) 안이라 하단 바 없음
 - 메뉴는 settings/_constants.ts SETTINGS_SECTIONS (계정 · 알림 · 기록 관리 · 도움말)
 - 프로필 편집 -> /my/edit, 나머지(연결된 계정 · 서비스 알림 · 휴지통 · 카드 내보내기 · 문의하기 · 개인정보 처리 방침)는 /settings/... "준비 중이에요"
 - 개인정보 처리 방침 문서는 아직 없음 (terms.ts privacy는 가입용 수집·이용 동의라 다른 문서)

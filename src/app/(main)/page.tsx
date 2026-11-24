@@ -1,5 +1,6 @@
 import { getMyCards } from "@/lib/cards/my-cards";
 import { getPopularMovies, getUpcomingMovies } from "@/lib/movies/home";
+import { getHasUnreadNotifications } from "@/lib/notifications";
 import { createClient } from "@/lib/supabase/server";
 import CollectedCardInMonth from "./_components/CollectedCardInMonth";
 import MyCardList from "./_components/MyCardList";
@@ -37,10 +38,12 @@ const HomePage = async () => {
     buildHomeCards(myCards);
 
   // 영화 데이터는 외부 API를 캐시해서 씀 (src/lib/movies, 방문자 수와 상관없이 호출 수 고정)
-  const [popularMovies, upcomingMovies] = await Promise.all([
-    getPopularMovies(),
-    getUpcomingMovies(),
-  ]);
+  const [popularMovies, upcomingMovies, hasUnreadNotifications] =
+    await Promise.all([
+      getPopularMovies(),
+      getUpcomingMovies(),
+      getHasUnreadNotifications(),
+    ]);
 
   return (
     <div>
@@ -48,6 +51,7 @@ const HomePage = async () => {
         nickname={nickname}
         cardCount={totalCount}
         cards={carouselCards}
+        hasUnreadNotifications={hasUnreadNotifications}
       />
       <PendingTickets tickets={pendingTickets} />
       {/* 데스크톱(xl): 왼쪽 이번 달 카드(360, 따라 내려옴) · 오른쪽 영화 섹션 2단. 그 아래 폭은 한 줄 */}

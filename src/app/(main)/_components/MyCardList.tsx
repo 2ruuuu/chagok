@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import BellIcon from "@/assets/icons/bell.svg";
 import MainBg from "@/assets/imgs/main-bg.png";
 import { buttonVariants } from "@/components/button/Button";
+import NotificationBell from "@/components/notification-bell/NotificationBell";
 import type { Ticket } from "@/components/ticket-card/TicketCard";
 import TicketCarousel from "@/components/ticket-carousel/TicketCarousel";
 import { cn } from "@/lib/cn";
@@ -13,6 +13,8 @@ interface MyCardListProps {
   cardCount: number;
   /** 캐러셀 카드, 최근 관람순 최대 10장 */
   cards: Ticket[];
+  /** 안 읽은 알림 · 공지가 있으면 종에 빨간 점 */
+  hasUnreadNotifications: boolean;
 }
 
 /**
@@ -47,7 +49,12 @@ const EmptyCardSlot = () => (
  * - 모바일 · 태블릿: 인사 위, 캐러셀 아래. 배경이 화면 끝까지
  * - 데스크톱(xl): 콘텐츠 폭(1200) 안의 둥근 상자, 왼쪽 360 인사 · 컬렉션 버튼 / 오른쪽 캐러셀
  */
-const MyCardList = ({ nickname, cardCount, cards }: MyCardListProps) => {
+const MyCardList = ({
+  nickname,
+  cardCount,
+  cards,
+  hasUnreadNotifications,
+}: MyCardListProps) => {
   return (
     <section className="relative isolate -mx-5 overflow-hidden px-5 md:-mx-8 md:px-8 xl:mx-0 xl:mt-8 xl:grid xl:grid-cols-[22.5rem_minmax(0,1fr)] xl:items-center xl:gap-10 xl:rounded-3xl xl:pl-14">
       <Image
@@ -70,9 +77,10 @@ const MyCardList = ({ nickname, cardCount, cards }: MyCardListProps) => {
           </p>
         </div>
         {/* 데스크톱은 상단 헤더에 알림이 있어서 숨김 */}
-        <Link href="/notifications" aria-label="알림" className="xl:hidden">
-          <Image src={BellIcon} alt="" aria-hidden />
-        </Link>
+        <NotificationBell
+          hasUnread={hasUnreadNotifications}
+          className="xl:hidden"
+        />
         {/* 데스크톱만: 왼쪽 칸이 비지 않게 컬렉션으로 가는 버튼 */}
         <Link
           href="/collection"

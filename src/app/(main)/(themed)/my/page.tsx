@@ -1,14 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import BellDarkIcon from "@/assets/icons/bell-dark.svg";
-import ChevronLeftBlackIcon from "@/assets/icons/chevron-left-black.svg";
+import ChevronRightIcon from "@/assets/icons/chevron-right.svg";
 import PencilFilledIcon from "@/assets/icons/pencil-filled.svg";
-import SettingIcon from "@/assets/icons/setting.svg";
+import SettingIcon from "@/assets/icons/setting-white.svg";
 import Avatar from "@/components/avatar/Avatar";
+import NotificationBell from "@/components/notification-bell/NotificationBell";
 import PageHeader from "@/components/page-header/PageHeader";
 import { APP_VERSION } from "@/constants/app";
 import { getAvatarUrl } from "@/lib/avatar";
 import { getMyCardCounts } from "@/lib/cards/my-cards";
+import { cn } from "@/lib/cn";
+import { getHasUnreadNotifications } from "@/lib/notifications";
 import { createClient } from "@/lib/supabase/server";
 import { mockProfile } from "@/mocks/profile";
 
@@ -47,6 +49,8 @@ const MyPage = async () => {
     ? await getMyCardCounts(supabase, userId)
     : { cardCount: 0, memoCount: 0 };
 
+  const hasUnreadNotifications = await getHasUnreadNotifications();
+
   const stats = [
     { label: "보유 카드", value: cardCount },
     { label: "나의 감상", value: commentCount },
@@ -57,16 +61,14 @@ const MyPage = async () => {
       <PageHeader
         title="마이"
         back={{ href: "/" }}
+        hideBackOnDesktop
         right={
           <>
-            {/* TODO: 알림 데이터가 생기면 안 읽은 알림이 있을 때 bell-ring(빨간 점)으로 */}
-            <Link
-              href="/notifications"
-              aria-label="알림"
-              className={ICON_LINK_CLASS}
-            >
-              <Image src={BellDarkIcon} alt="" aria-hidden />
-            </Link>
+            {/* 데스크톱은 상단 헤더(TopNav)에 종이 있어서 숨김 */}
+            <NotificationBell
+              hasUnread={hasUnreadNotifications}
+              className={cn(ICON_LINK_CLASS, "xl:hidden")}
+            />
             <Link
               href="/settings"
               aria-label="설정"
@@ -78,13 +80,16 @@ const MyPage = async () => {
         }
       />
 
-      <section aria-label="프로필" className="mt-7 flex items-center gap-6">
+      <section
+        aria-label="프로필"
+        className="mt-7 flex items-center gap-6 xl:mt-8"
+      >
         <Avatar
           src={getAvatarUrl(profile?.avatar_path)}
-          size={72}
-          className="size-18"
+          size={88}
+          className="size-18 md:size-22"
         />
-        <p className="min-w-0 flex-1 truncate text-heading3 font-semibold">
+        <p className="min-w-0 flex-1 truncate text-heading3 font-semibold md:text-heading2">
           {profile?.nickname}
         </p>
         <Link
@@ -96,7 +101,7 @@ const MyPage = async () => {
         </Link>
       </section>
 
-      <dl className="mt-7 flex rounded-xl bg-common-0 py-4">
+      <dl className="mt-7 flex rounded-xl border border-line-alternative bg-background-elevated-normal py-4 md:py-6">
         {stats.map((stat, index) => (
           <div
             key={stat.label}
@@ -106,8 +111,10 @@ const MyPage = async () => {
                 : "flex flex-1 flex-col-reverse items-center gap-1"
             }
           >
-            <dt className="text-body2 text-label-normal">{stat.label}</dt>
-            <dd className="text-body1 font-semibold text-label-normal">
+            <dt className="text-body2 text-label-normal md:text-body1">
+              {stat.label}
+            </dt>
+            <dd className="text-body1 font-semibold text-label-normal md:text-heading2">
               {stat.value}
             </dd>
           </div>
@@ -115,25 +122,24 @@ const MyPage = async () => {
       </dl>
 
       <nav aria-label="내 기록" className="mt-6">
-        <ul className="divide-y divide-line-alternative rounded-xl bg-common-0">
+        <ul className="divide-y divide-line-alternative overflow-hidden rounded-xl border border-line-alternative bg-background-elevated-normal">
           {MENU_ITEMS.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="flex h-14 items-center gap-2 px-4 outline-none focus-visible:outline-2 focus-visible:outline-primary-40"
+                className="flex h-14 items-center gap-2 px-4 outline-none transition-colors hover:bg-fill-alternative focus-visible:outline-2 focus-visible:outline-primary-40 md:h-16 md:px-5"
               >
-                <span className="flex-1 text-body2 font-medium text-label-normal">
+                <span className="flex-1 text-body2 font-medium text-label-normal md:text-body1">
                   {item.label}
                 </span>
-                <span className="text-caption1 text-label-alternative">
+                <span className="text-caption1 text-label-alternative md:text-body2">
                   {item.description}
                 </span>
-                {/* 왼쪽 화살표를 뒤집어서 > 로 씀 */}
                 <Image
-                  src={ChevronLeftBlackIcon}
+                  src={ChevronRightIcon}
                   alt=""
                   aria-hidden
-                  className="size-4 rotate-180"
+                  className="size-4"
                 />
               </Link>
             </li>
@@ -141,7 +147,7 @@ const MyPage = async () => {
         </ul>
       </nav>
 
-      <p className="mt-6 text-center text-caption1 text-label-alternative">
+      <p className="mt-6 text-center text-caption1 text-label-alternative md:mt-8">
         차곡 v{APP_VERSION}.
       </p>
     </>
