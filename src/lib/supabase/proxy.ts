@@ -7,9 +7,8 @@ const PUBLIC_PATHS = [
   "/login",
   "/find-id",
   "/find-password",
-  "/auth",
-  "/api/cron",
-  "",
+  "/auth", // 소셜 로그인 콜백
+  "/api/cron", // 랭킹 집계 cron
 ];
 
 /** 회원가입 중 세션이 생기기 전 단계 */
