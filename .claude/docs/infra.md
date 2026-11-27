@@ -20,6 +20,7 @@
 
 - main에 push하면 Vercel Production으로 바로 배포 (chagok-eight.vercel.app)
 - Vercel Hobby 플랜
+- 함수 리전 icn1(서울): vercel.json regions. Supabase가 ap-northeast-2(서울)라 맞춤 (기본값 iad1이면 DB 조회마다 미국 왕복)
 
 ## keep-alive cron
 
